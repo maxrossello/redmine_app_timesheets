@@ -1,0 +1,10 @@
+<h2><%=l(:label_timesheets)%></h2>
+<%
+   unless Setting.plugin_redmine_app_timesheets['project'] == "" or
+           Setting.plugin_redmine_app_timesheets['admin_group'] == "" or
+           Setting.plugin_redmine_app_timesheets['tracker'] == ""
+
+   else %>
+     <h3><%=l(:label_timesheets_configure)%> <a href='/settings/plugin/redmine_app_timesheets'><%=l(:label_here)%></h3>
+<% end
+%>

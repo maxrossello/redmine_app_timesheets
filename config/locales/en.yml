@@ -1,4 +1,29 @@
 # English strings go here for Rails i18n
 en:
-  label_timesheet: "Timesheet"
+  label_timesheets: "Timesheet"
+  label_timesheets_description: "Facility to handle spent time logs"
+  label_order_mgmt: "Orders"
+  label_order_mgmt_description: "Management of orders used in timesheets"
 
+  label_timesheets_configure: "Please configure the application"
+  label_here: "here"
+  label_available_orders: "Available project versions"
+  label_enabled_orders: "Enabled orders"
+  label_disable: "disable"
+  label_enable: "enable"
+  label_delete: "delete"
+  label_order: "Order"
+
+  label_timesheet_select: "Select"
+
+  label_timesheet_project_label: "Backing project"
+  label_timesheet_project_hint: "The project used to store timesheet data under the hoods"
+  label_timesheets_warn_select_project: "Please select a project"
+
+  label_timesheet_admin_label: "Admin group"
+  label_timesheet_admins_hint: "The group of users enabled to administrate orders"
+  label_timesheets_warn_select_admins: "Please select a group"
+
+  label_timesheet_tracker_label: "Backing tracker"
+  label_timesheet_tracker_hint: "The tracker used to collect timesheet hours"
+  label_timesheets_warn_select_tracker: "Please select a tracker"
