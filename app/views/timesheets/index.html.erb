@@ -5,19 +5,18 @@
            Setting.plugin_redmine_app_timesheets['tracker'] == ""   %>
 
 
-        <%= form_tag({:action => 'index'}, :method => :get) do %>
-        <%   if @current_day %>
+     <%= form_tag({:action => 'index'}, :method => :get) do %>
+         <%= hidden_field_tag("day", (params[:day] || DateTime.now.to_s(:param_date)))%>
+         <%= hidden_field_tag("view", (params[:view] || "week"))%>
+
+        <%   if @view == :day %>
                 <div class="contextual">
-                  <%= link_to l(:label_week_view), { :user_id => params[:user_id],
-                            :week => DateTime.now.beginning_of_week.to_s(:param_date)}, :class => 'icon icon-reload' %>
+                  <%= link_to l(:label_week_view), params.merge({:view => :week}), :class => 'icon icon-reload' %>
                 </div>
-                <%= hidden_field_tag("day", DateTime.now.to_s(:param_date))%>
            <% else %>
                 <div class="contextual">
-                  <%= link_to l(:label_day_view), { :user_id => params[:user_id],
-                            :day => DateTime.now.to_s(:param_date)}, :class => 'icon icon-reload' %>
+                  <%= link_to l(:label_day_view), params.merge({:view => :day}), :class => 'icon icon-reload' %>
                 </div>
-                <%= hidden_field_tag("week", DateTime.now.beginning_of_week.to_s(:param_date))%>
            <% end %>
            <table class="ts-display">
            <%   if(@visibility != :edit_own) %>
@@ -30,8 +29,15 @@
            <%   end %>
 
            <%=  render :partial => "navigation" %>
+
            </table>
-        <% end %>
+    <%  end %>
+
+    <% #if @view == :day %>
+    <%#= render :partial => "daily" %>
+    <% #else %>
+    <%#= render :partial => "weekly" %>
+    <% #end %>
 
 <% else %>
      <h3><%=l(:label_timesheets_configure)%> <a href='/settings/plugin/redmine_app_timesheets'><%=l(:label_here)%></h3>

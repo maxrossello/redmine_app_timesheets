@@ -10,8 +10,13 @@ en:
   label_available_orders: "Available orders and project versions"
   label_enabled_orders: "Enabled orders"
   label_order_create_placeholder: "Create new order"
+
   label_day_view: "Switch to day view"
   label_week_view: "Switch to week view"
+  label_previous_day: "Previous day"
+  label_previous_week: "Previous week"
+  label_next_day: "Next day"
+  label_next_week: "Next week"
 
   label_here: "here"
   label_disable: "disable"

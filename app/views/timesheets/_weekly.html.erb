@@ -1,0 +1,51 @@
+<strong> <%= @week_start.to_s(:week) %> - <%= @week_end.to_s(:week) %> </strong>
+<br />
+
+<%= form_tag :controller => 'timesheets', :action => 'save_weekly', :week => @week_start.to_s(:param_date) do %>
+
+	<table>
+		<tr>
+			<th></th>
+			<% (@week_start..@week_end).each do |d| %>
+   		 <th><%= d.to_s(:day) %></th>
+			<% end %>
+		</tr>
+		<% @week_issue_matrix.each do |title, info_hash| %>
+			<tr>
+				<td> <%= link_to info_hash[:project_name], project_path(info_hash[:project_id]) %> -
+					 <%= link_to info_hash[:issue_text], issue_time_entries_path(info_hash[:issue_id]), :class => info_hash[:issue_class] if info_hash[:issue_id] %>
+					 (<%= info_hash[:activity_name]%>)
+				</td>
+				<% (@week_start..@week_end).each do |d| %>
+          <% issue_key = info_hash[:issue_id] ? info_hash[:issue_id] : ("no_issue:" + "#{info_hash[:project_id]}") %>
+   				<td><%= text_field_tag "hours[#{d.to_s(:param_date)}][#{issue_key}][#{info_hash[:activity_id]}]",
+   															 info_hash[d.to_s(:param_date)].nil? || info_hash[d.to_s(:param_date)][:hours] == 0.0 ?
+   															 '' : info_hash[d.to_s(:param_date)][:hours],
+   															 :size => 1 %></td>
+				<% end %>
+				<td><%= link_to image_tag('delete.png'), {:controller => 'hours',
+														  :action => 'delete_row',
+														  :issue_id => info_hash[:issue_id],
+                              :project_id => info_hash[:project_id],
+														  :activity_id => info_hash[:activity_id],
+														  :week =>@week_start.to_s(:param_date)
+														 },
+                                             			  :confirm => l(:text_are_you_sure),
+                                             			  :method => :delete,
+                                             			  :title => l(:button_delete) %></td>
+			</tr>
+		<% end %>
+    <tr>
+      <td><hr /><strong>Total:</strong></td>
+      <% (@week_start..@week_end).each do |day| %>
+       <td><hr /><%= @daily_totals[day.to_s(:param_date)] ? @daily_totals[day.to_s(:param_date)] : 0.0  %></td>
+      <% end %>
+    </tr>
+	</table>
+
+<p>
+	<%= submit_tag l(:button_save) %>
+</p>
+
+<% end %>
+

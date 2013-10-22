@@ -10,8 +10,13 @@ it:
   label_available_orders: "Commesse e versioni di progetto attivabili"
   label_enabled_orders: "Commesse abilitate"
   label_order_create_placeholder: "Crea nuova commessa"
+
   label_day_view: "Vista giornaliera"
   label_week_view: "Vista settimanale"
+  label_previous_day: "Giorno precedente"
+  label_previous_week: "Settimana precedente"
+  label_next_day: "Giorno successivo"
+  label_next_week: "Settimana successiva"
 
   label_here: "qui"
   label_disable: "disabilita"
