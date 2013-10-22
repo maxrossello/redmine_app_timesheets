@@ -1,10 +1,41 @@
-<h2><%=l(:label_timesheets)%></h2>
+<h2><%=l(:label_timesheets)%> <%=l(:label_for)%> <%= @user.firstname+' '+@user.lastname%></h2>
 <%
    unless Setting.plugin_redmine_app_timesheets['project'] == "" or
            Setting.plugin_redmine_app_timesheets['admin_group'] == "" or
-           Setting.plugin_redmine_app_timesheets['tracker'] == ""
+           Setting.plugin_redmine_app_timesheets['tracker'] == ""   %>
 
-   else %>
+
+        <%= form_tag({:action => 'index'}, :method => :get) do %>
+        <%   if @current_day %>
+                <div class="contextual">
+                  <%= link_to l(:label_week_view), { :user_id => params[:user_id],
+                            :week => DateTime.now.beginning_of_week.to_s(:param_date)}, :class => 'icon icon-reload' %>
+                </div>
+                <%= hidden_field_tag("day", DateTime.now.to_s(:param_date))%>
+           <% else %>
+                <div class="contextual">
+                  <%= link_to l(:label_day_view), { :user_id => params[:user_id],
+                            :day => DateTime.now.to_s(:param_date)}, :class => 'icon icon-reload' %>
+                </div>
+                <%= hidden_field_tag("week", DateTime.now.beginning_of_week.to_s(:param_date))%>
+           <% end %>
+           <table class="ts-display">
+           <%   if(@visibility != :edit_own) %>
+                    <tr>
+                    <%  s = content_tag('option', "<< #{l(:label_me)} >>", :value => User.current.id)
+                        s << options_for_select(User.active.all.map {|u| [u.name, u.id]}, params[:user_id]) %>
+                        <th><%= label_tag l(:label_user) %> </th>
+                        <td><%= select_tag 'user_id', s.html_safe, :onchange => "this.form.submit();"  %></td>
+                    </tr>
+           <%   end %>
+
+           <%=  render :partial => "navigation" %>
+           </table>
+        <% end %>
+
+<% else %>
      <h3><%=l(:label_timesheets_configure)%> <a href='/settings/plugin/redmine_app_timesheets'><%=l(:label_here)%></h3>
 <% end
 %>
+
+

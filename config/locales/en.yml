@@ -4,15 +4,22 @@ en:
   label_timesheets_description: "Facility to handle spent time logs"
   label_order_mgmt: "Orders"
   label_order_mgmt_description: "Management of orders used in timesheets"
+  label_order_mgmt_help: "Create, enable and disable orders. You can use shared target versions in projects as orders too, thus allowing the users to select time reports in projects as timesheet entries"
 
   label_timesheets_configure: "Please configure the application"
-  label_here: "here"
-  label_available_orders: "Available project versions"
+  label_available_orders: "Available orders and project versions"
   label_enabled_orders: "Enabled orders"
+  label_order_create_placeholder: "Create new order"
+  label_day_view: "Switch to day view"
+  label_week_view: "Switch to week view"
+
+  label_here: "here"
   label_disable: "disable"
   label_enable: "enable"
   label_delete: "delete"
   label_order: "Order"
+  label_action: "Actions"
+  label_for: "for"
 
   label_timesheet_select: "Select"
 

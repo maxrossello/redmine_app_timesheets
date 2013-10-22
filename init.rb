@@ -33,4 +33,15 @@ RedmineApp::Application.routes.prepend do
   put 'apps/order_mgmt/disable/:id', :controller => 'orders', :action => 'disable'
   put 'apps/order_mgmt/enable/:id', :controller => 'orders', :action => 'enable'
   delete 'apps/order_mgmt/delete/:id', :controller => 'orders', :action => 'delete'
+  post 'apps/order_mgmt/create', :controller => 'orders', :action => 'create'
+end
+
+module Timesheet
+  class Hooks < Redmine::Hook::ViewListener
+
+    def view_layouts_base_html_head(context = { })
+      stylesheet_link_tag 'timesheets.css', :plugin => 'redmine_app_timesheets'
+    end
+
+  end
 end

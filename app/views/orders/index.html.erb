@@ -1,9 +1,10 @@
+
 <h2><%=l(:label_order_mgmt)%></h2>
 <%
   unless Setting.plugin_redmine_app_timesheets['project'] == "" or
            Setting.plugin_redmine_app_timesheets['admin_group'] == "" or
            Setting.plugin_redmine_app_timesheets['tracker'] == ""  %>
-
+    <div style="padding-bottom:20px"><%= l(:label_order_mgmt_help) %></div>
     <div class="splitcontent autoscroll">
       <table class="splitcontentleft list" style="width:49%">
         <thead>
@@ -11,35 +12,45 @@
         <tr>
           <th><%=l(:label_order)%></th>
           <th><%=l(:label_project)%></th>
-          <th></th>
+          <th><%=l(:label_action)%></th>
         </tr></thead>
         <tbody>
-        <% (@orders || []).each do |order|
-            ref = Version.find_by_id(order.ts_reference) || order %>
+        <% (@orders[true] || []).each do |order|  %>
             <tr class="<%= cycle("odd", "even") %>">
-              <td class="name"><span><%= link_to_if ref.visible?, ref.name, { :controller => 'versions', :action => 'show', :id => ref } %></span></td>
-              <td align="center"><%= link_to_if ref.visible?, ref.project.name, { :controller => 'projects', :action => 'show', :id => ref.project_id } if ref.project_id != @ts_project %></td>
+              <td class="name"><span><%= link_to_if order.visible?, order.name, { :controller => 'versions', :action => 'show', :id => order } %></span></td>
+              <td align="center"><%= link_to_if order.visible?, order.project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } if order.project_id != @ts_project %></td>
               <td class="buttons">
-                <%= link_to(l(:label_disable), {:action => 'disable', :id => ref.id}, :method => :put, :class => 'action') if ref.project_id != @ts_project %>
+                <%= link_to(l(:label_disable), {:action => 'disable', :id => order.id}, :method => :put, :class => 'action')  %>
               </td>
             </tr>
         <% end %>
+
+       <%= form_tag ({:action => 'create'}) do %>
+             <tr class="<%= cycle("odd", "even") %>">
+               <td class="name"><span><%= text_field_tag 'name', nil, :style => "width: 95%", :placeholder => l(:label_order_create_placeholder) %></span></td>
+               <td></td>
+               <td class="buttons">
+               </td>
+             </tr>
+        <% end %>
+
         </tbody>
       </table>
+
       <table class="splitcontentright list" style="width:49%">
         <thead>
         <tr><th colspan="3"><%= l(:label_available_orders)%></th></tr>
         <tr>
-          <th><%=l(:label_version)%></th>
+          <th><%=l(:label_order)%></th>
           <th><%=l(:label_project)%></th>
-          <th></th>
+          <th><%=l(:label_action)%></th>
         </tr></thead>
         <tbody>
         <%
-          (@versions || []).each do |order| %>
+          (@orders[false] || []).each do |order| %>
             <tr class="<%= cycle("odd", "even") %>">
               <td class="name"><span><%= link_to_if order.visible?, order.name, { :controller => 'versions', :action => 'show', :id => order } %></span></td>
-              <td align="center"><%= link_to_if order.visible?, order.project.name, { :controller => 'projects', :action => 'show', :id => order.project_id }  %></td>
+              <td align="center"><%= link_to_if order.visible?, order.project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } if order.project_id != @ts_project %></td>
               <td class="buttons">
                 <%= link_to(l(:label_enable), {:action => 'enable', :id => order.id}, :method => :put, :class => 'action') %>
               </td>
@@ -49,7 +60,7 @@
       </table>
     </div>
 <%else %>
-     <h3><%=l(:label_timesheets_configure)%> <a href='/settings/plugin/redmine_app_timesheets'><%=l(:label_here)%></h3>
+     <h3><%=l(:label_timesheets_configure)%> <a horder='/settings/plugin/redmine_app_timesheets'><%=l(:label_here)%></h3>
 <%end  %>
 
 <% html_title(l(:label_order_mgmt)) -%>

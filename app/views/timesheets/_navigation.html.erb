@@ -1,0 +1,27 @@
+<tr><td colspan="2">
+
+<% if @current_day %>
+
+    <%= link_to "\xc2\xab " + l(:label_previous ), {:controller => "timesheets", :action => "index", :day => (@current_day - 1).to_s(:param_date)},
+              :user_id => params[:user_id], :title => l(:label_previous_day)%>
+      |
+      <%= link_to l(:label_today), {:controller => "timesheets", :action => "index", :day => DateTime.now.to_s(:param_date)},
+                  :user_id => params[:user_id], :title => l(:label_today)%>
+      |
+    <%= link_to l(:label_next) + " \xc2\xbb", {:controller => "timesheets", :action => "index", :day => (@current_day + 1).to_s(:param_date)},
+              :user_id => params[:user_id], :title => l(:label_next_day) %>
+
+<% else %>
+
+    <%= link_to "\xc2\xab " + l(:label_previous ), {:controller => "timesheets", :action => "index", :week => (@week_start - 7).to_s(:param_date)},
+                :user_id => params[:user_id], :title => l(:label_previous_week) %>
+      |
+      <%= link_to l(:label_today), {:controller => "timesheets", :action => "index", :week => DateTime.now.beginning_of_week.to_s(:param_date)},
+                  :user_id => params[:user_id], :title => l(:label_today)%>
+      |
+    <%= link_to l(:label_next) + " \xc2\xbb", {:controller => "timesheets", :action => "index", :week => (@week_start + 7).to_s(:param_date)},
+                :user_id => params[:user_id], :title => l(:label_next_week) %>
+
+<% end %>
+
+</td></tr>

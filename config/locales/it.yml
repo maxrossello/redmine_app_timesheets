@@ -4,15 +4,22 @@ it:
   label_timesheets_description: "Funzionalità per gestire le ore spese sulle attività"
   label_order_mgmt: "Commesse"
   label_order_mgmt_description: "Gestione delle commesse referenziate nei fogli ore"
+  label_order_mgmt_help: "Crea, abilita e disabilita le commesse. Puoi usare anche le versioni di progetto, se condivise, in modo da consentire agli utenti di importare il tempo speso sui progetti come dato nel foglio ore"
 
   label_timesheets_configure: "Configurare l'applicazione"
-  label_here: "qui"
-  label_available_orders: "Versioni di progetto attivabili"
+  label_available_orders: "Commesse e versioni di progetto attivabili"
   label_enabled_orders: "Commesse abilitate"
+  label_order_create_placeholder: "Crea nuova commessa"
+  label_day_view: "Vista giornaliera"
+  label_week_view: "Vista settimanale"
+
+  label_here: "qui"
   label_disable: "disabilita"
   label_enable: "abilita"
   label_delete: "rimuovi"
   label_order: "Commessa"
+  label_action: "Azioni"
+  label_for: "di"
 
   label_timesheet_select: "Selezionare"
 
