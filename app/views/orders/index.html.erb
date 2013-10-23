@@ -2,8 +2,7 @@
 <h2><%=l(:label_order_mgmt)%></h2>
 <%
   unless Setting.plugin_redmine_app_timesheets['project'] == "" or
-           Setting.plugin_redmine_app_timesheets['admin_group'] == "" or
-           Setting.plugin_redmine_app_timesheets['tracker'] == ""  %>
+           Setting.plugin_redmine_app_timesheets['admin_group'] == "" %>
     <div style="padding-bottom:20px"><%= l(:label_order_mgmt_help) %></div>
     <div class="splitcontent autoscroll">
       <table class="splitcontentleft list" style="width:49%">

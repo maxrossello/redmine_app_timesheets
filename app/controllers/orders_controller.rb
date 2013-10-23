@@ -37,27 +37,9 @@ class OrdersController < ApplicationController
 
     order = Version.find(params[:id])
     order.in_timesheet = true
-    order.save! if new_issue(order.name, order.id).save
+    order.save!
 
     redirect_to :action => 'index'
-  end
-
-  def delete
-
-  end
-
-  def new_issue(name, vid=nil)
-    i = Issue.where(project_id: @ts_project, fixed_version_id: vid).first unless vid.nil?
-    if i.nil?
-      i = Issue.new
-      i.tracker_id = Setting.plugin_redmine_app_timesheets['tracker']
-      i.project_id = Setting.plugin_redmine_app_timesheets['project'].to_i
-      i.subject = name
-      i.status_id = IssueStatus.where(is_closed: 1).joins(workflows: :tracker).where('workflows.new_status_id = issue_statuses.id').where('workflows.tracker_id = trackers.id').where('trackers.id = ?', i.tracker_id).first.id
-      i.fixed_version_id = vid
-      i.author = User.find(1) # admin
-    end
-    i
   end
 
   def create
@@ -65,9 +47,7 @@ class OrdersController < ApplicationController
                 :project_id => Setting.plugin_redmine_app_timesheets['project'].to_i,
                 :in_timesheet => true)
 
-    order.save! if (i = new_issue(params[:name])).save
-    i.fixed_version_id = order.id
-    i.save!
+    order.save!
     redirect_to :action => 'index'
   end
 end

@@ -16,10 +16,17 @@ Redmine::Plugin.register :redmine_app_timesheets do
   settings(:default => {
       'project' => "",
       'admin_group' => "",
-      'tracker' => "",
   },
   :partial => 'timesheets/settings'
   )
+
+  unless Version.included_modules.include?(TimesheetsAppVersionPatch)
+    Version.send(:include, TimesheetsAppVersionPatch)
+  end
+
+  unless Redmine::Helpers::TimeReport.included_modules.include?(TimesheetsAppTimeReportPatch)
+    Redmine::Helpers::TimeReport.send(:include, TimesheetsAppTimeReportPatch)
+  end
 end
 
 # needs to be evaluated before /apps(/:tab)!
