@@ -22,12 +22,12 @@ module TimesheetsAppTimeReportPatch
     end
 
     def run_with_timelogs
-      @criteria << 'version2'
+      @criteria << 'version2' unless @criteria.empty?
       run_without_timelogs
       @hours.each do |h|
         h['version'] ||= h['version2']
       end
-      @criteria.pop
+      @criteria.delete('version2')
       @hours
     end
 

@@ -52,7 +52,7 @@ class TimesheetsController < ApplicationController
     @ts_project = Setting.plugin_redmine_app_timesheets['project'].to_i
   end
 
-  #def get_timelogs
+  def get_timelogs
   #  @orders = Versions.where(:in_timesheet => true).group_by {|x| x.project_id == @ts_project}
   #
   #  weekly_time_entries = TimeEntry.for_user(@user).spent_between(@week_start, @week_end).group_by(&:in_timesheet)
@@ -99,6 +99,6 @@ class TimesheetsController < ApplicationController
   #  logger.debug '+++++++++++++++++++++++++++++++++++'
   #  logger.debug @week_issue_matrix.inspect
   #  logger.debug '+++++++++++++++++++++++++++++++++++'
-  #end
+  end
 
 end
