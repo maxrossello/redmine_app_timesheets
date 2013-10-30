@@ -1,46 +1,77 @@
 <strong> <%= @week_start.to_s(:week) %> - <%= @week_end.to_s(:week) %> </strong>
 <br />
+<br />
 
 <%= form_tag :controller => 'timesheets', :action => 'save_weekly', :week => @week_start.to_s(:param_date) do %>
 
-	<table>
+	<table class="ts-display">
+        <thead>
 		<tr>
-			<th></th>
-			<% (@week_start..@week_end).each do |d| %>
-   		 <th><%= d.to_s(:day) %></th>
+			<th>Order</th>
+            <th>Activity</th>
+            <th>Issue</th>
+            <th></th>
+          <% (@week_start..@week_end).each do |d| %>
+   		        <th><%= d.to_s(:day) %></th>
 			<% end %>
+            <th></th>
 		</tr>
-		<% @week_issue_matrix.each do |title, info_hash| %>
-			<tr>
-				<td> <%= link_to info_hash[:project_name], project_path(info_hash[:project_id]) %> -
-					 <%= link_to info_hash[:issue_text], issue_time_entries_path(info_hash[:issue_id]), :class => info_hash[:issue_class] if info_hash[:issue_id] %>
-					 (<%= info_hash[:activity_name]%>)
-				</td>
-				<% (@week_start..@week_end).each do |d| %>
-          <% issue_key = info_hash[:issue_id] ? info_hash[:issue_id] : ("no_issue:" + "#{info_hash[:project_id]}") %>
-   				<td><%= text_field_tag "hours[#{d.to_s(:param_date)}][#{issue_key}][#{info_hash[:activity_id]}]",
-   															 info_hash[d.to_s(:param_date)].nil? || info_hash[d.to_s(:param_date)][:hours] == 0.0 ?
-   															 '' : info_hash[d.to_s(:param_date)][:hours],
-   															 :size => 1 %></td>
-				<% end %>
-				<td><%= link_to image_tag('delete.png'), {:controller => 'hours',
-														  :action => 'delete_row',
-														  :issue_id => info_hash[:issue_id],
-                              :project_id => info_hash[:project_id],
-														  :activity_id => info_hash[:activity_id],
-														  :week =>@week_start.to_s(:param_date)
-														 },
-                                             			  :confirm => l(:text_are_you_sure),
-                                             			  :method => :delete,
-                                             			  :title => l(:button_delete) %></td>
-			</tr>
+        </thead>
+        <tbody>
+		<% last_order = ""
+           last_project = 0
+           @week_matrix.each_with_index do |row, idx|
+              order = row[:order]
+              project = Project.find(order.project_id)
+              @css_class = cycle("ts-odd", "ts-even") if order.name != last_order || order.project_id != last_project %>
+              <tr class="<%= @css_class %>">
+                <td>
+                     <% if order.project_id == @ts_project %>
+                        <%= order.name %>
+                     <% else %>
+                        <%= link_to_if order.visible?(@user), order.name, { :controller => 'versions', :action => 'show', :id => order.id } %>
+                         ( <%=link_to_if order.visible?(@user), project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } %> )
+                     <% end %>
+                </td>
+
+                <td> <%= row[:activity].name %> </td>
+
+                <% last_order = order.name %>
+                <% last_project = order.project_id %>
+
+                <td> <%= link_to_if row[:issue].visible?(@user), row[:issue].to_s, { :controller => 'issues', :action => 'show', :id => row[:issue].id } unless row[:issue].nil? %> </td>
+
+                <% if idx == @week_matrix.size - 1 %>
+                    <td width="10px"></td>
+                <% else %>
+                    <td></td>
+                <% end %>
+
+                <% (@week_start..@week_end).each do |d| %>
+                    <td><%= text_field_tag "hours[#{order.id}][#{row[:issue]}][#{row[:activity].id}]",
+                                               row[d].nil? || row[:hours] == 0.0 ?
+                                                             '' : row[:hours], :size => 1 %></td>
+                <% end %>
+
+                <td><%= link_to image_tag('delete.png'), {:controller => 'timesheets',
+                                                          :action => 'delete_row',
+                                                          :issue_id => row[:issue],
+                                                          :project_id => order.project_id,
+                                                          :activity_id => row[:activity].id,
+                                                          :week =>@week_start.to_s(:param_date)
+                                                         },
+                                                          :confirm => l(:text_are_you_sure),
+                                                          :method => :delete,
+                                                          :title => l(:button_delete) %></td>
+              </tr>
 		<% end %>
     <tr>
-      <td><hr /><strong>Total:</strong></td>
+      <td colspan="4"><hr /><strong>Total:</strong></td>
       <% (@week_start..@week_end).each do |day| %>
-       <td><hr /><%= @daily_totals[day.to_s(:param_date)] ? @daily_totals[day.to_s(:param_date)] : 0.0  %></td>
+       <td><hr /><%= @daily_totals[day] ? @daily_totals[day] : 0.0  %></td>
       <% end %>
     </tr>
+    </tbody>
 	</table>
 
 <p>

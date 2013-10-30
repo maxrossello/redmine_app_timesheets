@@ -16,6 +16,7 @@ Redmine::Plugin.register :redmine_app_timesheets do
   settings(:default => {
       'project' => "",
       'admin_group' => "",
+      'tracker' => "",
   },
   :partial => 'timesheets/settings'
   )
@@ -41,6 +42,8 @@ RedmineApp::Application.routes.prepend do
   put 'apps/order_mgmt/enable/:id', :controller => 'orders', :action => 'enable'
   delete 'apps/order_mgmt/delete/:id', :controller => 'orders', :action => 'delete'
   post 'apps/order_mgmt/create', :controller => 'orders', :action => 'create'
+  post 'apps/timesheets/save_weekly', :controller => 'timesheets', :action => 'save_weekly'
+  delete 'apps/timesheets/delete_row', :controller => 'timesheets', :action => 'delete_row'
 end
 
 module Timesheet

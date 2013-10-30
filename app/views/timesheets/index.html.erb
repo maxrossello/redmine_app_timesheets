@@ -1,7 +1,8 @@
 <h2><%=l(:label_timesheets)%> <%=l(:label_for)%> <%= @user.firstname+' '+@user.lastname%></h2>
 <%
    unless Setting.plugin_redmine_app_timesheets['project'] == "" or
-           Setting.plugin_redmine_app_timesheets['admin_group'] == ""  %>
+           Setting.plugin_redmine_app_timesheets['admin_group'] == "" or
+           Setting.plugin_redmine_app_timesheets['tracker'] == "" %>
 
 
      <%= form_tag({:action => 'index'}, :method => :get) do %>
@@ -35,7 +36,7 @@
     <% #if @view == :day %>
     <%#= render :partial => "daily" %>
     <% #else %>
-    <%#= render :partial => "weekly" %>
+    <%= render :partial => "weekly" %>
     <% #end %>
 
 <% else %>

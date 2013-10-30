@@ -28,7 +28,7 @@ class OrdersController < ApplicationController
   def disable
     order = Version.find(params[:id])
     order.in_timesheet = false
-    order.save!
+    order.save! if new_issue(order.name, order.id).save
     redirect_to :action => 'index'
   end
 
@@ -47,7 +47,26 @@ class OrdersController < ApplicationController
                 :project_id => Setting.plugin_redmine_app_timesheets['project'].to_i,
                 :in_timesheet => true)
 
-    order.save!
+    order.save! if (i = new_issue(params[:name])).save
+    i.fixed_version_id = order.id
+    i.save!
     redirect_to :action => 'index'
   end
+
+  private
+
+  def new_issue(name, vid=nil)
+    i = Issue.where(project_id: @ts_project, fixed_version_id: vid).first unless vid.nil?
+    if i.nil?
+      i = Issue.new
+      i.tracker_id = Setting.plugin_redmine_app_timesheets['tracker']
+      i.project_id = Setting.plugin_redmine_app_timesheets['project'].to_i
+      i.subject = name
+      i.status_id = IssueStatus.where(is_closed: 1).joins(workflows: :tracker).where('workflows.new_status_id = issue_statuses.id').where('workflows.tracker_id = trackers.id').where('trackers.id = ?', i.tracker_id).first.id
+      i.fixed_version_id = vid
+      i.author = User.find(1) # admin
+    end
+    i
+  end
+
 end

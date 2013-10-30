@@ -7,7 +7,15 @@ class TimesheetsController < ApplicationController
   before_filter :get_dates
   before_filter :get_timelogs
 
+  @@DEFAULT_ACTIVITY = Enumeration.where(:type => 'TimeEntryActivity', :is_default => true).first
+
   def index
+  end
+
+  def save_weekly
+  end
+
+  def delete_row
   end
 
   private
@@ -53,21 +61,78 @@ class TimesheetsController < ApplicationController
   end
 
   def get_timelogs
-  #  @orders = Versions.where(:in_timesheet => true).group_by {|x| x.project_id == @ts_project}
+    @orders = Version.where(:in_timesheet => true)
+
+    #@daily_entries = {}
+    @daily_totals = {}
+    #
+    (@week_start..@week_end).each do |day|
+    #  daykey = day.to_s(:param_date)
+    #  @daily_entries[daykey] = TimeEntry.for_user(@user).spent_on(day).where(:in_timesheet => true)
+      @daily_totals[day] = TimeEntry.for_user(@user).spent_on(day).where(:in_timesheet => true).map(&:hours).inject(:+)
+    end
+
+    #@week_matrix = {}
+
+    #@orders.all.each do |order|
+    #  @week_matrix[order.id] = {}
+    #
+    #  (@week_start..@week_end).each do |day|
+    #    daykey = day.to_s(:param_date)
+    #    @week_matrix[order.id].merge!(@daily_entries[daykey].includes(:issue).where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id).all.group_by(&:activity_id))
+    #    # add an order entry with default activity if no time entries found for the order
+    #    @week_matrix[order.id].merge!({@@DEFAULT_ACTIVITY.id => []}) if @week_matrix[order.id].empty?
+    #  end
+    #
+    #  @week_matrix[order.id].each{ |k,v| @week_matrix[order.id][k] = {v[0].spent_on => v} unless v.empty? }
+    #  @week_matrix[order.id][:order] = order
+    #
+    #end
+    @week_matrix = []
+    @orders.all.each do |order|
+      row = {}
+      row[:order] = order
+      entries = TimeEntry.for_user(@user).where(:in_timesheet => true).where("spent_on IN (?)", @week_start..@week_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
+      entries.all.group_by(&:activity_id).each do |activity, values|
+        row[:activity] = Enumeration.find(activity)
+        values.group_by(&:issue_id).each do |issue, iv|
+          row[:issue] = issue.nil? ? nil : Issue.find(issue)
+          iv.group_by(&:spent_on).each do |spent, sv|
+            row[spent] = sv
+            row[:hours] = sv.inject(0) { | sum, elem | sum + elem.hours }
+          end
+          @week_matrix << row
+          row = row.dup
+        end
+      end
+
+      if row[:activity].nil?
+        row[:activity], row[:days] = @@DEFAULT_ACTIVITY, {}
+        @week_matrix << row
+      end
+    end
+    #p @week_matrix
+  end
+
+  #def get_timelogs_old
+  #  @orders = Version.where(:in_timesheet => true).group_by {|x| x.project_id == @ts_project}
   #
   #  weekly_time_entries = TimeEntry.for_user(@user).spent_between(@week_start, @week_end).group_by(&:in_timesheet)
+  #  #weekly_time_entries = TimeEntry.for_user(@user).spent_between(@week_start - 7, @week_end - 7).group_by(&:in_timesheet) if (weekly_time_entries[true] || []).empty?
   #
   #  @week_issue_matrix = {}
-  #  weekly_time_entries.each do |te|
+  #  (weekly_time_entries[true] || []).each do |te|
   #    key = te.project.name + (te.issue ? " - #{te.issue.subject}" : "") +  " - #{te.activity.name}"
   #    @week_issue_matrix[key] ||= {:issue_id => te.issue_id,
   #                                 :activity_id => te.activity_id,
   #                                 :project_id => te.project.id,
   #                                 :project_name => te.project.name,
   #                                 :issue_text => te.issue.try(:to_s),
-  #                                 :activity_name => te.activity.name
+  #                                 :activity_name => te.activity.name,
+  #                                 :order_id => te.fixed_version_id
   #    }
   #    @week_issue_matrix[key][:issue_class] ||= te.issue.closed? ? 'issue closed' : 'issue' if te.issue
+  #    @week_issue_matrix[key][:order_class] ||= te.fixed_version_id.nil? ? 'order shared' : 'order native'
   #    @week_issue_matrix[key][te.spent_on.to_s(:param_date)] = {:hours => te.hours, :te_id => te.id, :comments => te.comments}
   #  end
   #
@@ -75,30 +140,11 @@ class TimesheetsController < ApplicationController
   #  @daily_totals = {}
   #
   #  (@week_start..@week_end).each do |day|
-  #    @daily_totals[day.to_s(:param_date)] = TimeEntry.for_user(@user).spent_on(day).map(&:hours).inject(:+)
+  #    @daily_totals[day.to_s(:param_date)] = TimeEntry.for_user(@user).spent_on(day).where(:in_timesheet => true).map(&:hours).inject(:+)
   #  end
   #
-  #  @daily_issues = @week_issue_matrix.select{|k,v| v[@current_day.to_s(:param_date)]} if @current_day
+  #  @daily_issues = @week_issue_matrix.select{|k,v| v[@current_day.to_s(:param_date)]} if @view == :day
   #
-  #  if @week_issue_matrix.empty?
-  #    @week_issue_matrix = {}
-  #    last_week_time_entries = TimeEntry.for_user(@user).spent_between(@week_start-7, @week_end-7).sort_by{|te| te.issue.project.name}.sort_by{|te| te.issue.subject }
-  #    last_week_time_entries.each do |te|
-  #      @week_issue_matrix["#{te.issue.project.name} - #{te.issue.subject} - #{te.activity.name}"] ||= {:issue_id => te.issue_id,
-  #                                                                                                      :activity_id => te.activity_id,
-  #                                                                                                      :project_id => te.issue.project.id,
-  #                                                                                                      :project_name => te.issue.project.name,
-  #                                                                                                      :issue_text => te.issue.to_s,
-  #                                                                                                      :activity_name => te.activity.name
-  #      }
-  #      @week_issue_matrix["#{te.issue.project.name} - #{te.issue.subject} - #{te.activity.name}"][:issue_class] ||= te.issue.closed? ? 'issue closed' : 'issue'
-  #    end
-  #    @week_issue_matrix = @week_issue_matrix.sort
-  #  end
-  #
-  #  logger.debug '+++++++++++++++++++++++++++++++++++'
-  #  logger.debug @week_issue_matrix.inspect
-  #  logger.debug '+++++++++++++++++++++++++++++++++++'
-  end
+  #end
 
 end

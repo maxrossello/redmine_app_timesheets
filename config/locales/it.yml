@@ -35,3 +35,7 @@ it:
   label_timesheet_admin_label: "Gruppo amministratori"
   label_timesheet_admins_hint: "Il gruppo degli amministratori delle commesse"
   label_timesheets_warn_select_admins: "Selezionare un gruppo"
+
+  label_timesheet_tracker_label: "Tracker di appoggio"
+  label_timesheet_tracker_hint: "Il tracker usato per aggregare le ore riportate"
+  label_timesheets_warn_select_tracker: "Selezionare un tracker"

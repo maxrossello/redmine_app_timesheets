@@ -35,3 +35,7 @@ en:
   label_timesheet_admin_label: "Admin group"
   label_timesheet_admins_hint: "The group of users enabled to administrate orders"
   label_timesheets_warn_select_admins: "Please select a group"
+
+  label_timesheet_tracker_label: "Backing tracker"
+  label_timesheet_tracker_hint: "The tracker used to collect timesheet hours"
+  label_timesheets_warn_select_tracker: "Please select a tracker"
