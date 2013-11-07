@@ -41,6 +41,7 @@ RedmineApp::Application.routes.prepend do
   put 'apps/order_mgmt/disable/:id', :controller => 'orders', :action => 'disable'
   put 'apps/order_mgmt/enable/:id', :controller => 'orders', :action => 'enable'
   post 'apps/order_mgmt/create', :controller => 'orders', :action => 'create'
+  get 'apps/order_mgmt/new', :controller => 'orders', :action => 'new'
 
   get 'apps/order_users/:id', :controller => 'order_users', :action => 'index'
   get 'apps/order_users/:id/new', :controller => 'order_users', :action => 'new'

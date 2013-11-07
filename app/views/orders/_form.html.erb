@@ -1,0 +1,12 @@
+<%= back_url_hidden_field_tag %>
+<%= error_messages_for 'version' %>
+
+<div class="box tabular">
+<p><%= f.text_field :name, :size => 60, :required => true %></p>
+<p><%= f.text_field :description, :size => 60 %></p>
+
+<% @version.custom_field_values.each do |value| %>
+  <p><%= custom_field_tag_with_label :version, value %></p>
+<% end %>
+
+</div>

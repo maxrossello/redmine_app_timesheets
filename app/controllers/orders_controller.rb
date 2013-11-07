@@ -1,9 +1,10 @@
 class OrdersController < ApplicationController
   unloadable
 
-  before_filter :require_login
+  before_filter :require_login, :get_project
 
   helper ProjectsHelper
+  helper CustomFieldsHelper
 
   def index
     unless User.in_group(Setting.plugin_redmine_app_timesheets["admin_group"]).include?(User.current)
@@ -33,8 +34,6 @@ class OrdersController < ApplicationController
   end
 
   def enable
-    @ts_project = Setting.plugin_redmine_app_timesheets['project'].to_i
-
     order = Version.find(params[:id])
     order.in_timesheet = true
     order.save! if order.project_id != @ts_project or new_issue(order.name, order.id).save
@@ -43,17 +42,26 @@ class OrdersController < ApplicationController
   end
 
   def create
-    order = Version.new(:name => params[:name],
-                :project_id => Setting.plugin_redmine_app_timesheets['project'].to_i,
-                :in_timesheet => true)
+    order = Project.find(@ts_project).versions.build
+    if params[:version]
+      attributes = params[:version].dup
+      attributes.delete('sharing') unless attributes.nil? || order.allowed_sharings.include?(attributes['sharing'])
+      order.safe_attributes = attributes
+    end
 
-    order.save! if order.project_id != @ts_project or (i = new_issue(params[:name])).save
+    order.in_timesheet = 1
+
+    order.save! if order.project_id == @ts_project and (i = new_issue(params[:version][:name])).save
     unless i.nil?
       i.fixed_version_id = order.id
       i.save!
     end
 
     redirect_to :action => 'index'
+  end
+
+  def new
+    @version = Version.new
   end
 
   private
@@ -70,6 +78,10 @@ class OrdersController < ApplicationController
       i.author = User.find(1) # admin
     end
     i
+  end
+
+  def get_project
+    @ts_project = Setting.plugin_redmine_app_timesheets['project'].to_i
   end
 
 end

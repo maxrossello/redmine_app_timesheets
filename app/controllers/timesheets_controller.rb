@@ -61,40 +61,17 @@ class TimesheetsController < ApplicationController
   end
 
   def get_timelogs
-    @orders = Version.joins(:fixed_issues).where(:project_id => @ts_project).where('issues.id in (?)', Issue.visible(@user)).all
+    @orders = (Issue.where(:project_id => @ts_project).watched_by(@user).joins(:fixed_version).map {|i| i.fixed_version} +
+        Project.find(@ts_project).shared_versions.visible(@user).all).uniq
 
-    #orders = Project.find(@ts_project).shared_versions.all
-    #orders.reject! { |v| v.project_id == @ts_project and v.fixed_issues.where('issues.id in (?)', Issue.visible(user)).all.empty? }
-    #orders.reject! { |v| v.project_id != @ts_project and !v.project.visible?(user) }
-
-
-    #@daily_entries = {}
     @daily_totals = {}
-    #
+
     (@week_start..@week_end).each do |day|
-    #  daykey = day.to_s(:param_date)
-    #  @daily_entries[daykey] = TimeEntry.for_user(@user).spent_on(day).where(:in_timesheet => true)
       @daily_totals[day] = TimeEntry.for_user(@user).spent_on(day).where(:in_timesheet => true).map(&:hours).inject(:+)
     end
 
-    #@week_matrix = {}
-
-    #@orders.all.each do |order|
-    #  @week_matrix[order.id] = {}
-    #
-    #  (@week_start..@week_end).each do |day|
-    #    daykey = day.to_s(:param_date)
-    #    @week_matrix[order.id].merge!(@daily_entries[daykey].includes(:issue).where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id).all.group_by(&:activity_id))
-    #    # add an order entry with default activity if no time entries found for the order
-    #    @week_matrix[order.id].merge!({@@DEFAULT_ACTIVITY.id => []}) if @week_matrix[order.id].empty?
-    #  end
-    #
-    #  @week_matrix[order.id].each{ |k,v| @week_matrix[order.id][k] = {v[0].spent_on => v} unless v.empty? }
-    #  @week_matrix[order.id][:order] = order
-    #
-    #end
     @week_matrix = []
-    @orders.all.each do |order|
+    @orders.each do |order|
       row = {}
       row[:order] = order
       entries = TimeEntry.for_user(@user).where(:in_timesheet => true).where("spent_on IN (?)", @week_start..@week_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)

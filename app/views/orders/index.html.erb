@@ -5,6 +5,9 @@
            Setting.plugin_redmine_app_timesheets['admin_group'] == "" or
            Setting.plugin_redmine_app_timesheets['tracker'] == "" %>
     <div style="padding-bottom:20px"><%= l(:label_order_mgmt_help) %></div>
+
+    <div class="order-new"><%= link_to l(:label_order_create_placeholder), { :action => 'new', :project_id => @ts_project }, :class => 'icon icon-add' %></div>
+
     <div class="splitcontent autoscroll">
       <table class="splitcontentleft list" style="width:49%">
         <thead>
@@ -60,6 +63,8 @@
         </tbody>
       </table>
     </div>
+
+
 <%else %>
      <h3><%=l(:label_timesheets_configure)%> <a horder='/settings/plugin/redmine_app_timesheets'><%=l(:label_here)%></h3>
 <%end  %>
