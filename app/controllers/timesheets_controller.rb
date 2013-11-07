@@ -61,7 +61,12 @@ class TimesheetsController < ApplicationController
   end
 
   def get_timelogs
-    @orders = Version.where(:in_timesheet => true)
+    @orders = Version.joins(:fixed_issues).where(:project_id => @ts_project).where('issues.id in (?)', Issue.visible(@user)).all
+
+    #orders = Project.find(@ts_project).shared_versions.all
+    #orders.reject! { |v| v.project_id == @ts_project and v.fixed_issues.where('issues.id in (?)', Issue.visible(user)).all.empty? }
+    #orders.reject! { |v| v.project_id != @ts_project and !v.project.visible?(user) }
+
 
     #@daily_entries = {}
     @daily_totals = {}

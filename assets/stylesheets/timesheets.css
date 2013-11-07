@@ -9,3 +9,13 @@
 .ts-even {
     background-color: rgb(255, 255, 255);
 }
+
+.ts-child {
+    background-image: url(../../../images/bullet_arrow_right.png);
+    background-repeat: no-repeat;
+    background-position: 0px;
+    padding-left: 16px !important;
+}
+
+
+.icon-group { background-image: url(../../../images/group.png); }

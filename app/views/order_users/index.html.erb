@@ -1,0 +1,80 @@
+
+<h2><%= l(:label_order_permissions) + ": " + @order.name %></h2>
+<%
+  unless Setting.plugin_redmine_app_timesheets['project'] == "" or
+           Setting.plugin_redmine_app_timesheets['admin_group'] == "" or
+           Setting.plugin_redmine_app_timesheets['tracker'] == "" %>
+
+    <% listed = []
+       reset_cycle %>
+
+    <%= stylesheet_link_tag 'watcher_groups.css', :plugin => 'redmine_watcher_groups' %>
+
+    <%= javascript_tag do %>
+        $(document).ready(function() {
+            $('#ajax-modal').bind('dialogclose', function(event) {
+                                      setTimeout(function(){location.reload(true);}, 500);
+                                    }
+                                 );
+        });
+    <% end %>
+
+    <div class="splitcontentleft">
+      <% if @members.any? %>
+          <table class="list members">
+            <thead><tr>
+              <th><%= l(:label_user) %> / <%= l(:label_group) %></th>
+              <th style="width:15%"></th>
+            </tr></thead>
+            <tbody>
+            <% @members.each do |member| %>
+                <% next if member.new_record? %>
+                <% if member.is_a?(User)
+                    listed << member %>
+                    <tr id="member-<%= member.id %>" class="member">
+                      <td class="<%= member.class.name.downcase %>"><%= link_to_user member %></td>
+                      <td class="buttons">
+                        <%= link_to l(:button_delete), { :controller => 'order_users', :action => 'destroy', :object_type => "issue", :object_id => @issue.id, :user_id => member.id},
+                                      {:remote => true, :method => :delete, :class => 'icon icon-del', :onmouseup => "setTimeout(function() {location.reload(true)}, 100)" } %>
+                      </td>
+                    </tr>
+                <% else %>
+                    <tr id="member-<%= member.id %>" class="member">
+                      <td class="<%= member.class.name.downcase %>"><%= link_to_user member %></td>
+                      <td class="buttons">
+                        <%= link_to l(:button_delete), { :controller => 'watcher_groups', :action => 'destroy', :object_type => "issue", :object_id => @issue.id, :group_id => member.id },
+                                    {:remote => true, :method => :post, :class => 'icon icon-del', :onmouseup => "setTimeout(function() {location.reload(true)}, 100)" } %>
+                      </td>
+                    </tr>
+                    <% member.users.active.each do |user|
+                        next if listed.include?(user)
+                        listed << user %>
+                        <tr id="member-<%= user.id %>" class="member">
+                          <td class="<%= user.class.name.downcase %> odd ts-child"><%= link_to_user user %></td>
+                          <td class="buttons odd">
+                          </td>
+                        </tr>
+                    <% end %>
+                <% end %>
+            <% end; reset_cycle %>
+            </tbody>
+          </table>
+      <% else %>
+          <p class="nodata"><%= l(:label_no_data) %></p>
+      <% end %>
+    </div>
+
+    <div class="contextual">
+      <div class="icon icon-user">
+        <%= link_to l(:label_add_user), { :controller => 'order_users', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :remote => true %>
+      </div>
+      <div class="icon icon-group">
+        <%= link_to l(:label_add_group), { :controller => 'watcher_groups', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :remote => true %>
+      </div>
+    </div>
+<%else %>
+     <h3><%=l(:label_timesheets_configure)%> <a horder='/settings/plugin/redmine_app_timesheets'><%=l(:label_here)%></h3>
+<%end  %>
+
+<% html_title(l(:label_order_mgmt)) -%>
+

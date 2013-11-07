@@ -40,8 +40,15 @@ RedmineApp::Application.routes.prepend do
 
   put 'apps/order_mgmt/disable/:id', :controller => 'orders', :action => 'disable'
   put 'apps/order_mgmt/enable/:id', :controller => 'orders', :action => 'enable'
-  delete 'apps/order_mgmt/delete/:id', :controller => 'orders', :action => 'delete'
   post 'apps/order_mgmt/create', :controller => 'orders', :action => 'create'
+
+  get 'apps/order_users/:id', :controller => 'order_users', :action => 'index'
+  get 'apps/order_users/:id/new', :controller => 'order_users', :action => 'new'
+  get 'apps/order_users/:id/autocomplete_for_user', :controller => 'order_users', :action => 'autocomplete_for_user'
+  post 'apps/order_users/:id/create', :controller => 'order_users', :action => 'create'
+  post 'apps/order_users/:id/append', :controller => 'order_users', :action => 'append'
+  delete 'apps/order_users/:id/destroy', :controller => 'order_users', :action => 'destroy'
+
   post 'apps/timesheets/save_weekly', :controller => 'timesheets', :action => 'save_weekly'
   delete 'apps/timesheets/delete_row', :controller => 'timesheets', :action => 'delete_row'
 end

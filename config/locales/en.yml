@@ -10,6 +10,7 @@ en:
   label_available_orders: "Available orders and project versions"
   label_enabled_orders: "Enabled orders"
   label_order_create_placeholder: "Create new order"
+  label_order_permissions: "Order visibility"
 
   label_day_view: "Switch to day view"
   label_week_view: "Switch to week view"
@@ -25,6 +26,10 @@ en:
   label_order: "Order"
   label_action: "Actions"
   label_for: "for"
+
+  label_order_users: "user config"
+  label_add_user: "Add user"
+  label_add_group: "Add group"
 
   label_timesheet_select: "Select"
 

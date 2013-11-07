@@ -20,7 +20,8 @@
               <td class="name"><span><%= link_to_if order.visible?, order.name, { :controller => 'versions', :action => 'show', :id => order } %></span></td>
               <td align="center"><%= link_to_if order.visible?, order.project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } if order.project_id != @ts_project %></td>
               <td class="buttons">
-                <%= link_to(l(:label_disable), {:action => 'disable', :id => order.id}, :method => :put, :class => 'action')  %>
+                <div><%= link_to(l(:label_order_users), {:controller => 'order_users', :action => 'index', :id => order.id}, :class => 'action') if order.project_id == @ts_project %></div>
+                <div><%= link_to(l(:label_disable), {:action => 'disable', :id => order.id}, :method => :put, :class => 'action')  %></div>
               </td>
             </tr>
         <% end %>

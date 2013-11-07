@@ -10,6 +10,7 @@ it:
   label_available_orders: "Commesse e versioni di progetto attivabili"
   label_enabled_orders: "Commesse abilitate"
   label_order_create_placeholder: "Crea nuova commessa"
+  label_order_permissions: "Visibilità commessa"
 
   label_day_view: "Vista giornaliera"
   label_week_view: "Vista settimanale"
@@ -25,6 +26,10 @@ it:
   label_order: "Commessa"
   label_action: "Azioni"
   label_for: "di"
+
+  label_order_users: "config utenti"
+  label_add_user: "Aggiungi utente"
+  label_add_group: "Aggiungi gruppo"
 
   label_timesheet_select: "Selezionare"
 
