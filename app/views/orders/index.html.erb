@@ -29,15 +29,6 @@
             </tr>
         <% end %>
 
-       <%= form_tag ({:action => 'create'}) do %>
-             <tr class="<%= cycle("odd", "even") %>">
-               <td class="name"><span><%= text_field_tag 'name', nil, :style => "width: 95%", :placeholder => l(:label_order_create_placeholder) %></span></td>
-               <td></td>
-               <td class="buttons">
-               </td>
-             </tr>
-        <% end %>
-
         </tbody>
       </table>
 
