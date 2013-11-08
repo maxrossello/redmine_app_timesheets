@@ -11,7 +11,7 @@ Redmine::Plugin.register :redmine_app_timesheets do
   url 'https://github.com/maxrossello/redmine_app_timesheets.git'
   author_url 'https://github.com/maxrossello'
   requires_redmine :version_or_higher => '2.0.0'
-  requires_redmine_plugin :redmine_app__space, '0.0.1'
+  requires_redmine_plugin :redmine_app__space, '0.0.2'
 
   settings(:default => {
       'project' => "",
@@ -33,10 +33,7 @@ end
 # needs to be evaluated before /apps(/:tab)!
 RedmineApp::Application.routes.prepend do
   application 'timesheets', :to => 'timesheets#index', :via => :get
-  application 'order_mgmt', :to => 'orders#index', :via => :get,
-              :if => lambda {
-                |user| User.in_group(Setting.plugin_redmine_app_timesheets['admin_group']).include?(user)
-              }
+  application 'order_mgmt', :to => 'orders#index', :via => :get
 
   put 'apps/order_mgmt/disable/:id', :controller => 'orders', :action => 'disable'
   put 'apps/order_mgmt/enable/:id', :controller => 'orders', :action => 'enable'

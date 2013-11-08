@@ -7,7 +7,7 @@ class OrdersController < ApplicationController
   helper CustomFieldsHelper
 
   def index
-    unless User.in_group(Setting.plugin_redmine_app_timesheets["admin_group"]).include?(User.current)
+    unless User.is_app_visible?('order_mgmt')
       render_404
     else
       @ts_project = Setting.plugin_redmine_app_timesheets['project'].to_i

@@ -2,7 +2,6 @@
 <h2><%= l(:label_order_permissions) + ": " + @order.name %></h2>
 <%
   unless Setting.plugin_redmine_app_timesheets['project'] == "" or
-           Setting.plugin_redmine_app_timesheets['admin_group'] == "" or
            Setting.plugin_redmine_app_timesheets['tracker'] == "" %>
 
     <% listed = []

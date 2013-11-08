@@ -48,7 +48,7 @@
                 <% end %>
 
                 <% (@week_start..@week_end).each do |d| %>
-                    <td><%= text_field_tag "hours[#{order.id}][#{row[:issue]}][#{row[:activity].id}]",
+                    <td><%= text_field_tag "hours[#{d.to_s(:param_date)}][#{order.id}][#{row[:activity].id}][#{row[:issue] ? row[:issue].id : 'none'}]",
                                                row[d].nil? || row[:hours] == 0.0 ?
                                                              '' : row[:hours], :size => 1 %></td>
                 <% end %>
@@ -56,8 +56,8 @@
                 <td><%= link_to image_tag('delete.png'), {:controller => 'timesheets',
                                                           :action => 'delete_row',
                                                           :issue_id => row[:issue],
-                                                          :project_id => order.project_id,
                                                           :activity_id => row[:activity].id,
+                                                          :order_id => order.id,
                                                           :week =>@week_start.to_s(:param_date)
                                                          },
                                                           :confirm => l(:text_are_you_sure),

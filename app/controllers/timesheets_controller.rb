@@ -13,6 +13,7 @@ class TimesheetsController < ApplicationController
   end
 
   def save_weekly
+    redirect_to :back
   end
 
   def delete_row
