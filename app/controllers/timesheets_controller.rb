@@ -93,7 +93,8 @@ class TimesheetsController < ApplicationController
         @week_matrix << row
       end
     end
-    #p @week_matrix
+
+    @activities = TimeEntryActivity.shared.active
   end
 
   #def get_timelogs_old

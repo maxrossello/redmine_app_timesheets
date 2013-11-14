@@ -26,7 +26,9 @@
               @css_class = cycle("ts-odd", "ts-even") if order.name != last_order || order.project_id != last_project %>
               <tr class="<%= @css_class %>">
                 <td>
-                     <% if order.project_id == @ts_project %>
+                  <%= hidden_field_tag 'order[]', order.id %>
+                  <%= hidden_field_tag 'issue[]', row[:issue] ? row[:issue].id : nil %>
+                  <% if order.project_id == @ts_project %>
                         <%= order.name %>
                      <% else %>
                         <%= link_to_if order.visible?(@user), order.name, { :controller => 'versions', :action => 'show', :id => order.id } %>
@@ -34,7 +36,10 @@
                      <% end %>
                 </td>
 
-                <td> <%= row[:activity].name %> </td>
+                <td>
+                  <%= hidden_field_tag 'previous_activity[]', row[:activity].id %>
+                  <%= select_tag 'activity[]', options_from_collection_for_select(@activities, "id", "name", row[:activity].id) %>
+                </td>
 
                 <% last_order = order.name %>
                 <% last_project = order.project_id %>
@@ -48,7 +53,7 @@
                 <% end %>
 
                 <% (@week_start..@week_end).each do |d| %>
-                    <td><%= text_field_tag "hours[#{d.to_s(:param_date)}][#{order.id}][#{row[:activity].id}][#{row[:issue] ? row[:issue].id : 'none'}]",
+                    <td><%= text_field_tag "hours[#{d.to_s(:param_date)}]",
                                                row[d].nil? || row[:hours] == 0.0 ?
                                                              '' : row[:hours], :size => 1 %></td>
                 <% end %>
