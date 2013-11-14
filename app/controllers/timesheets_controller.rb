@@ -22,8 +22,7 @@ class TimesheetsController < ApplicationController
   private
 
   def get_dates
-    @current_day = DateTime.strptime(params[:day], Time::DATE_FORMATS[:param_date]) rescue nil
-    @current_day = DateTime.now if @current_day.nil?
+    @current_day = DateTime.strptime((params[:day]||DateTime.now.to_s), Time::DATE_FORMATS[:param_date]) rescue nil
 
     @week_start = @current_day.beginning_of_week
     @week_end = @current_day.end_of_week
@@ -62,8 +61,8 @@ class TimesheetsController < ApplicationController
   end
 
   def get_timelogs
-    @orders = (Issue.where(:project_id => @ts_project).watched_by(@user).joins(:fixed_version).map {|i| i.fixed_version} +
-        Project.find(@ts_project).shared_versions.visible(@user).all).uniq
+    @orders = (Issue.where(:project_id => @ts_project).watched_by(@user).joins(:fixed_version).map(&:fixed_version) +
+        Project.find(@ts_project).shared_versions.visible(@user).all).uniq.sort_by{ |v| v.name.downcase}
 
     @daily_totals = {}
 
