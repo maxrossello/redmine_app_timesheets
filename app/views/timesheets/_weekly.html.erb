@@ -39,7 +39,7 @@
                 <% last_order = order.name %>
                 <% last_project = order.project_id %>
 
-                <td> <%= link_to_if row[:issue].visible?(@user), row[:issue].to_s, { :controller => 'issues', :action => 'show', :id => row[:issue].id } unless row[:issue].nil? %> </td>
+                <td> <%= link_to_if row[:issue].visible?(@user), row[:issue].to_s, { :controller => 'issues', :action => 'show', :id => row[:issue].id } unless row[:issue].nil? or order.project_id == @ts_project %> </td>
 
                 <% if idx == @week_matrix.size - 1 %>
                     <td width="10px"></td>

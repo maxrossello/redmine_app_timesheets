@@ -75,7 +75,7 @@ class TimesheetsController < ApplicationController
     @orders.each do |order|
       row = {}
       row[:order] = order
-      entries = TimeEntry.for_user(@user).where(:in_timesheet => true).where("spent_on IN (?)", @week_start..@week_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
+      entries = TimeEntry.for_user(@user).where(:in_timesheet => true).where("spent_on IN (?)", @week_start..@week_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{Issue.table_name}.fixed_version_id = ?", order.id)
       entries.all.group_by(&:activity_id).each do |activity, values|
         row[:activity] = Enumeration.find(activity)
         values.group_by(&:issue_id).each do |issue, iv|
