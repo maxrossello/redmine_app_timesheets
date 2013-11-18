@@ -74,6 +74,7 @@ class TimesheetsController < ApplicationController
     @orders.each do |order|
       row = {}
       row[:order] = order
+      row[:activities] = (Setting.plugin_redmine_app_timesheets['activities'][order.id.to_s] || TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]})
       entries = TimeEntry.for_user(@user).where(:in_timesheet => true).where("spent_on IN (?)", @week_start..@week_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
       entries.all.group_by(&:activity_id).each do |activity, values|
         row[:activity] = Enumeration.find(activity)
@@ -92,9 +93,9 @@ class TimesheetsController < ApplicationController
         row[:activity], row[:days] = @@DEFAULT_ACTIVITY, {}
         @week_matrix << row
       end
+
     end
 
-    @activities = TimeEntryActivity.shared.active
   end
 
   #def get_timelogs_old

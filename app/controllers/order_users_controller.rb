@@ -19,4 +19,17 @@ class OrderUsersController < WatchersController
     render_404 unless @watchables.present?
   end
 
+  def activities
+    render_404 unless params[:id]
+
+    value = Setting.plugin_redmine_app_timesheets
+
+    value['activities'] = {} if value['activities'].nil?
+    # convert hash to array and revert couples
+    value['activities'][params[:id]] = params['activity'].map {|x| x.to_a}[0].each do |x| x.reverse! end
+
+    Setting['plugin_redmine_app_timesheets'] = value
+
+    redirect_to :controller => 'orders', :action => 'index'
+  end
 end

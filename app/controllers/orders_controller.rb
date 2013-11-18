@@ -57,7 +57,7 @@ class OrdersController < ApplicationController
       i.save!
     end
 
-    redirect_to :action => 'index'
+    redirect_to :controller => 'order_users', :action => 'index', :id => order.id
   end
 
   def new

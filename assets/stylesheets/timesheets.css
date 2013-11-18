@@ -1,5 +1,15 @@
 .ts-display td {
-    padding: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: center;
+}
+
+.ts-display select {
+    width: 100%;
+}
+
+.ts-display input {
+    width: 80%;
 }
 
 .ts-odd {

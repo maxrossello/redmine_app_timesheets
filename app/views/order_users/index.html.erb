@@ -1,4 +1,11 @@
-
+<div class="contextual" style="margin-top: 0px">
+  <div class="icon icon-user">
+    <%= link_to l(:label_add_user), { :controller => 'order_users', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :remote => true %>
+  </div>
+  <div class="icon icon-group">
+    <%= link_to l(:label_add_group), { :controller => 'watcher_groups', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :remote => true %>
+  </div>
+</div>
 <h2><%= l(:label_order_permissions) + ": " + @order.name %></h2>
 <%
   unless Setting.plugin_redmine_app_timesheets['project'] == "" or
@@ -19,6 +26,33 @@
     <% end %>
 
     <div class="splitcontentleft">
+      <%= form_tag({:action => 'activities'}) do %>
+          <%= hidden_field_tag 'id', params[:id] %>
+          <table class="list activities">
+            <thead><tr>
+              <th><%= l(:enumeration_activities) %></th>
+              <th style="width:0"><%= l(:field_active) %></th>
+            </tr></thead>
+            <tbody>
+                <% TimeEntryActivity.shared.active.each do |entry| %>
+                    <tr>
+                      <td><%= entry.name %></td>
+                      <td><%= check_box_tag "activity[][#{entry.id}]", entry.name, ((!Setting.plugin_redmine_app_timesheets['activities'][@order.id.to_s].rassoc(entry.id.to_s).nil?  rescue true) unless params[:uncheck]) %></td>
+                    </tr>
+                <% end %>
+            </tbody>
+          </table>
+          <% if params[:uncheck] %>
+              <%= button_tag l(:button_check_all), :type => 'button', :onclick => "location.href='#{url_for(params.except (:uncheck))}'" %>
+          <% else %>
+              <%= button_tag l(:button_uncheck_all), :type => 'button', :onclick => "location.href='#{url_for(params.merge ({:uncheck => true}))}'" %>
+          <% end %>
+          <%= button_tag l(:button_cancel), :type => 'button', :onclick => "location.href='#{request.env["HTTP_REFERER"]}'" %>
+          <%= submit_tag l(:button_save) %>
+      <% end %>
+    </div>
+
+    <div class="splitcontentright">
       <% if @members.any? %>
           <table class="list members">
             <thead><tr>
@@ -59,20 +93,19 @@
             </tbody>
           </table>
       <% else %>
+          <table class="list members">
+            <thead><tr>
+              <th><%= l(:label_user) %> / <%= l(:label_group) %></th>
+              <th style="width:15%"></th>
+            </tr></thead>
+          </table>
           <p class="nodata"><%= l(:label_no_data) %></p>
       <% end %>
     </div>
 
-    <div class="contextual">
-      <div class="icon icon-user">
-        <%= link_to l(:label_add_user), { :controller => 'order_users', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :remote => true %>
-      </div>
-      <div class="icon icon-group">
-        <%= link_to l(:label_add_group), { :controller => 'watcher_groups', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :remote => true %>
-      </div>
-    </div>
+
 <%else %>
-     <h3><%=l(:label_timesheets_configure)%> <a horder='/settings/plugin/redmine_app_timesheets'><%=l(:label_here)%></h3>
+     <h3><%=l(:label_timesheets_configure)%> <a href='/settings/plugin/redmine_app_timesheets'><%=l(:label_here)%></h3>
 <%end  %>
 
 <% html_title(l(:label_order_mgmt)) -%>
