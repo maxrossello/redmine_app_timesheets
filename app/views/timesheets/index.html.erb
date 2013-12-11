@@ -1,4 +1,14 @@
+<div class="contextual">
+  <% if @view == :day %>
+      <%= link_to l(:label_week_view), params.merge({:view => :week}), :class => 'icon icon-reload' %>
+  <% else %>
+      <%= link_to l(:label_day_view), params.merge({:view => :day}), :class => 'icon icon-reload' %>
+  <% end %>
+  <%= link_to l(:label_log_time_on_issue), {:action => 'new'}, :class => 'icon icon-time-add' %>
+</div>
+
 <h2><%=l(:label_timesheets)%> <%=l(:label_for)%> <%= @user.firstname+' '+@user.lastname%></h2>
+
 <%
    unless Setting.plugin_redmine_app_timesheets['project'] == "" or
            Setting.plugin_redmine_app_timesheets['tracker'] == "" %>
@@ -8,28 +18,22 @@
          <%= hidden_field_tag("day", (params[:day] || DateTime.now.to_s(:param_date)))%>
          <%= hidden_field_tag("view", (params[:view] || "week"))%>
 
-        <%   if @view == :day %>
-                <div class="contextual">
-                  <%= link_to l(:label_week_view), params.merge({:view => :week}), :class => 'icon icon-reload' %>
-                </div>
-           <% else %>
-                <div class="contextual">
-                  <%= link_to l(:label_day_view), params.merge({:view => :day}), :class => 'icon icon-reload' %>
-                </div>
-           <% end %>
-           <table class="ts-display">
+        <table class="ts-display">
            <%   if(@visibility != :edit_own) %>
                     <tr>
                     <%  s = content_tag('option', "<< #{l(:label_me)} >>", :value => User.current.id)
                         s << options_for_select(User.active.all.map {|u| [u.name, u.id]}, params[:user_id]) %>
                         <th><%= label_tag l(:label_user) %> </th>
                         <td><%= select_tag 'user_id', s.html_safe, :onchange => "this.form.submit();"  %></td>
+                      <td width="70%"></td>
                     </tr>
            <%   end %>
 
-           <%=  render :partial => "navigation" %>
+          <tr><td><br/></td></tr>
 
-           </table>
+          <%=  render :partial => "navigation" %>
+
+        </table>
     <%  end %>
 
     <% #if @view == :day %>

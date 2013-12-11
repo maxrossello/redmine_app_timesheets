@@ -30,16 +30,17 @@ it:
   label_order_users: "config"
   label_add_user: "Aggiungi utente"
   label_add_group: "Aggiungi gruppo"
+  label_log_time_on_issue: "Registra tempo su attività"
 
   label_timesheet_select: "Selezionare"
+  label_timesheet_no_entry: "Nessun dato disponibile."
+  label_timesheet_add_row: "Add row"
+  label_timesheet_available_entries: "Registrazioni disponibili"
+
 
   label_timesheet_project_label: "Progetto di appoggio"
   label_timesheet_project_hint: "Il progetto che conserva i dati dietro le quinte"
   label_timesheets_warn_select_project: "Selezionare un progetto"
-
-  label_timesheet_admin_label: "Gruppo amministratori"
-  label_timesheet_admins_hint: "Il gruppo degli amministratori delle commesse"
-  label_timesheets_warn_select_admins: "Selezionare un gruppo"
 
   label_timesheet_tracker_label: "Tracker di appoggio"
   label_timesheet_tracker_hint: "Il tracker usato per aggregare le ore riportate"

@@ -28,11 +28,16 @@ Redmine::Plugin.register :redmine_app_timesheets do
   unless Redmine::Helpers::TimeReport.included_modules.include?(TimesheetsAppTimeReportPatch)
     Redmine::Helpers::TimeReport.send(:include, TimesheetsAppTimeReportPatch)
   end
+
+  unless TimeEntry.included_modules.include?(TimesheetsAppTimelogPatch)
+    TimeEntry.send(:include, TimesheetsAppTimelogPatch)
+  end
+
 end
 
 # needs to be evaluated before /apps(/:tab)!
 RedmineApp::Application.routes.prepend do
-  application 'timesheets', :to => 'timesheets#index', :via => :get
+  application 'timesheets', :to => 'timesheets#index', :via => [:get,:post]
   application 'order_mgmt', :to => 'orders#index', :via => :get
 
   put 'apps/order_mgmt/disable/:id', :controller => 'orders', :action => 'disable'
@@ -48,6 +53,8 @@ RedmineApp::Application.routes.prepend do
   delete 'apps/order_users/:id/destroy', :controller => 'order_users', :action => 'destroy'
   post 'apps/order_users/activities', :controller => 'order_users', :action => 'activities'
 
+  get 'apps/timesheets/log_time', :controller => 'timesheets', :action => 'new'
+  put 'apps/timesheets/add_entry', :controller => 'timesheets', :action => 'add_entry'
   post 'apps/timesheets/save_weekly', :controller => 'timesheets', :action => 'save_weekly'
   delete 'apps/timesheets/delete_row', :controller => 'timesheets', :action => 'delete_row'
 end

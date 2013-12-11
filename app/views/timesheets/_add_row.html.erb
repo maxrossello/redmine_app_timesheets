@@ -1,0 +1,41 @@
+<%= field_set_tag raw("<b>#{l(:label_timesheet_add_row)}</b>") do %>
+    <%= form_tag url_for({:controller => 'timesheets', :action => 'index'}), {:method => :get} do %>
+        <%= hidden_field_tag 'newrow', true %>
+        <%= hidden_field_tag 'day', params[:day] if params[:day] %>
+        <%= hidden_field_tag 'view', params[:view] if params[:view] %>
+        <%= hidden_field_tag 'user_id', params[:user_id] if params[:user_id] %>
+        <table><tr>
+          <td>
+            <table>
+              <tr>
+                <td><strong><%= l(:label_order) %></strong></td>
+                <td><%= select_tag 'order', options_from_collection_for_select(@orders, 'id', 'name', params[:order]),
+                                   :onchange => "location.href='#{url_for(params.except(:order, :activity).merge({:new_row => ''}))}&order='+this.value",
+                                   :include_blank => true %></td>
+
+                <% if @activities %>
+                    <td><strong><%= l(:label_activity) %></strong></td>
+                    <td>
+                      <%= select_tag 'activity', options_for_select(@activities, params[:activity]),
+                                     :onchange => "location.href='#{url_for(params.except(:activity))}&activity='+this.value",
+                                     :include_blank => true %>
+                    </td>
+                <% end %>
+
+                <% if @issues %>
+                    <td><strong><%= l(:label_issue) %></strong></td>
+                    <td>
+                      <%= select_tag 'issue', options_from_collection_for_select(@issues, 'id', 'subject'), :include_blank => true %>
+                    </td>
+                <% end %>
+
+                <% if params[:activity] && !params[:activity].empty? %>
+                    <td><%= submit_tag l(:button_save) %></td>
+                <% end %>
+
+              </tr>
+            </table>
+          </td>
+        </tr></table>
+    <% end %>
+<% end %>

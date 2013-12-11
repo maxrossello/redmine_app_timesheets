@@ -1,0 +1,41 @@
+<% unless @available.empty? %>
+    <br/><br/>
+    <table class="ts-display list">
+      <thead>
+      <tr>
+        <th colspan="7" style="text-align:center">
+          <%= l(:label_timesheet_available_entries) %>
+        </th>
+      </tr>
+      <tr>
+        <th></th>
+        <th><%= l(:label_order) %></th>
+        <th><%= l(:label_project) %></th>
+        <th><%= l(:label_activity) %></th>
+        <th><%= l(:label_issue) %></th>
+        <th><%= l(:field_spent_on) %></th>
+        <th><%= l(:field_hours) %></th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @available.each do |entry| %>
+          <tr>
+            <td style="width:5px">
+              <%= link_to image_tag('add.png'), { :controller => 'timesheets',
+                                                  :action => 'add_entry',
+                                                  :entry_id => entry[:timelog].id
+              },
+                          :method => :put,
+                          :title => l(:button_add) %>
+            </td>
+            <td><%= entry[:order].name %></td>
+            <td><%= entry[:order].project.name %></td>
+            <td><%= entry[:timelog].activity %></td>
+            <td><%= entry[:timelog].issue.to_s %></td>
+            <td><%= entry[:timelog].spent_on %></td>
+            <td><%= entry[:timelog].hours %></td>
+          </tr>
+      <% end %>
+      </tbody>
+    </table>
+<% end %>

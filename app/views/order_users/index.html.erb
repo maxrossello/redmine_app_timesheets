@@ -1,10 +1,6 @@
-<div class="contextual" style="margin-top: 0px">
-  <div class="icon icon-user">
-    <%= link_to l(:label_add_user), { :controller => 'order_users', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :remote => true %>
-  </div>
-  <div class="icon icon-group">
-    <%= link_to l(:label_add_group), { :controller => 'watcher_groups', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :remote => true %>
-  </div>
+<div class="contextual">
+    <%= link_to l(:label_add_user), { :controller => 'order_users', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :class => "icon icon-user", :remote => true %>
+    <%= link_to l(:label_add_group), { :controller => 'watcher_groups', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :class => "icon icon-group", :remote => true %>
 </div>
 <h2><%= l(:label_order_permissions) + ": " + @order.name %></h2>
 <%
