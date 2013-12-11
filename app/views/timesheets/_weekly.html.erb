@@ -27,9 +27,12 @@
                  last_project = 0
                  @week_matrix.each_with_index do |row, idx|
                    order = row[:order]
+
                    project = order.project
                    @css_class = cycle("ts-odd", "ts-even") if order.name != last_order || order.project_id != last_project %>
-                  <tr class="<%= @css_class %>">
+
+                  <!-- skip display of disabled orders into the next week -->
+                  <tr class="<%= @css_class %>" <%="style=display:none" if row[:spent].select {|x,y| x >= @week_start}.empty? and !@active_orders.include?(order)%>>
                     <td>
                       <%= hidden_field_tag 'order[]', order.id %>
                       <% if order.project_id == @ts_project %>
@@ -62,7 +65,11 @@
                     <% (@week_start..@week_end).each do |d| %>
                         <td><%= text_field_tag "hours[#{d.to_s(:param_date)}][]",
                                                row[:spent][d].nil? || row[:spent][d] == 0.0 ?
-                                                       '' : row[:spent][d], :size => 1, :class => "hours" %></td>
+                                                       '' : row[:spent][d], :size => 1,
+                                               :class => "hours",
+                                               @active_orders.include?(order) ? '' : :readonly => true,
+                                               @active_orders.include?(order) ? '' : :style => 'background-color:lightgrey'
+                        %></td>
                     <% end %>
 
                     <td><%= link_to image_tag('delete.png'), {:controller => 'timesheets',
@@ -104,5 +111,4 @@
 <br/><br/>
 
 
-<%=  render :partial => "add_row" %>
-<%=  render :partial => "add_entry" %>
+

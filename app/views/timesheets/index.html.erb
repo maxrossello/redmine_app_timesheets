@@ -42,6 +42,9 @@
     <%= render :partial => "weekly" %>
     <% #end %>
 
+    <%=  render :partial => "add_row" %>
+    <%=  render :partial => "add_entry" %>
+
 <% else %>
      <h3><%=l(:label_timesheets_configure)%> <a href='/settings/plugin/redmine_app_timesheets'><%=l(:label_here)%></h3>
 <% end

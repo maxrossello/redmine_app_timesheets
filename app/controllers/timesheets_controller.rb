@@ -146,8 +146,15 @@ class TimesheetsController < ApplicationController
   end
 
   def get_timelogs
-    @orders = (Issue.where(:project_id => @ts_project).watched_by(@user).joins(:fixed_version).map(&:fixed_version) +
+    # version of issues in @ts_project + shared versions visible in @ts_project
+    # + versions associated to existing timelogs even if version no more visible to user
+    # + versions associated to issues that are associated to some existing timelog
+    @active_orders = (Issue.where(:project_id => @ts_project).watched_by(@user).joins(:fixed_version).map(&:fixed_version) +
         Project.find(@ts_project).shared_versions.visible(@user).all).uniq.sort_by{ |v| v.name.downcase}
+    @orders = (@active_orders +
+        Version.where(:id => TimeEntry.for_user(@user).map(&:fixed_version_id)).all +
+        Version.where(:id => Issue.joins(:time_entries).where('user_id = ?', @user.id).where(:fixed_version_id => Project.find(@ts_project).shared_versions.map(&:id)).map(&:fixed_version_id)).all
+      ).uniq.sort_by{ |v| v.name.downcase}
 
     @daily_totals = {}
     @week_matrix = []
