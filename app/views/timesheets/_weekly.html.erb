@@ -28,6 +28,9 @@
                  @week_matrix.each_with_index do |row, idx|
                    order = row[:order]
 
+                   readonly = true unless @active_orders.include?(order)
+                   readonly = true if @visibility == :view and @user != User.current
+
                    project = order.project
                    @css_class = cycle("ts-odd", "ts-even") if order.name != last_order || order.project_id != last_project %>
 
@@ -67,8 +70,8 @@
                                                row[:spent][d].nil? || row[:spent][d] == 0.0 ?
                                                        '' : row[:spent][d], :size => 1,
                                                :class => "hours",
-                                               @active_orders.include?(order) ? '' : :readonly => true,
-                                               @active_orders.include?(order) ? '' : :style => 'background-color:lightgrey'
+                                               !readonly ? '' : :readonly => true,
+                                               !readonly ? '' : :style => 'background-color:lightgrey'
                         %></td>
                     <% end %>
 

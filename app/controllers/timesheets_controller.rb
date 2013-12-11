@@ -120,23 +120,18 @@ class TimesheetsController < ApplicationController
     render_403 unless User.current.logged?
 
     if params[:user_id] and params[:user_id] != User.current.id.to_s
-      @user = User.find(params[:user_id]) rescue nil
-      if @user.nil?
-        render_404
-      elsif User.current.admin? or User.current.allowed_to?(:edit_time_entries, @ts_project)
-        @visibility = :edit
-      elsif User.current.allowed_to?(:view_time_entries, @ts_project)
-        @visibility = :view
-      else
-        render_403
-      end
+      @user = User.find(params[:user_id]) rescue render_404
     else
       @user = User.current
-      if User.current.admin? or User.current.allowed_to?(:edit_time_entries, @ts_project)
-        @visibility = :edit
-      else User.current.allowed_to?(:view_time_entries, @ts_project)
-        @visibility = :edit_own
-      end
+    end
+
+    if User.current.admin? or User.current.allowed_to?(:edit_time_entries, Project.find(@ts_project))
+      @visibility = :edit
+    elsif User.current.allowed_to?(:view_time_entries, Project.find(@ts_project))
+      @visibility = :view
+    else
+      redirect_to url_for params.except :user_id if @user != User.current
+      @visibility = :edit_own
     end
 
   end
