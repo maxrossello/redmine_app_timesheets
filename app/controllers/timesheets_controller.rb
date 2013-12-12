@@ -101,13 +101,37 @@ class TimesheetsController < ApplicationController
     redirect_to url_for(params.merge(:action => 'index')) #:back
   end
 
+  def row_entries
+    entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@week_start,@week_end).where(:activity_id => params[:activity_id])
+    if params[:issue_id]
+      entries = entries.joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{Issue.table_name}.fixed_version_id = ?", params[:order_id])
+    else
+      entries = entries.where(:fixed_version_id => params[:order_id])
+    end
+
+    entries
+  end
+
   def delete_row
+    TimeEntry.delete(row_entries.all)
+
+    redirect_to :back
+  end
+
+  def copy_row
+    row_entries.all.each do |x|
+      tlog = x.dup
+      tlog.spent_on = tlog.spent_on+7
+      tlog.save!
+    end
+
+    redirect_to url_for(params.merge({:action => 'index', :day => params[:day].to_date + 7}).except([:order_id, :activity_id, :issue_id]))
   end
 
   private
 
   def get_dates
-    @current_day = Date.strptime((params[:day]||DateTime.now.to_s), Time::DATE_FORMATS[:param_date]) rescue nil
+    @current_day = DateTime.strptime((params[:day]||DateTime.now.to_s), Time::DATE_FORMATS[:param_date]) rescue nil
 
     @week_start = @current_day.beginning_of_week
     @week_end = @current_day.end_of_week
@@ -146,6 +170,8 @@ class TimesheetsController < ApplicationController
     # + versions associated to issues that are associated to some existing timelog
     @active_orders = (Issue.where(:project_id => @ts_project).watched_by(@user).joins(:fixed_version).map(&:fixed_version) +
         Project.find(@ts_project).shared_versions.visible(@user).all).uniq.sort_by{ |v| v.name.downcase}
+    @active_own_orders = (Issue.where(:project_id => @ts_project).watched_by(User.current).joins(:fixed_version).map(&:fixed_version) +
+        Project.find(@ts_project).shared_versions.visible.all).uniq.sort_by{ |v| v.name.downcase}
     @orders = (@active_orders +
         Version.where(:id => TimeEntry.for_user(@user).map(&:fixed_version_id)).all +
         Version.where(:id => Issue.joins(:time_entries).where('user_id = ?', @user.id).where(:fixed_version_id => Project.find(@ts_project).shared_versions.map(&:id)).map(&:fixed_version_id)).all
@@ -154,8 +180,13 @@ class TimesheetsController < ApplicationController
     @daily_totals = {}
     @week_matrix = []
     @available = []
+    @visible_orders = []
 
     @orders.each do |order|
+      # skip orders not visible to the current user
+      next if User.current != @user and !@active_own_orders.include?(order)
+      @visible_orders << order if @active_orders.include?(order)
+
       row = {}
       row[:order] = order
       row[:spent] = {}
@@ -163,7 +194,7 @@ class TimesheetsController < ApplicationController
         row[:issues] = Issue.visible(@user).where(:fixed_version_id => order.id)
       end
       row[:activities] = (Setting.plugin_redmine_app_timesheets['activities'][order.id.to_s] || TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]})
-      entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@week_start-7,@week_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
+      entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@week_start-7,@week_end+7).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
       entries.all.group_by(&:activity_id).each do |activity, values|
         row[:spent] = {}
         row[:activity] = Enumeration.find(activity)

@@ -9,7 +9,7 @@
             <table>
               <tr>
                 <td><strong><%= l(:label_order) %></strong></td>
-                <td><%= select_tag 'order', options_from_collection_for_select(@active_orders, 'id', 'name', params[:order]),
+                <td><%= select_tag 'order', options_from_collection_for_select(@visible_orders, 'id', 'name', params[:order]),
                                    :onchange => "location.href='#{url_for(params.except(:order, :activity).merge({:new_row => ''}))}&order='+this.value",
                                    :include_blank => true %></td>
 

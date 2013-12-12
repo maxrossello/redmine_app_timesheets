@@ -28,14 +28,20 @@
                  @week_matrix.each_with_index do |row, idx|
                    order = row[:order]
 
+                   readonly = false
                    readonly = true unless @active_orders.include?(order)
                    readonly = true if @visibility == :view and @user != User.current
+
+                   emptyrow = row[:spent].select {|x,y| x >= @week_start and x <= @week_end }.empty?
+                   emptynextrow = row[:spent].select {|x,y| x > @week_end }.empty?
+
+                   # skip display of disabled orders into the next empty week
+                   hidden = (emptyrow and !@active_orders.include?(order))
 
                    project = order.project
                    @css_class = cycle("ts-odd", "ts-even") if order.name != last_order || order.project_id != last_project %>
 
-                  <!-- skip display of disabled orders into the next week -->
-                  <tr class="<%= @css_class %>" <%="style=display:none" if row[:spent].select {|x,y| x >= @week_start}.empty? and !@active_orders.include?(order)%>>
+                  <tr class="<%= @css_class %>" <%="style=display:none" if hidden %>>
                     <td>
                       <%= hidden_field_tag 'order[]', order.id %>
                       <% if order.project_id == @ts_project %>
@@ -75,16 +81,31 @@
                         %></td>
                     <% end %>
 
-                    <td><%= link_to image_tag('delete.png'), {:controller => 'timesheets',
+                    <td style="width: 40px; text-align: left">
+                      <span><%= link_to image_tag('delete.png'), {:controller => 'timesheets',
                                                               :action => 'delete_row',
                                                               :issue_id => row[:issue],
                                                               :activity_id => row[:activity].id,
                                                               :order_id => order.id,
-                                                              :week =>@week_start.to_s(:param_date)
-                    },
+                                                              :day => params[:day],
+                                                              :user_id => params[:user_id]
+                      },
                                     :confirm => l(:text_are_you_sure),
                                     :method => :delete,
-                                    :title => l(:button_delete) %></td>
+                                    :title => l(:button_delete) unless emptyrow or readonly %>
+                      </span><span>
+                      <%= link_to image_tag('bullet_go.png'), {:controller => 'timesheets',
+                                                            :action => 'copy_row',
+                                                            :issue_id => row[:issue],
+                                                            :activity_id => row[:activity].id,
+                                                            :order_id => order.id,
+                                                            :day => params[:day],
+                                                            :user_id => params[:user_id]
+                      },
+                                  :method => :post,
+                                  :title => l(:button_copy_and_follow) unless emptyrow or readonly or !emptynextrow %>
+                      </span>
+                    </td>
                   </tr>
               <% end %>
               <tr>

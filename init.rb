@@ -57,6 +57,7 @@ RedmineApp::Application.routes.prepend do
   put 'apps/timesheets/add_entry', :controller => 'timesheets', :action => 'add_entry'
   post 'apps/timesheets/save_weekly', :controller => 'timesheets', :action => 'save_weekly'
   delete 'apps/timesheets/delete_row', :controller => 'timesheets', :action => 'delete_row'
+  post 'apps/timesheets/copy_row', :controller => 'timesheets', :action => 'copy_row'
 end
 
 module Timesheet
