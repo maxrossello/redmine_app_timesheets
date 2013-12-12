@@ -27,7 +27,7 @@ class TimesheetsController < ApplicationController
   end
 
   def save_weekly
-    entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@week_start,@week_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").all
+    entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@period_start,@period_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").all
     save entries
   end
 
@@ -93,16 +93,12 @@ class TimesheetsController < ApplicationController
       end
     end
 
-    params.delete :order
-    params.delete :activity
-    params.delete :issue
-    params.delete :newrow
-
-    redirect_to url_for(params.merge(:action => 'index')) #:back
+    #:back
+    redirect_to url_for({ :controller => params[:controller], :action => 'index', :user_id => params[:user_id], :view => params[:view], :day => params[:day]})
   end
 
   def row_entries
-    entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@week_start,@week_end).where(:activity_id => params[:activity_id])
+    entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@period_start,@period_end).where(:activity_id => params[:activity_id])
     if params[:issue_id]
       entries = entries.joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{Issue.table_name}.fixed_version_id = ?", params[:order_id])
     else
@@ -120,12 +116,13 @@ class TimesheetsController < ApplicationController
 
   def copy_row
     row_entries.all.each do |x|
-      tlog = x.dup
-      tlog.spent_on = tlog.spent_on+7
+      tlog = TimeEntry.find(x.id).dup
+      tlog.spent_on = tlog.spent_on+@period_length
       tlog.save!
     end
 
-    redirect_to url_for(params.merge({:action => 'index', :day => params[:day].to_date + 7}).except([:order_id, :activity_id, :issue_id]))
+    redirect_to url_for({ :controller => params[:controller], :action => 'index', :user_id => params[:user_id], :view => params[:view], :day => params[:day].to_date + @period_length})
+
   end
 
   private
@@ -133,11 +130,24 @@ class TimesheetsController < ApplicationController
   def get_dates
     @current_day = DateTime.strptime((params[:day]||DateTime.now.to_s), Time::DATE_FORMATS[:param_date]) rescue nil
 
-    @week_start = @current_day.beginning_of_week
-    @week_end = @current_day.end_of_week
-
     @view = params[:view].to_sym rescue nil
     @view = :week if @view.nil?
+
+    if @view == :week
+      @period_start = @current_day.beginning_of_week
+      @period_end = @current_day.end_of_week
+      @period_length = 7
+    elsif @view == :day
+      @period_start = @current_day
+      @period_end = @current_day
+      @period_length = 1
+    else
+      @period_length = params[:view].to_i
+      @period_start = @current_day
+      @period_end = @current_day + @period_length -1
+    end
+
+
   end
 
   def get_user
@@ -194,7 +204,7 @@ class TimesheetsController < ApplicationController
         row[:issues] = Issue.visible(@user).where(:fixed_version_id => order.id)
       end
       row[:activities] = (Setting.plugin_redmine_app_timesheets['activities'][order.id.to_s] || TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]})
-      entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@week_start-7,@week_end+7).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
+      entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@period_start-@period_length,@period_end+@period_length).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
       entries.all.group_by(&:activity_id).each do |activity, values|
         row[:spent] = {}
         row[:activity] = Enumeration.find(activity)
@@ -216,7 +226,7 @@ class TimesheetsController < ApplicationController
         @week_matrix << row unless row[:spent].empty?
       end
 
-      TimeEntry.for_user(@user).where(:in_timesheet => false).where("spent_on IN (?)", @week_start..@week_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id).each do |entry|
+      TimeEntry.for_user(@user).where(:in_timesheet => false).spent_between(@period_start,@period_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id).each do |entry|
         @available << { :order => order, :timelog => entry }
       end
 

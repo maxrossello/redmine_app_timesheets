@@ -1,8 +1,8 @@
-<%= field_set_tag raw("<strong>#{@week_start.to_s(:week)} - #{@week_end.to_s(:week)}</strong>") do %>
+<%= field_set_tag raw("<strong>#{@period_start.to_s(:week)} - #{@period_end.to_s(:week)}</strong>") do %>
     <br />
     <br />
 
-    <%= form_tag :controller => 'timesheets', :action => 'save_weekly', :week => @week_start.to_s(:param_date) do %>
+    <%= form_tag :controller => 'timesheets', :action => 'save_weekly', :week => @period_start.to_s(:param_date) do %>
 
         <% unless @week_matrix.empty? %>
             <%= hidden_field_tag 'user_id', @user.id %>
@@ -16,7 +16,7 @@
                 <th><%= l(:label_activity) %></th>
                 <th><%= l(:label_issue) %></th>
                 <th></th>
-                <% (@week_start..@week_end).each do |d| %>
+                <% (@period_start..@period_end).each do |d| %>
                     <th><%= d.to_s(:day) %></th>
                 <% end %>
                 <th></th>
@@ -32,8 +32,8 @@
                    readonly = true unless @active_orders.include?(order)
                    readonly = true if @visibility == :view and @user != User.current
 
-                   emptyrow = row[:spent].select {|x,y| x >= @week_start and x <= @week_end }.empty?
-                   emptynextrow = row[:spent].select {|x,y| x > @week_end }.empty?
+                   emptyrow = row[:spent].select {|x,y| x >= @period_start and x <= @period_end }.empty?
+                   emptynextrow = row[:spent].select {|x,y| x > @period_end }.empty?
 
                    # skip display of disabled orders into the next empty week
                    hidden = (emptyrow and !@active_orders.include?(order))
@@ -71,7 +71,7 @@
                         <td></td>
                     <% end %>
 
-                    <% (@week_start..@week_end).each do |d| %>
+                    <% (@period_start..@period_end).each do |d| %>
                         <td><%= text_field_tag "hours[#{d.to_s(:param_date)}][]",
                                                row[:spent][d].nil? || row[:spent][d] == 0.0 ?
                                                        '' : row[:spent][d], :size => 1,
@@ -88,7 +88,8 @@
                                                               :activity_id => row[:activity].id,
                                                               :order_id => order.id,
                                                               :day => params[:day],
-                                                              :user_id => params[:user_id]
+                                                              :user_id => params[:user_id],
+                                                              :view => params[:view]
                       },
                                     :confirm => l(:text_are_you_sure),
                                     :method => :delete,
@@ -100,7 +101,8 @@
                                                             :activity_id => row[:activity].id,
                                                             :order_id => order.id,
                                                             :day => params[:day],
-                                                            :user_id => params[:user_id]
+                                                            :user_id => params[:user_id],
+                                                            :view => params[:view]
                       },
                                   :method => :post,
                                   :title => l(:button_copy_and_follow) unless emptyrow or readonly or !emptynextrow %>
@@ -110,7 +112,7 @@
               <% end %>
               <tr>
                 <td colspan="4" style="text-align: right"><hr/><strong><%= l(:label_total) %>:</strong></td>
-                <% (@week_start..@week_end).each do |day| %>
+                <% (@period_start..@period_end).each do |day| %>
                     <td><hr /><%= @daily_totals[day] ? @daily_totals[day] : 0.0  %></td>
                 <% end %>
               </tr>

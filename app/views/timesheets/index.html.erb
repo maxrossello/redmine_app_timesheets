@@ -36,11 +36,11 @@
         </table>
     <%  end %>
 
-    <% #if @view == :day %>
-    <%#= render :partial => "daily" %>
-    <% #else %>
+    <% if @view == :day %>
+    <%= render :partial => "daily" %>
+    <% else %>
     <%= render :partial => "weekly" %>
-    <% #end %>
+    <% end %>
 
     <%=  render :partial => "add_row" %>
     <%=  render :partial => "add_entry" %>

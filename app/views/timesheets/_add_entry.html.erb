@@ -1,12 +1,9 @@
 <% unless @available.empty? %>
     <br/><br/>
+    <fieldset>
+      <legend><strong><%= l(:label_timesheet_available_entries) %></strong></legend>
     <table class="ts-display list">
       <thead>
-      <tr>
-        <th colspan="7" style="text-align:center">
-          <%= l(:label_timesheet_available_entries) %>
-        </th>
-      </tr>
       <tr>
         <th></th>
         <th><%= l(:label_order) %></th>
@@ -38,4 +35,5 @@
       <% end %>
       </tbody>
     </table>
+    </fieldset>
 <% end %>
