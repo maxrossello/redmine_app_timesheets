@@ -9,15 +9,16 @@
             <%= hidden_field_tag 'day', params[:day] %>
             <%= hidden_field_tag 'view', params[:view] %>
 
+            <div style="overflow-x: auto">
             <table class="ts-display">
               <thead>
               <tr>
-                <th><%= l(:label_order) %></th>
-                <th><%= l(:label_activity) %></th>
+                <th style="min-width: 150px"><%= l(:label_order) %></th>
+                <th style="min-width: 150px"><%= l(:label_activity) %></th>
                 <th><%= l(:label_issue) %></th>
                 <th></th>
                 <% (@period_start..@period_end).each do |d| %>
-                    <th><%= d.to_s(:day) %></th>
+                    <th style="min-width: 45px"><%= d.to_s(:day) %></th>
                 <% end %>
                 <th></th>
               </tr>
@@ -36,7 +37,7 @@
                    emptynextrow = row[:spent].select {|x,y| x > @period_end }.empty?
 
                    # skip display of disabled orders into the next empty week
-                   hidden = (emptyrow and !@active_orders.include?(order))
+                   hidden = (emptyrow and (!@active_orders.include?(order) or readonly))
 
                    project = order.project
                    @css_class = cycle("ts-odd", "ts-even") if order.name != last_order || order.project_id != last_project %>
@@ -126,6 +127,7 @@
               </tr>
               </tbody>
             </table>
+            </div>
 
         <% else %>
             <strong><%= l(:label_timesheet_no_entry) %></strong>
