@@ -121,20 +121,29 @@ class TimesheetsController < ApplicationController
   end
 
   def delete_row
-    TimeEntry.delete(row_entries.all)
+    if params[:entry_id]
+      TimeEntry.delete(params[:entry_id])
+    else
+      TimeEntry.delete(row_entries.all)
+    end
 
     redirect_to :back
   end
 
   def copy_row
-    row_entries.all.each do |x|
+    if params[:entry_id]
+      set = [TimeEntry.find(params[:entry_id])]
+    else
+      set = row_entries.all
+    end
+
+    set.each do |x|
       tlog = TimeEntry.find(x.id).dup
-      tlog.spent_on = tlog.spent_on+@period_length
+      tlog.spent_on = tlog.spent_on+@period_shift
       tlog.save!
     end
 
-    redirect_to url_for({ :controller => params[:controller], :action => 'index', :user_id => params[:user_id], :view => params[:view], :day => params[:day].to_date + @period_length})
-
+    redirect_to url_for({ :controller => params[:controller], :action => 'index', :user_id => params[:user_id], :view => params[:view], :day => params[:day].to_date + @period_shift})
   end
 
   private
