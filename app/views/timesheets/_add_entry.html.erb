@@ -23,7 +23,7 @@
                                                   :entry_id => entry[:timelog].id
               },
                           :method => :put,
-                          :title => l(:button_add) %>
+                          :title => l(:button_add) unless @visibility == :view and @user != User.current %>
             </td>
             <td><%= entry[:order].name %></td>
             <td><%= entry[:order].project.name %></td>

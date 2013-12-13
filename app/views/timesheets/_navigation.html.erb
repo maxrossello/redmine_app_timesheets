@@ -1,13 +1,13 @@
 <tr>
   <td colspan="2" style="text-align: left;">
 
-<%= link_to "\xc2\xab " + l(:label_previous ), {:controller => "timesheets", :action => "index", :day => (@current_day - @period_length).to_s(:param_date), :view => params[:view],
+<%= link_to "\xc2\xab " + l(:label_previous ), {:controller => "timesheets", :action => "index", :day => (@current_day - @period_shift).to_s(:param_date), :view => params[:view],
           :user_id => params[:user_id]}, :title => l("label_previous_#{@view}")%>
   |
   <%= link_to l(:label_today), {:controller => "timesheets", :action => "index", :day => DateTime.now.to_s(:param_date), :view => params[:view],
               :user_id => params[:user_id]}, :title => l(:label_today)%>
   |
-<%= link_to l(:label_next) + " \xc2\xbb", {:controller => "timesheets", :action => "index", :day => (@current_day + @period_length).to_s(:param_date), :view => params[:view],
+<%= link_to l(:label_next) + " \xc2\xbb", {:controller => "timesheets", :action => "index", :day => (@current_day + @period_shift).to_s(:param_date), :view => params[:view],
           :user_id => params[:user_id]}, :title => l("label_next_#{@view}") %>
 
 </td><td></td>

@@ -42,7 +42,7 @@
     <%= render :partial => "weekly" %>
     <% end %>
 
-    <%=  render :partial => "add_row" %>
+    <%=  render :partial => "add_row" unless @visibility == :view and @user != User.current %>
     <%=  render :partial => "add_entry" %>
 
 <% else %>

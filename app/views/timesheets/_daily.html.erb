@@ -2,14 +2,14 @@
     <br />
     <br />
 
-    <%= form_tag :controller => 'timesheets', :action => 'save_daily', :week => @period_start.to_s(:param_date) do %>
+    <%= form_tag :controller => 'timesheets', :action => 'save_period' do %>
 
         <% unless @week_matrix.empty? %>
             <%= hidden_field_tag 'user_id', @user.id %>
             <%= hidden_field_tag 'day', params[:day] %>
             <%= hidden_field_tag 'view', params[:view] %>
 
-            <table class="ts-display">
+            <table>
               <thead>
               <tr>
                 <th><%= l(:label_order) %></th>
@@ -17,6 +17,7 @@
                 <th><%= l(:label_issue) %></th>
                 <th></th>
                 <th><%= @current_day.to_s(:day) %></th>
+                <th><%= l(:label_comment) %></th>
                 <th></th>
               </tr>
               </thead>
@@ -30,79 +31,84 @@
                    readonly = true unless @active_orders.include?(order)
                    readonly = true if @visibility == :view and @user != User.current
 
-                   emptyrow = row[:spent].select {|x,y| x >= @period_start and x <= @period_end }.empty?
-                   emptynextrow = row[:spent].select {|x,y| x > @period_end }.empty?
-
-                   # skip display of disabled orders into the next empty week
-                   hidden = (emptyrow and !@active_orders.include?(order))
-
                    project = order.project
-                   @css_class = cycle("ts-odd", "ts-even") if order.name != last_order || order.project_id != last_project %>
+                   @css_class = cycle("ts-odd", "ts-even") if order.name != last_order || order.project_id != last_project
 
-                  <tr class="<%= @css_class %>" <%="style=display:none" if hidden %>>
-                    <td>
-                      <%= hidden_field_tag 'order[]', order.id %>
-                      <% if order.project_id == @ts_project %>
-                          <%= order.name %>
-                      <% else %>
-                          <%= link_to_if order.visible?(@user), order.name, { :controller => 'versions', :action => 'show', :id => order.id } %>
-                          ( <%=link_to_if order.visible?(@user), project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } %> )
-                      <% end %>
-                    </td>
+                   # new row handling
+                   row[:entries] = [TimeEntry.new] unless row[:entries]
 
-                    <td>
-                      <%= hidden_field_tag 'previous_activity[]', row[:activity].id %>
-                      <%= select_tag 'activity[]', options_for_select(row[:activities], row[:activity].id) %>
-                    </td>
+                   row[:entries].each do |entry|
+                     last_order = order.name
+                     last_project = order.project_id
+                     %>
+                      <%= hidden_field_tag 'entry[]', entry.id %>
 
-                    <% last_order = order.name %>
-                    <% last_project = order.project_id %>
+                      <tr class="<%= @css_class %>">
+                        <td style="min-width: 200px">
+                          <%= hidden_field_tag 'order[]', order.id %>
+                          <% if order.project_id == @ts_project %>
+                              <%= order.name %>
+                          <% else %>
+                              <%= link_to_if order.visible?(@user), order.name, { :controller => 'versions', :action => 'show', :id => order.id } %>
+                              ( <%=link_to_if order.visible?(@user), project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } %> )
+                          <% end %>
+                        </td>
 
-                    <td>
-                      <%= hidden_field_tag 'issue[]', (row[:issue].id rescue nil) %>
-                      <%= link_to_if row[:issue].visible?(@user), row[:issue].to_s, { :controller => 'issues', :action => 'show', :id => row[:issue].id } unless row[:issue].nil? %>
-                    </td>
+                        <td>
+                          <%= hidden_field_tag 'previous_activity[]', row[:activity].id %>
+                          <%= select_tag 'activity[]', options_for_select(readonly ? [Enumeration.find(row[:activity].id).name] : row[:activities], row[:activity].id), :style => 'width:200px' %>
+                        </td>
 
-                    <% if idx == @week_matrix.size - 1 %>
-                        <td width="10px"></td>
-                    <% else %>
-                        <td></td>
-                    <% end %>
+                        <td>
+                          <%= hidden_field_tag 'issue[]', (row[:issue].id rescue nil) %>
+                          <%= link_to_if row[:issue].visible?(@user), row[:issue].to_s, { :controller => 'issues', :action => 'show', :id => row[:issue].id } unless row[:issue].nil? %>
+                        </td>
 
-                    <td><%= text_field_tag "hours[#{@current_day.to_s(:param_date)}][]",
-                                           row[:spent][@current_day].nil? || row[:spent][@current_day] == 0.0 ?
-                                                   '' : row[:spent][@current_day], :size => 1,
-                                           :class => "hours",
-                                           !readonly ? '' : :readonly => true,
-                                           !readonly ? '' : :style => 'background-color:lightgrey'
-                    %></td>
+                        <% if idx == @week_matrix.size - 1 %>
+                            <td width="10px"></td>
+                        <% else %>
+                            <td></td>
+                        <% end %>
 
-                    <td style="width: 40px; text-align: left">
-                      <span><%= link_to image_tag('delete.png'), {:controller => 'timesheets',
-                                                              :action => 'delete_row',
-                                                              :issue_id => row[:issue],
-                                                              :activity_id => row[:activity].id,
-                                                              :order_id => order.id,
-                                                              :day => params[:day],
-                                                              :user_id => params[:user_id]
-                      },
-                                    :confirm => l(:text_are_you_sure),
-                                    :method => :delete,
-                                    :title => l(:button_delete) unless emptyrow or readonly %>
-                      </span><span>
-                      <%= link_to image_tag('bullet_go.png'), {:controller => 'timesheets',
-                                                            :action => 'copy_row',
-                                                            :issue_id => row[:issue],
-                                                            :activity_id => row[:activity].id,
-                                                            :order_id => order.id,
-                                                            :day => params[:day],
-                                                            :user_id => params[:user_id]
-                      },
-                                  :method => :post,
-                                  :title => l(:button_copy_and_follow) unless emptyrow or readonly or !emptynextrow %>
-                      </span>
-                    </td>
-                  </tr>
+                        <td><%= text_field_tag "hours[#{@current_day.to_s(:param_date)}][]",
+                                               entry.spent_on == @current_day ? entry.hours : '', :size => 1,
+                                               :class => "hours",
+                                               !readonly ? '' : :readonly => true,
+                                               :style => (readonly ? 'background-color:lightgrey; min-width:40px' : 'min-width:40px')
+                        %></td>
+
+                        <td>
+                            <%= text_field_tag "comment[]", entry.comments,
+                                               !readonly ? '' : :readonly => true,
+                                               :style => (readonly ? 'background-color:lightgrey; min-width:400px' : 'min-width:400px')
+                            %>
+                        </td>
+
+                        <td style="width: 40px; text-align: left">
+                          <span><%= link_to image_tag('delete.png'), {:controller => 'timesheets',
+                                                                  :action => 'delete_row',
+                                                                  :entry_id => entry.id,
+                                                                  :day => params[:day],
+                                                                  :user_id => params[:user_id],
+                                                                  :view => params[:view]
+                                    },
+                                        :confirm => l(:text_are_you_sure),
+                                        :method => :delete,
+                                        :title => l(:button_delete) unless readonly %>
+                          </span><span>
+                          <%= link_to image_tag('bullet_go.png'), {:controller => 'timesheets',
+                                                                :action => 'copy_row',
+                                                                :entry_id => entry.id,
+                                                                :day => params[:day],
+                                                                :user_id => params[:user_id],
+                                                                :view => params[:view]
+                              },
+                                      :method => :post,
+                                      :title => l(:button_copy_and_follow) unless readonly %>
+                          </span>
+                        </td>
+                      </tr>
+                <% end %>
               <% end %>
               <tr>
                 <td colspan="4" style="text-align: right"><hr/><strong><%= l(:label_total) %>:</strong></td>
@@ -112,7 +118,7 @@
               <tr>
                 <td style="text-align: left">
                   <p>
-                    <%= submit_tag l(:button_save) %>
+                    <%= submit_tag l(:button_save) unless @visibility == :view and @user != User.current %>
                   </p>
                 </td>
               </tr>

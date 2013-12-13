@@ -2,7 +2,7 @@
     <br />
     <br />
 
-    <%= form_tag :controller => 'timesheets', :action => 'save_weekly', :week => @period_start.to_s(:param_date) do %>
+    <%= form_tag :controller => 'timesheets', :action => 'save_period' do %>
 
         <% unless @week_matrix.empty? %>
             <%= hidden_field_tag 'user_id', @user.id %>
@@ -55,7 +55,7 @@
 
                     <td>
                       <%= hidden_field_tag 'previous_activity[]', row[:activity].id %>
-                      <%= select_tag 'activity[]', options_for_select(row[:activities], row[:activity].id) %>
+                      <%= select_tag 'activity[]', options_for_select(readonly ? [Enumeration.find(row[:activity].id).name] : row[:activities], row[:activity].id) %>
                     </td>
 
                     <% last_order = order.name %>
@@ -121,7 +121,7 @@
               <tr>
                 <td style="text-align: left">
                   <p>
-                    <%= submit_tag l(:button_save) %>
+                    <%= submit_tag l(:button_save) unless @visibility == :view and @user != User.current %>
                   </p>
                 </td>
               </tr>
