@@ -18,7 +18,15 @@
                 <th><%= l(:label_issue) %></th>
                 <th></th>
                 <% (@period_start..@period_end).each do |d| %>
-                    <th style="min-width: 45px"><%= d.to_s(:day) %></th>
+                    <th style="min-width: 45px">
+                      <%= link_to d.to_s(:day), {:controller => 'timesheets',
+                                                 :action => 'index',
+                                                 :day => d.to_s(:param_date),
+                                                 :user_id => params[:user_id],
+                                                 :view => 'day'
+                      },
+                                  :title => l(:label_day_view) %>
+                    </th>
                 <% end %>
                 <th></th>
               </tr>
