@@ -36,7 +36,7 @@ it:
   label_timesheet_no_entry: "Nessun dato disponibile."
   label_timesheet_add_row: "Add row"
   label_timesheet_available_entries: "Registrazioni disponibili"
-
+  button_remove_from_timesheet: "Rimuovi dal foglio ore"
 
   label_timesheet_project_label: "Progetto di appoggio"
   label_timesheet_project_hint: "Il progetto che conserva i dati dietro le quinte"

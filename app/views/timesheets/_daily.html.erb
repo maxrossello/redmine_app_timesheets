@@ -12,13 +12,13 @@
             <table>
               <thead>
               <tr>
-                <th><%= l(:label_order) %></th>
+                <th style="min-width: 200px"><%= l(:label_order) %></th>
                 <th><%= l(:label_activity) %></th>
                 <th><%= l(:label_issue) %></th>
                 <th></th>
                 <th><%= @current_day.to_s(:day) %></th>
                 <th><%= l(:label_comment) %></th>
-                <th></th>
+                <th style="width: 60px;"></th>
               </tr>
               </thead>
               <tbody>
@@ -44,7 +44,7 @@
                       <%= hidden_field_tag 'entry[]', entry.id %>
 
                       <tr class="<%= @css_class %>">
-                        <td style="min-width: 200px">
+                        <td>
                           <%= hidden_field_tag 'order[]', order.id %>
                           <% if order.project_id == @ts_project %>
                               <%= order.name %>
@@ -84,31 +84,42 @@
                             %>
                         </td>
 
-                        <td style="width: 40px; text-align: left">
-                          <span><%= link_to image_tag('delete.png'), {:controller => 'timesheets',
-                                                                  :action => 'delete_row',
-                                                                  :entry_id => entry.id,
-                                                                  :day => params[:day],
-                                                                  :user_id => params[:user_id],
-                                                                  :view => params[:view]
-                                    },
-                                        :confirm => l(:text_are_you_sure),
-                                        :method => :delete,
-                                        :title => l(:button_delete) unless readonly %>
-                          </span><span>
-                          <%= link_to image_tag('bullet_go.png'), {:controller => 'timesheets',
-                                                                :action => 'copy_row',
+                        <td style="text-align: left">
+                          <span>
+                          <%= link_to image_tag('delete.png'), {:controller => 'timesheets',
+                                                                :action => 'delete_row',
                                                                 :entry_id => entry.id,
                                                                 :day => params[:day],
                                                                 :user_id => params[:user_id],
                                                                 :view => params[:view]
-                              },
+                          },
+                                      :confirm => l(:text_are_you_sure),
+                                      :method => :delete,
+                                      :title => l(:button_delete) unless readonly %>
+                          </span><span>
+                          <%= link_to image_tag('bullet_go.png'), {:controller => 'timesheets',
+                                                                   :action => 'copy_row',
+                                                                   :entry_id => entry.id,
+                                                                   :day => params[:day],
+                                                                   :user_id => params[:user_id],
+                                                                   :view => params[:view]
+                          },
                                       :method => :post,
                                       :title => l(:button_copy_and_follow) unless readonly %>
+                          </span><span>
+                            <%= link_to image_tag('bullet_delete.png'), {:controller => 'timesheets',
+                                                                         :action => 'remove_entry',
+                                                                         :entry_id => entry.id,
+                                                                         :day => params[:day],
+                                                                         :user_id => params[:user_id],
+                                                                         :view => params[:view]
+                            },
+                                        :method => :delete,
+                                        :title => l(:button_remove_from_timesheet) unless readonly or entry.project_id == @ts_project %>
                           </span>
                         </td>
                       </tr>
-                <% end %>
+                  <% end %>
               <% end %>
               <tr>
                 <td colspan="4" style="text-align: right"><hr/><strong><%= l(:label_total) %>:</strong></td>

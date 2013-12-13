@@ -4,6 +4,7 @@ class TimesheetsController < ApplicationController
   before_filter :require_login
   before_filter :get_project
   before_filter :get_user
+  before_filter :access_control, :except => :index
   before_filter :get_dates
   before_filter :get_timelogs, :except => :save_period
 
@@ -122,7 +123,7 @@ class TimesheetsController < ApplicationController
 
   def delete_row
     if params[:entry_id]
-      TimeEntry.delete(params[:entry_id])
+      TimeEntry.delete(params[:entry_id]) rescue render_404
     else
       TimeEntry.delete(row_entries.all)
     end
@@ -132,7 +133,7 @@ class TimesheetsController < ApplicationController
 
   def copy_row
     if params[:entry_id]
-      set = [TimeEntry.find(params[:entry_id])]
+      set = [TimeEntry.find(params[:entry_id])] rescue render_404
     else
       set = row_entries.all
     end
@@ -146,7 +147,27 @@ class TimesheetsController < ApplicationController
     redirect_to url_for({ :controller => params[:controller], :action => 'index', :user_id => params[:user_id], :view => params[:view], :day => params[:day].to_date + @period_shift})
   end
 
+  def remove_entry
+    if params[:entry_id]
+      set = [TimeEntry.find(params[:entry_id])] rescue render_404
+    else
+      set = row_entries.all
+    end
+
+    set.each do |x|
+      tlog = TimeEntry.find(x.id)
+      tlog.in_timesheet = false
+      tlog.save!
+    end
+
+    redirect_to :back
+  end
+
   private
+
+  def access_control
+    render_403 unless @visibility == :edit or @user == User.current
+  end
 
   def get_dates
     @current_day = DateTime.strptime(params[:day], Time::DATE_FORMATS[:param_date]) rescue nil

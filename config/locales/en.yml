@@ -36,6 +36,7 @@ en:
   label_timesheet_no_entry: "No entry yet."
   label_timesheet_add_row: "Add row"
   label_timesheet_available_entries: "Available entries"
+  button_remove_from_timesheet: "Remove from timesheet"
 
   label_timesheet_project_label: "Backing project"
   label_timesheet_project_hint: "The project used to store timesheet data under the hoods"

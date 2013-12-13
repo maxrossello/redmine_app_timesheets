@@ -28,7 +28,7 @@
                                   :title => l(:label_day_view) %>
                     </th>
                 <% end %>
-                <th></th>
+                <th style="width: 70px;"></th>
               </tr>
               </thead>
               <tbody>
@@ -90,7 +90,7 @@
                         %></td>
                     <% end %>
 
-                    <td style="width: 40px; text-align: left">
+                    <td style="text-align: left">
                       <span><%= link_to image_tag('delete.png'), {:controller => 'timesheets',
                                                               :action => 'delete_row',
                                                               :issue_id => row[:issue],
@@ -115,6 +115,18 @@
                       },
                                   :method => :post,
                                   :title => l(:button_copy_and_follow) unless emptyrow or readonly or !emptynextrow %>
+                      </span><span>
+                        <%= link_to image_tag('bullet_delete.png'), {:controller => 'timesheets',
+                                                             :action => 'remove_entry',
+                                                             :issue_id => row[:issue],
+                                                             :activity_id => row[:activity].id,
+                                                             :order_id => order.id,
+                                                             :day => params[:day],
+                                                             :user_id => params[:user_id],
+                                                             :view => params[:view]
+                        },
+                                    :method => :delete,
+                                    :title => l(:button_remove_from_timesheet) unless emptyrow or readonly or order.project_id == @ts_project %>
                       </span>
                     </td>
                   </tr>
