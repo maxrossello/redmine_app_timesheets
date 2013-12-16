@@ -31,7 +31,7 @@ Unproductive activities, and other orders that do not have an hosting project, a
 * support both custom-defined orders and shared versions from projects  
 * using the global app space plugin, therefore both the administrative and user views can be enabled to selected user groups and showing in the applications menu if they wish
 * reported time compatible with spent time report of Fixed Versions (and of issues if tracked over them)
-* permissions for editing own timesheet, view other user's timesheet( readonly), edit other user's timesheet
+* permissions for editing own timesheet, view other user's timesheet (readonly), edit other user's timesheet
 * daily and weekly view (the time span can be easily changed to arbitrary period via URL only currently)
 * daily view manages all time entries and related comments; weekly view aggregates timelogs per order + activity + (opt.) issue
 * copy row values to the next period and forward to it
@@ -51,7 +51,7 @@ Define a group of users enabled to use the administrative view, and a group of u
 
 ## Usage
 
-Refer to the wiki.
+Refer to the screenshots below.
 
 ## Screenshots
 
@@ -77,11 +77,11 @@ Order can be set visible to individual users and/or user groups.
 
 ![Timesheets](screenshots/WeeklyView.png)
 
-The weekly view reports aggregated timelogs over an order/activity/issue triple (issue can be missing). This means that each cell may sum values of two or more time entries, related to a pecific day, into the same row. Changing the value will create a ne timelog entry (if the cell was empty), or will change values or delete entries starting from the last one. 
+The weekly view reports aggregated timelogs over an order/activity/issue triple (issue can be missing). This means that each cell may sum values of two or more time entries, related to a specific day, into the same row. Changing the value will create a new timelog entry (if the cell was empty), or will change values or delete entries starting from the last one. 
 
 Shared fixed versions, their project and (if any) the issues are linked in the display.
 
-The week view starts from monday to sunday around the current day. It is also possible to have different period length by changing the 'view' parameter on the URL to a numeric one. For a more detailed view of each entries, refer to the daily view (which is different from setting view=1).
+The week view starts from monday to sunday around the current day. It is also possible to have different period length by changing the 'view' parameter on the URL to a numeric one. For a more detailed view of each entries, refer to the daily view (which is different from setting view=1). Clicking on a day label will bring to the related day view, or you may use the link in the contextual menu.
 
 Entries in a row can be:
 * deleted in one shot
@@ -112,4 +112,12 @@ Entries that have values in the previous period are listed as empty in the follo
 
 Users can be enabled to inspect other user's timesheets in edit or readonly mode. Above an example of a readonly report.
 Individual rows are reported readonly also when an order is not enabled for the user any more, yet some hours have been reported previously.
+
+### Hiding Orders to People Not Allowed
+
+![Settings](screenshots/GlobalProjectSettings.png)
+
+Standard Redmine lists shared Fixed Versions to anybody (although they are not linked). Nevertheless, a company may not want to disclose the existence of every order to anybody.
+
+Visit /settings and unflag the last entry 'Shared versions visible to non members' under the 'Projects' tab.
 
