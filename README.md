@@ -45,6 +45,10 @@ Unproductive activities, and other orders that do not have an hosting project, a
 
 Install the redmine_app__space plugin first, then follow the standard Redmine procedure for this plugin, including database migrations.
 
+Create a backing project and, optionally, a new kind of tracker. You can name both of them "Timesheets", but any existing tracker will anyway do the job. Go to the plugin settings and reference them.
+
+Define a group of users enabled to use the administrative view, and a group of users enabled to use the Timesheet application (e.g. All Users). Go to the redmine_app__space plugin settings and enable both applications to the proper user groups.
+
 ## Usage
 
 Refer to the wiki.
