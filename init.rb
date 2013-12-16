@@ -33,6 +33,14 @@ Redmine::Plugin.register :redmine_app_timesheets do
     TimeEntry.send(:include, TimesheetsAppTimelogPatch)
   end
 
+  unless Project.included_modules.include?(TimesheetsAppProjectPatch)
+    Project.send(:include, TimesheetsAppProjectPatch)
+  end
+
+  unless Issue.included_modules.include?(TimesheetsAppIssuePatch)
+    Issue.send(:include, TimesheetsAppIssuePatch)
+  end
+
 end
 
 # needs to be evaluated before /apps(/:tab)!

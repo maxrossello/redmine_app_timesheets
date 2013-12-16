@@ -36,7 +36,7 @@ class OrdersController < ApplicationController
   def enable
     order = Version.find(params[:id])
     order.in_timesheet = true
-    order.save! if order.project_id != @ts_project or new_issue(order.name, order.id).save
+    order.save! if order.project_id != @ts_project or new_issue(order.name, order.id).save(:validate => false)
 
     redirect_to :action => 'index'
   end
@@ -51,13 +51,22 @@ class OrdersController < ApplicationController
 
     order.in_timesheet = 1
 
-    order.save! if order.project_id == @ts_project and (i = new_issue(params[:version][:name])).save
+    saved = order.save if order.project_id == @ts_project and (i = new_issue(params[:version][:name])).save
     unless i.nil?
-      i.fixed_version_id = order.id
-      i.save!
+      if saved
+        i.fixed_version_id = order.id
+        i.save(:validate => false) # ok also with issue tracking off
+      else
+        # e.g. if duplicate order not saved
+        i.delete
+      end
     end
 
-    redirect_to :controller => 'order_users', :action => 'index', :id => order.id
+    if order.id.nil?
+      redirect_to :controller => 'orders', :action => 'index'
+    else
+      redirect_to :controller => 'order_users', :action => 'index', :id => order.id
+    end
   end
 
   def new
