@@ -5,6 +5,13 @@ Time::DATE_FORMATS[:param_date] = "%Y-%m-%d"
 
 Rails.logger.info 'Starting Timesheets Application'
 
+Rails.configuration.to_prepare do
+  TimeEntry.class_eval do
+    scope :for_user, lambda { |user| {:conditions => "#{TimeEntry.table_name}.user_id = #{user.id}"}}
+    scope :spent_on, lambda { |date| {:conditions => ["#{TimeEntry.table_name}.spent_on = ?", date]}}
+  end
+end
+
 Redmine::Plugin.register :redmine_app_timesheets do
   name 'Redmine Timesheets Application'
   author 'Massimo Rossello'
