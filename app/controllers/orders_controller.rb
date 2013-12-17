@@ -82,7 +82,7 @@ class OrdersController < ApplicationController
       i.tracker_id = Setting.plugin_redmine_app_timesheets['tracker']
       i.project_id = Setting.plugin_redmine_app_timesheets['project'].to_i
       i.subject = name
-      i.status_id = IssueStatus.where(is_closed: 1).joins(workflows: :tracker).where('workflows.new_status_id = issue_statuses.id').where('workflows.tracker_id = trackers.id').where('trackers.id = ?', i.tracker_id).first.id
+      i.status_id = IssueStatus.where(is_closed: 1).joins(workflows: :tracker).where('workflows.new_status_id = issue_statuses.id').where('workflows.tracker_id = trackers.id').where('trackers.id = ?', i.tracker_id).first.id rescue 1
       i.fixed_version_id = vid
       i.author = User.find(1) # admin
     end

@@ -1,6 +1,8 @@
 require 'redmine'
 require_dependency 'appspace_users_patch'
 
+Time::DATE_FORMATS[:param_date] = "%Y-%m-%d"
+
 Rails.logger.info 'Starting Timesheets Application'
 
 Redmine::Plugin.register :redmine_app_timesheets do
