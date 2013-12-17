@@ -250,7 +250,7 @@ class TimesheetsController < ApplicationController
       unless order.project_id == @ts_project
         row[:issues] = Issue.visible(@user).where(:fixed_version_id => order.id)
       end
-      row[:activities] = (Setting.plugin_redmine_app_timesheets['activities'][order.id.to_s] || TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]})
+      row[:activities] = Setting.plugin_redmine_app_timesheets['activities'][order.id.to_s] rescue TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]}
       entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@period_start-@period_length,@period_end+@period_length).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
       entries.all.group_by(&:activity_id).each do |activity, values|
         row[:spent] = {}
