@@ -45,9 +45,24 @@ Unproductive activities, and other orders that do not have an hosting project, a
 
 Install the redmine_app__space plugin first, then follow the standard Redmine procedure for this plugin, including database migrations.
 
+### General configuration
+
 Create a backing project and, optionally, a new kind of tracker. You can name both of them "Timesheets", but any existing tracker will anyway do the job. Go to the plugin settings and reference them.
 
 Define a group of users enabled to use the administrative view, and a group of users enabled to use the Timesheet application (e.g. All Users). Go to the redmine_app__space plugin settings and enable both applications to the proper user groups.
+
+Visit /settings and unflag the last entry 'Shared versions visible to non members' under the 'Projects' tab if you want to preserve orders completely hidden to people not allowed to know their existence.
+
+Enable the Time Tracking module into the backing project and, optionally, the Issue Tracking module. 
+The Issue Tracking module is necessary only if you want to make reports with standard Redmine views out of local orders/fixed versions. The benefit of having it disabled is that you can provide the timesheet feature without the need to make the backing project visible (except if you assign view or edit permissions over other people's timelogs, see below).
+
+### Allowing users to edit or view other user's timesheets
+
+Users (except for admins) can always look at a subset of other people's timesheet, which includes orders they have visibility for too. The principle that order existence should not be disclosed to unauthorized people is preserved.
+
+For shared fixed versions, visibility settings are therefore those defined in the sourcing project, while for "native" orders it is defined into the order assignment to users (see User and Group Visibility below).
+
+Edit or view permission over other people's visible orders is then defined into the backing project. Assign a role which includes the 'view spent time' permission for viewing or the 'edit time logs' permission for editing.
 
 ## Usage
 
@@ -87,6 +102,7 @@ Entries in a row can be:
 * deleted in one shot
 * copied to the next period, if the next period is empty
 * removed from timesheet if associated to issues, in one shot
+* changed activity (after saving)
 
 ### Daily View
 
