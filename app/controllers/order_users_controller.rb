@@ -21,7 +21,8 @@ class OrderUsersController < WatchersController
 
   def activities
     if params[:id].nil? or params['activity'].nil?
-      render_404
+      flash.alert = "Cannot save an empty activity list"
+      render_403
     else
       value = Setting.plugin_redmine_app_timesheets
 
