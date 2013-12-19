@@ -115,7 +115,7 @@
                                                                          :view => params[:view]
                             },
                                         :method => :delete,
-                                        :title => l(:button_remove_from_timesheet) unless readonly or entry.project_id == @ts_project %>
+                                        :title => l(:button_remove_from_timesheet) unless row[:issue].nil? or readonly or entry.project_id == @ts_project %>
                           </span>
                         </td>
                       </tr>
