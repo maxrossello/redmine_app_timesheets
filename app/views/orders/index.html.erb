@@ -24,6 +24,13 @@
               <td class="buttons">
                 <div><%= link_to(l(:label_order_users), {:controller => 'order_users', :action => 'index', :id => order.id}, :class => 'action') if order.project_id == @ts_project %></div>
                 <div><%= link_to(l(:label_disable), {:action => 'disable', :id => order.id}, :method => :put, :class => 'action')  %></div>
+                <div>
+                  <% if order.sharing == "none" %>
+                      <%= link_to(l(:label_share), {:action => 'index', :id => order.id, :share => true}, :class => 'action', :title => l(:label_timesheets_share_tooltip)) %>
+                  <% else %>
+                      <%= link_to(l(:label_unshare), {:action => 'index', :id => order.id, :share => false}, :class => 'action', :title => l(:label_timesheets_unshare_tooltip)) %>
+                  <% end %>
+                </div>
               </td>
             </tr>
         <% end %>

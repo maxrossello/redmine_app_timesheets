@@ -26,6 +26,8 @@ en:
   label_order: "Order"
   label_action: "Actions"
   label_for: "for"
+  label_share: "share"
+  label_unshare: "unshare"
 
   label_order_users: "config"
   label_add_user: "Add user"
@@ -37,6 +39,8 @@ en:
   label_timesheet_add_row: "Add row"
   label_timesheet_available_entries: "Available entries"
   button_remove_from_timesheet: "Remove from timesheet"
+  label_timesheets_share_tooltip: "Use this order into projects"
+  label_timesheets_unshare_tooltip: "Do not use this order into projects"
 
   label_timesheet_project_label: "Backing project"
   label_timesheet_project_hint: "The project used to store timesheet data under the hoods"

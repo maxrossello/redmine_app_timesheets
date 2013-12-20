@@ -26,6 +26,8 @@ it:
   label_order: "Commessa"
   label_action: "Azioni"
   label_for: "di"
+  label_share: "condividi"
+  label_unshare: "limita"
 
   label_order_users: "config"
   label_add_user: "Aggiungi utente"
@@ -37,6 +39,8 @@ it:
   label_timesheet_add_row: "Add row"
   label_timesheet_available_entries: "Registrazioni disponibili"
   button_remove_from_timesheet: "Rimuovi dal foglio ore"
+  label_timesheets_share_tooltip: "Rendi questa commessa visibile nei progetti"
+  label_timesheets_unshare_tooltip: "Nascondi questa commessa ai progetti"
 
   label_timesheet_project_label: "Progetto di appoggio"
   label_timesheet_project_hint: "Il progetto che conserva i dati dietro le quinte"
