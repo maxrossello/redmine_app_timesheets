@@ -24,6 +24,19 @@ class OrdersController < ApplicationController
                      " OR (#{Project.table_name}.lft > #{p.lft} AND #{Project.table_name}.rgt < #{p.rgt} AND #{Version.table_name}.sharing = 'hierarchy')" +
                      "))").all.group_by { |v| v.in_timesheet }
     end
+
+    # handle ts order sharing with projects
+    if !params[:share].nil? and !params[:id].nil?
+      v = Version.find(params[:id])
+      if params[:share] == "1"
+        v.sharing = "system"
+      else
+        v.sharing = "none"
+      end
+      v.save
+      redirect_to url_for(params.except :share)
+    end
+
   end
 
   def disable
