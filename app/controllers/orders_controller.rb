@@ -28,13 +28,16 @@ class OrdersController < ApplicationController
     # handle ts order sharing with projects
     if !params[:share].nil? and !params[:id].nil?
       v = Version.find(params[:id])
-      if params[:share] == "1"
-        v.sharing = "system"
-      else
-        v.sharing = "none"
+      if v.project_id == @ts_project
+        if params[:share] == "1"
+          v.sharing = "system"
+        else
+          v.sharing = "none"
+        end
+        v.save
       end
-      v.save
-      redirect_to url_for(params.except :share)
+
+      redirect_to url_for(params.except :share, :id)
     end
 
   end
