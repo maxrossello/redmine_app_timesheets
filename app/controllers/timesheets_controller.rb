@@ -293,7 +293,7 @@ class TimesheetsController < ApplicationController
         unless row[:order].project_id == @ts_project
           row[:issues] = Issue.visible(@user).where(:fixed_version_id => row[:order].id)
         end
-        row[:activities] = TsActivity.where(:order_id => order).map {|t| [t.activity_name, t.activity_id.to_s]}
+        row[:activities] = TsActivity.where(:order_id => params[:order].to_i).map {|t| [t.activity_name, t.activity_id.to_s]}
         row[:activities] = TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]} if row[:activities].empty?
         row[:activity] = Enumeration.find(params[:activity])
         row[:issue] = (params[:issue].nil? or params[:issue].empty?) ? nil : Issue.find(params[:issue])
