@@ -33,7 +33,7 @@
                 <% TimeEntryActivity.shared.active.each do |entry| %>
                     <tr>
                       <td><%= entry.name %></td>
-                      <td><%= check_box_tag "activity[][#{entry.id}]", entry.name, ((!Setting.plugin_redmine_app_timesheets['activities'][@order.id.to_s].rassoc(entry.id.to_s).nil?  rescue true) unless params[:uncheck]) %></td>
+                      <td><%= check_box_tag "activity[#{entry.id}]", entry.name, (@activities.empty? or @activities.include?(entry.id) unless params[:uncheck]) %></td>
                     </tr>
                 <% end %>
             </tbody>

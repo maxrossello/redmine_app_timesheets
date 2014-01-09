@@ -15,7 +15,7 @@ Nevertheless, this is not completely satisfying because:
 * unproductive activities are shared company-wide, and its costs have to be monitored as such, so a project context is not sufficient for this scope
 
 The Redmine Timesheet Application plugin implements a global application which includes an administrative part for defining orders and their visibility, supposing that even their existance should not be exposed to unauthorized people (this is a configurable new behavior in global project settings). 
-It allows to define brand new orders, but also to include time spent on issues if associated to shared fixed versions and flagged for import.
+It allows to define brand new orders, but also to include time spent on issues if associated to shared target versions and flagged for import.
 
 Time (for the sake of a timesheet) is therefore associated to Versions, in a way that is compatible for calculating the effort spent on versions in usual Redmine views.
 Unproductive activities, and other orders that do not have an hosting project, are stored into a dedicated administrative project that does not need to be visible to users filling data into the timesheet app: the issue tracking module needs not to be enabled on it.
@@ -30,7 +30,7 @@ Unproductive activities, and other orders that do not have an hosting project, a
 * configure activity enumerations per order (enhances visibility management of shared activity definitions)
 * support both custom-defined orders and shared versions from projects  
 * using the global app space plugin, therefore both the administrative and user views can be enabled to selected user groups and showing in the applications menu if they wish
-* reported time compatible with spent time report of Fixed Versions (and of issues if tracked over them)
+* reported time compatible with spent time report of Target Versions (and of issues if tracked over them)
 * permissions for editing own timesheet, view other user's timesheet (readonly), edit other user's timesheet
 * daily and weekly view (the time span can be easily changed to arbitrary period via URL only currently)
 * daily view manages all time entries and related comments; weekly view aggregates timelogs per order + activity + (opt.) issue
@@ -48,19 +48,18 @@ Install the redmine_app__space plugin first, then follow the standard Redmine pr
 ### General configuration
 
 Create a backing project and, optionally, a new kind of tracker. You can name both of them "Timesheets", but any existing tracker will anyway do the job. Go to the plugin settings and reference them.
+Unflag the entry 'Shared versions visible to non members' if you want to preserve orders completely hidden to people not allowed to know their existence.
 
 Define a group of users enabled to use the administrative view, and a group of users enabled to use the Timesheet application (e.g. All Users). Go to the redmine_app__space plugin settings and enable both applications to the proper user groups.
 
-Visit /settings and unflag the last entry 'Shared versions visible to non members' under the 'Projects' tab if you want to preserve orders completely hidden to people not allowed to know their existence.
-
-Enable the Time Tracking module into the backing project and, optionally, the Issue Tracking module. 
-The Issue Tracking module is necessary only if you want to make reports with standard Redmine views out of local orders/fixed versions. The benefit of having it disabled is that you can provide the timesheet feature without the need to make the backing project visible (except if you assign view or edit permissions over other people's timelogs, see below).
+Enable the Time Tracking module into the backing project and, optionally, the Issue Tracking module.
+The Issue Tracking module is necessary only if you want to make reports with standard Redmine views out of local orders/target versions. The benefit of having it disabled is that you can provide the timesheet feature without the need to make the backing project visible (except if you assign view or edit permissions over other people's timelogs, see below).
 
 ### Allowing users to edit or view other user's timesheets
 
-Users (except for admins) can always look at a subset of other people's timesheet, which includes orders they have visibility for too. The principle that order existence should not be disclosed to unauthorized people is preserved.
+Users (except for admins) can only look at a subset of other people's timesheet, which includes orders they have visibility for too. The principle that order existence should not be disclosed to unauthorized people is preserved.
 
-For shared fixed versions, visibility settings are therefore those defined in the sourcing project, while for "native" orders it is defined into the order assignment to users (see User and Group Visibility below).
+For shared target versions, visibility settings are therefore those defined in the sourcing project, while for "native" orders it is defined into the order assignment to users in the administrative view (see User and Group Visibility below).
 
 Edit or view permission over other people's visible orders is then defined into the backing project. Assign a role which includes the 'view spent time' permission for viewing or the 'edit time logs' permission for editing.
 
@@ -68,13 +67,28 @@ Edit or view permission over other people's visible orders is then defined into 
 
 Refer to the screenshots below.
 
+You can both work with timelogs assigned to issues in ordinary projects, and/or with global "native" orders.
+
+You need to share the Target Versions in your projects to all projects in order to use them in the timesheets.
+
+You don't need to assign permissions into the backing project except if you want to assign visibility to other users' timesheets for what concerns "native" orders.
+
 ## Screenshots
+
+### Plugin Configuration
+
+![Configuration](screenshots/PluginConfig.png)
+
+Configure the backing project and the backing tracker. The backing project is an administrative-only one, and will not be visible to users (exception: if you assign permissions to inspect or edit other user's timelogs over "native" orders you have to do that in the backing project, and it will become visible).
+
+Standard Redmine lists shared Target Versions to anybody (although they are not linked). Nevertheless, a company may not want to disclose the existence of every order to anybody.
+Unflag the entry 'Shared versions visible to non members' in order to keep orders privacy.
 
 ### Order Management
 
 ![OrderManagement](screenshots/AdministrativeView.png)
 
-Both "native" orders, and fixed versions shared from projects can be enabled or disabled. Native orders can be further configured.
+Both "native" orders, and target versions shared from projects can be enabled or disabled. Native orders can be further configured.
 
 ### Activity Selection
 
@@ -94,7 +108,7 @@ Order can be set visible to individual users and/or user groups.
 
 The weekly view reports aggregated timelogs over an order/activity/issue triple (issue can be missing). This means that each cell may sum values of two or more time entries, related to a specific day, into the same row. Changing the value will create a new timelog entry (if the cell was empty), or will change values or delete entries starting from the last one. 
 
-Shared fixed versions, their project and (if any) the issues are linked in the display.
+Shared target versions, their project and (if any) the issues are linked in the display.
 
 The week view starts from monday to sunday around the current day. It is also possible to have different period length by changing the 'view' parameter on the URL to a numeric one. For a more detailed view of each entries, refer to the daily view (which is different from setting view=1). Clicking on a day label will bring to the related day view, or you may use the link in the contextual menu.
 
@@ -129,11 +143,4 @@ Entries that have values in the previous period are listed as empty in the follo
 Users can be enabled to inspect other user's timesheets in edit or readonly mode. Above an example of a readonly report.
 Individual rows are reported readonly also when an order is not enabled for the user any more, yet some hours have been reported previously.
 
-### Hiding Orders to People Not Allowed
-
-![Settings](screenshots/GlobalProjectSettings.png)
-
-Standard Redmine lists shared Fixed Versions to anybody (although they are not linked). Nevertheless, a company may not want to disclose the existence of every order to anybody.
-
-Visit /settings and unflag the last entry 'Shared versions visible to non members' under the 'Projects' tab.
 

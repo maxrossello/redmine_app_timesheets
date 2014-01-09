@@ -49,3 +49,4 @@ en:
   label_timesheet_tracker_label: "Backing tracker"
   label_timesheet_tracker_hint: "The tracker used to collect timesheet hours"
   label_timesheets_warn_select_tracker: "Please select a tracker"
+  label_public_versions: "Shared versions visible to non members (Redmine default: true)"

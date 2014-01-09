@@ -24,3 +24,8 @@
       <br><span style="color: red;"><%=l(:label_timesheets_warn_select_tracker)%></span>
   <% end %>
 </p>
+
+<p>
+  <%=content_tag(:label, l(:label_public_versions)) %>
+  <%= check_box_tag "settings[public_versions]", "1", settings['public_versions']  %>
+</p>

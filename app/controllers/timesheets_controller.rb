@@ -174,7 +174,7 @@ class TimesheetsController < ApplicationController
     @current_day ||= DateTime.strptime(DateTime.now.to_s, Time::DATE_FORMATS[:param_date])
 
     @view = params[:view].to_sym rescue nil
-    @view = :week if @view.nil? or @view.empty?
+    @view = :week if @view.nil? or params[:view].empty?
 
     if @view == :week
       @period_start = @current_day.beginning_of_week
@@ -250,7 +250,9 @@ class TimesheetsController < ApplicationController
       unless order.project_id == @ts_project
         row[:issues] = Issue.visible(@user).where(:fixed_version_id => order.id)
       end
-      row[:activities] = (Setting.plugin_redmine_app_timesheets['activities'][order.id.to_s] || TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]})
+      # format suitable for options_for_select
+      row[:activities] = TsActivity.where(:order_id => order).map {|t| [t.activity_name, t.activity_id.to_s]}
+      row[:activities] = TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]} if row[:activities].empty?
       entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@period_start-@period_length,@period_end+@period_length).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
       entries.all.group_by(&:activity_id).each do |activity, values|
         row[:activity] = Enumeration.find(activity)
@@ -291,7 +293,8 @@ class TimesheetsController < ApplicationController
         unless row[:order].project_id == @ts_project
           row[:issues] = Issue.visible(@user).where(:fixed_version_id => row[:order].id)
         end
-        row[:activities] = (Setting.plugin_redmine_app_timesheets['activities'][row[:order].id.to_s] || TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]})
+        row[:activities] = TsActivity.where(:order_id => order).map {|t| [t.activity_name, t.activity_id.to_s]}
+        row[:activities] = TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]} if row[:activities].empty?
         row[:activity] = Enumeration.find(params[:activity])
         row[:issue] = (params[:issue].nil? or params[:issue].empty?) ? nil : Issue.find(params[:issue])
         row[:spent] = {}
@@ -307,8 +310,8 @@ class TimesheetsController < ApplicationController
       # while building the new row
       if params[:order] and !params[:order].empty?
         new_order = Version.find(params[:order])
-        @activities = Setting.plugin_redmine_app_timesheets['activities'][params[:order]]
-        @activities = new_order.project.activities.sort{|x,y| x.name <=> y.name}.map{ |x| [ x.name, x.id] } if @activities.nil?
+        @activities = TsActivity.where(:order_id => params[:order].to_i).map {|t| [t.activity_name, t.activity_id.to_s]}
+        @activities = new_order.project.activities.sort{|x,y| x.name <=> y.name}.map{ |x| [ x.name, x.id] } if @activities.empty?
       end
 
       if params[:activity] && new_order.project_id != @ts_project

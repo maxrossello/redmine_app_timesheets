@@ -8,6 +8,7 @@ class OrderUsersController < WatchersController
     @issue = Issue.find_by_fixed_version_id(@order)
     @issue = @issue.first if @issue.is_a?(Array)
     @members = @issue.watchers.map{|w| Principal.find(w.user_id) }.sort
+    @activities = TsActivity.where(:order_id => @order).map(&:activity_id)
   end
 
   def find_watchables
@@ -24,13 +25,12 @@ class OrderUsersController < WatchersController
       flash.alert = "Cannot save an empty activity list"
       render_403
     else
-      value = Setting.plugin_redmine_app_timesheets
-
-      value['activities'] = {} if value['activities'].nil?
-      # convert hash to array and revert couples
-      value['activities'][params[:id]] = params['activity'].map {|x| x.to_a}[0].each do |x| x.reverse! end
-
-      Setting['plugin_redmine_app_timesheets'] = value
+      TsActivity.destroy_all(:order_id => params[:id].to_i)
+      TsActivity.transaction do
+        params[:activity].each do |id, name|
+          TsActivity.create(:order_id => params[:id].to_i, :activity_id => id, :activity_name => name)
+        end
+      end
 
       redirect_to :controller => 'orders', :action => 'index'
     end
