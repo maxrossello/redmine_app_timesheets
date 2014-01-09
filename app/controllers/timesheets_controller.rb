@@ -28,7 +28,7 @@ class TimesheetsController < ApplicationController
   end
 
   def save_period
-    if params[:view] != 'day'
+    if @view != :day
       entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@period_start,@period_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").all
     else
       entries = []
@@ -43,7 +43,7 @@ class TimesheetsController < ApplicationController
       params[:hours].each do |s_date, hours|
         date = s_date.to_date
 
-        if params[:view] == 'day'
+        if @view == :day
           # day view handles single entries
           daylogs = [ TimeEntry.find(params[:entry][idx]) ] rescue nil
           old_sum = daylogs.first.hours rescue 0
@@ -107,7 +107,7 @@ class TimesheetsController < ApplicationController
     end
 
     #:back
-    redirect_to url_for({ :controller => params[:controller], :action => 'index', :user_id => params[:user_id], :view => params[:view], :day => params[:day]})
+    redirect_to url_for({ :controller => params[:controller], :action => 'index', :user_id => params[:user_id], :view => @view, :day => @current_day})
   end
 
   def row_entries
@@ -144,7 +144,7 @@ class TimesheetsController < ApplicationController
       tlog.save!
     end
 
-    redirect_to url_for({ :controller => params[:controller], :action => 'index', :user_id => params[:user_id], :view => params[:view], :day => params[:day].to_date + @period_shift})
+    redirect_to url_for({ :controller => params[:controller], :action => 'index', :user_id => params[:user_id], :view => @view, :day => @current_day + @period_shift})
   end
 
   def remove_entry
