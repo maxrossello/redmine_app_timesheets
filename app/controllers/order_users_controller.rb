@@ -32,6 +32,11 @@ class OrderUsersController < WatchersController
         end
       end
 
+      # be sure there is no time entry with invalid activity
+      if Version.find(params[:id].to_i).project_id == Setting.plugin_redmine_app_timesheets['project'].to_i
+        TimeEntry.where(:fixed_version_id => params[:id].to_i).where("activity_id not in(?)", params[:activity].keys).update_all(:activity_id => params[:activity].keys.first)
+      end
+
       redirect_to :controller => 'orders', :action => 'index'
     end
   end
