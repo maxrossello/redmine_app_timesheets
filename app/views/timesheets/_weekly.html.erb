@@ -13,7 +13,7 @@
             <table class="ts-display">
               <thead>
               <tr>
-                <th style="min-width: 150px"><%= l(:label_order) %></th>
+                <th style="min-width: 150px"><%= l(:label_project)%> / <%= l(:label_order) %></th>
                 <th style="min-width: 150px"><%= l(:label_activity) %></th>
                 <th><%= l(:label_issue) %></th>
                 <th></th>
@@ -56,8 +56,8 @@
                       <% if order.project_id == @ts_project %>
                           <%= order.name %>
                       <% else %>
+                          <%=link_to_if order.visible?(@user), project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } %> /
                           <%= link_to_if order.visible?(@user), order.name, { :controller => 'versions', :action => 'show', :id => order.id } %>
-                          ( <%=link_to_if order.visible?(@user), project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } %> )
                       <% end %>
                     </td>
 

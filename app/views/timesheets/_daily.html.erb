@@ -9,16 +9,16 @@
             <%= hidden_field_tag 'day', params[:day] %>
             <%= hidden_field_tag 'view', params[:view] %>
 
-            <table>
+            <table class="ts-display">
               <thead>
               <tr>
-                <th style="min-width: 200px"><%= l(:label_order) %></th>
+                <th style="min-width: 200px"><%= l(:label_project)%> / <%= l(:label_order) %></th>
                 <th><%= l(:label_activity) %></th>
                 <th><%= l(:label_issue) %></th>
                 <th></th>
                 <th><%= @current_day.to_s(:day) %></th>
                 <th><%= l(:label_comment) %></th>
-                <th style="width: 60px;"></th>
+                <th style="min-width: 45px"></th>
               </tr>
               </thead>
               <tbody>
@@ -49,8 +49,8 @@
                           <% if order.project_id == @ts_project %>
                               <%= order.name %>
                           <% else %>
+                              <%=link_to_if order.visible?(@user), project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } %> /
                               <%= link_to_if order.visible?(@user), order.name, { :controller => 'versions', :action => 'show', :id => order.id } %>
-                              ( <%=link_to_if order.visible?(@user), project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } %> )
                           <% end %>
                         </td>
 
