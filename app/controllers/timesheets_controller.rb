@@ -74,7 +74,7 @@ class TimesheetsController < ApplicationController
           if daylogs.nil?
             # this is a new row
             if params[:issue][idx].empty?
-              entry = TimeEntry.create(:project => Version.find(order_id.to_i).project, :fixed_version_id => order_id.to_i, :hours => diff, :user => @user, :spent_on => date, :activity => Enumeration.find(params[:activity][idx].to_i), :in_timesheet => true)
+              entry = TimeEntry.create(:project => WorkOrder.find(order_id.to_i).project, :fixed_version_id => order_id.to_i, :hours => diff, :user => @user, :spent_on => date, :activity => Enumeration.find(params[:activity][idx].to_i), :in_timesheet => true)
             else
               issue = Issue.find(params[:issue][idx].to_i)
               entry = TimeEntry.create(:project => issue.project, :issue => issue, :hours => diff, :user => @user, :spent_on => date, :activity => Enumeration.find(params[:activity][idx].to_i), :in_timesheet => true)
@@ -289,7 +289,7 @@ class TimesheetsController < ApplicationController
         render_404
       else
         row = {}
-        row[:order] = Version.find(params[:order])
+        row[:order] = WorkOrder.find(params[:order])
         unless row[:order].project_id == @ts_project
           row[:issues] = Issue.visible(@user).where(:fixed_version_id => row[:order].id)
         end
@@ -309,7 +309,7 @@ class TimesheetsController < ApplicationController
     else
       # while building the new row
       if params[:order] and !params[:order].empty?
-        new_order = Version.find(params[:order])
+        new_order = WorkOrder.find(params[:order])
         @activities = TsActivity.where(:order_id => params[:order].to_i).map {|t| [t.activity_name, t.activity_id.to_s]}
         @activities = new_order.project.activities.sort{|x,y| x.name <=> y.name}.map{ |x| [ x.name, x.id] } if @activities.empty?
       end

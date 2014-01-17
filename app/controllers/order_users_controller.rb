@@ -4,7 +4,7 @@ class OrderUsersController < WatchersController
   skip_before_filter :authorize
 
   def index
-    @order = Version.find(params[:id]) rescue render_404
+    @order = WorkOrder.find(params[:id]) rescue render_404
     @issue = Issue.find_by_fixed_version_id(@order)
     @issue = @issue.first if @issue.is_a?(Array)
     @members = @issue.watchers.map{|w| Principal.find(w.user_id) }.sort
@@ -33,7 +33,7 @@ class OrderUsersController < WatchersController
       end
 
       # be sure there is no time entry with invalid activity
-      if Version.find(params[:id].to_i).project_id == Setting.plugin_redmine_app_timesheets['project'].to_i
+      if WorkOrder.find(params[:id].to_i).project_id == Setting.plugin_redmine_app_timesheets['project'].to_i
         TimeEntry.where(:fixed_version_id => params[:id].to_i).where("activity_id not in(?)", params[:activity].keys).update_all(:activity_id => params[:activity].keys.first)
       end
 

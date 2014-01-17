@@ -20,6 +20,17 @@ It allows to define brand new orders, but also to include time spent on issues i
 Time (for the sake of a timesheet) is therefore associated to Versions, in a way that is compatible for calculating the effort spent on versions in usual Redmine views.
 Unproductive activities, and other orders that do not have an hosting project, are stored into a dedicated administrative project that does not need to be visible to users filling data into the timesheet app: the issue tracking module needs not to be enabled on it.
 
+## New in 1.1
+
+Target Versions and Orders are now semantically disjointed. This means that you may have a timelog over an issue associated to a Target Version and the timesheet
+accounting that on a different Order (GUI to do that will be introduced incrementally). Nevertheless, they are still related in that a shared Target Version can
+still be configured as Orders defined in common projects.
+
+Timelogs over issues associated to a shared Target Version will be accounted by default on the same Order.
+
+Spent time reports (/time_entries/report) use Orders as a new split criteria. Activities and issues can therefore be analyzed both for project management purposes (via Versions)
+and for accountancy purposes (via Orders).
+
 ## Features
 
 * time tracked over orders, activities and (optionally) issues
@@ -28,9 +39,9 @@ Unproductive activities, and other orders that do not have an hosting project, a
 * enabling orders selectively
 * assign orders to groups and users
 * configure activity enumerations per order (enhances visibility management of shared activity definitions)
-* support both custom-defined orders and shared versions from projects  
+* support both custom-defined orders and orders defined in projects as shared versions
 * using the global app space plugin, therefore both the administrative and user views can be enabled to selected user groups and showing in the applications menu if they wish
-* reported time compatible with spent time report of Target Versions (and of issues if tracked over them)
+* new Order criteria in spent time reports
 * permissions for editing own timesheet, view other user's timesheet (readonly), edit other user's timesheet
 * daily and weekly view (the time span can be easily changed to arbitrary period via URL only currently)
 * daily view manages all time entries and related comments; weekly view aggregates timelogs per order + activity + (opt.) issue
@@ -143,4 +154,8 @@ Entries that have values in the previous period are listed as empty in the follo
 Users can be enabled to inspect other user's timesheets in edit or readonly mode. Above an example of a readonly report.
 Individual rows are reported readonly also when an order is not enabled for the user any more, yet some hours have been reported previously.
 
+### Spent Time Reports
 
+![Reports](screenshots/SpentTimeReport.png)
+
+Time spent can be categorized differently for Target Versions (for project management purposes) and Orders (for accounting purposes)

@@ -15,19 +15,19 @@ class OrdersController < ApplicationController
       r = p.root? ? p : p.root
       # search is extended to all shared versions reachable by the backing project, irrespective of user visibility
       # only version name will be shown if not visible
-      @orders = Version.scoped(:include => :project,
+      @orders = WorkOrder.scoped(:include => :project,
                  :conditions => "#{Project.table_name}.id = #{@ts_project}" +
                      " OR (#{Project.table_name}.status <> #{Project::STATUS_ARCHIVED} AND (" +
-                     " #{Version.table_name}.sharing = 'system'" +
-                     " OR (#{Project.table_name}.lft >= #{r.lft} AND #{Project.table_name}.rgt <= #{r.rgt} AND #{Version.table_name}.sharing = 'tree')" +
-                     " OR (#{Project.table_name}.lft < #{p.lft} AND #{Project.table_name}.rgt > #{p.rgt} AND #{Version.table_name}.sharing IN ('hierarchy', 'descendants'))" +
-                     " OR (#{Project.table_name}.lft > #{p.lft} AND #{Project.table_name}.rgt < #{p.rgt} AND #{Version.table_name}.sharing = 'hierarchy')" +
+                     " #{WorkOrder.table_name}.sharing = 'system'" +
+                     " OR (#{Project.table_name}.lft >= #{r.lft} AND #{Project.table_name}.rgt <= #{r.rgt} AND #{WorkOrder.table_name}.sharing = 'tree')" +
+                     " OR (#{Project.table_name}.lft < #{p.lft} AND #{Project.table_name}.rgt > #{p.rgt} AND #{WorkOrder.table_name}.sharing IN ('hierarchy', 'descendants'))" +
+                     " OR (#{Project.table_name}.lft > #{p.lft} AND #{Project.table_name}.rgt < #{p.rgt} AND #{WorkOrder.table_name}.sharing = 'hierarchy')" +
                      "))").all.group_by { |v| v.in_timesheet }
     end
 
     # handle ts order sharing with projects
     if !params[:share].nil? and !params[:id].nil?
-      v = Version.find(params[:id])
+      v = WorkOrder.find(params[:id])
       if v.project_id == @ts_project
         if params[:share] == "1"
           v.sharing = "system"
@@ -43,14 +43,14 @@ class OrdersController < ApplicationController
   end
 
   def disable
-    order = Version.find(params[:id])
+    order = WorkOrder.find(params[:id])
     order.in_timesheet = false
     order.save!
     redirect_to :action => 'index'
   end
 
   def enable
-    order = Version.find(params[:id])
+    order = WorkOrder.find(params[:id])
     order.in_timesheet = true
     order.save! if order.project_id != @ts_project or new_issue(order.name, order.id).save(:validate => false)
 
@@ -86,7 +86,7 @@ class OrdersController < ApplicationController
   end
 
   def new
-    @version = Version.new
+    @version = WorkOrder.new
   end
 
   private
