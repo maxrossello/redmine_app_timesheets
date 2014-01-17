@@ -158,4 +158,4 @@ Individual rows are reported readonly also when an order is not enabled for the 
 
 ![Reports](screenshots/SpentTimeReport.png)
 
-Time spent can be categorized differently for Target Versions (for project management purposes) and Orders (for accounting purposes)
+Spent time can be categorized differently for Target Versions (for project management purposes) and Orders (for accounting purposes)
