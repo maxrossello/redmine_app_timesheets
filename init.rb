@@ -18,7 +18,7 @@ Redmine::Plugin.register :redmine_app_timesheets do
   name 'Redmine Timesheets Application'
   author 'Massimo Rossello'
   description 'Timesheets application for global app space'
-  version '1.1.0'
+  version '1.2.0'
   url 'https://github.com/maxrossello/redmine_app_timesheets.git'
   author_url 'https://github.com/maxrossello'
   requires_redmine :version_or_higher => '2.0.0'
@@ -34,10 +34,6 @@ Redmine::Plugin.register :redmine_app_timesheets do
 
   unless Redmine::Helpers::TimeReport.included_modules.include?(TimesheetsAppTimeReportPatch)
     Redmine::Helpers::TimeReport.send(:include, TimesheetsAppTimeReportPatch)
-  end
-
-  unless TimeEntry.included_modules.include?(TimesheetsAppTimelogPatch)
-    TimeEntry.send(:include, TimesheetsAppTimelogPatch)
   end
 
   unless Project.included_modules.include?(TimesheetsAppProjectPatch)
@@ -71,7 +67,7 @@ RedmineApp::Application.routes.prepend do
   post 'apps/order_users/activities', :controller => 'order_users', :action => 'activities'
 
   get 'apps/timesheets/log_time', :controller => 'timesheets', :action => 'new'
-  put 'apps/timesheets/add_entry', :controller => 'timesheets', :action => 'add_entry'
+  post 'apps/timesheets/add_entry', :controller => 'timesheets', :action => 'add_entry'
   post 'apps/timesheets/save_period', :controller => 'timesheets', :action => 'save_period'
   delete 'apps/timesheets/delete_row', :controller => 'timesheets', :action => 'delete_row'
   post 'apps/timesheets/copy_row', :controller => 'timesheets', :action => 'copy_row'

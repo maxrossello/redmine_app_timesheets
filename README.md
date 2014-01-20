@@ -20,7 +20,18 @@ It allows to define brand new orders, but also to include time spent on issues i
 Time (for the sake of a timesheet) is therefore associated to Versions, in a way that is compatible for calculating the effort spent on versions in usual Redmine views.
 Unproductive activities, and other orders that do not have an hosting project, are stored into a dedicated administrative project that does not need to be visible to users filling data into the timesheet app: the issue tracking module needs not to be enabled on it.
 
-## New in 1.1
+## Changelog
+
+### 1.2
+
+Activities logged on the timesheet is disjoint from activity logged in the project as well. Therefore, timesheets may define a lighter, or conversely a more rafinate,
+set of activities which do not impact project management.
+
+Added OrderActivity criteria for spent time.
+
+Significative changes in database, may bring instability.
+
+### 1.1
 
 Target Versions and Orders are now semantically disjointed. This means that you may have a timelog over an issue associated to a Target Version and the timesheet
 accounting that on a different Order (GUI to do that will be introduced incrementally). Nevertheless, they are still related in that a shared Target Version can
@@ -158,4 +169,4 @@ Individual rows are reported readonly also when an order is not enabled for the 
 
 ![Reports](screenshots/SpentTimeReport.png)
 
-Spent time can be categorized differently for Target Versions (for project management purposes) and Orders (for accounting purposes)
+Time spent can be categorized differently for Target Versions (for project management purposes) and Orders (for accounting purposes)

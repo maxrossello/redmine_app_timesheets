@@ -26,12 +26,13 @@
                  last_project = 0
                  @week_matrix.each_with_index do |row, idx|
                    order = row[:order]
+                   project = order.project
 
                    readonly = false
                    readonly = true unless @active_orders.include?(order)
-                   readonly = true if @visibility == :view and @user != User.current
+                   readonly = true if @visibility == :view and @user != User.current and project.id == @ts_project
+                   readonly = true if !User.current.allowed_to?(:edit_time_entries, project) and @user != User.current and project.id != @ts_project
 
-                   project = order.project
                    @css_class = cycle("ts-odd", "ts-even") if order.name != last_order || order.project_id != last_project
 
                    # new row handling
@@ -115,7 +116,7 @@
                                                                          :view => params[:view]
                             },
                                         :method => :delete,
-                                        :title => l(:button_remove_from_timesheet) unless row[:issue].nil? or readonly or entry.project_id == @ts_project %>
+                                        :title => l(:button_remove_from_timesheet) unless row[:issue].nil? or readonly %>
                           </span>
                         </td>
                       </tr>

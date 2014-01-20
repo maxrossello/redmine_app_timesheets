@@ -24,6 +24,7 @@ it:
   label_enable: "abilita"
   label_delete: "rimuovi"
   label_order: "Commessa"
+  label_order_activity: "Attività su commessa"
   label_action: "Azioni"
   label_for: "di"
   label_share: "condividi"

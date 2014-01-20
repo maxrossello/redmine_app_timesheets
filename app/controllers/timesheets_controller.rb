@@ -21,31 +21,49 @@ class TimesheetsController < ApplicationController
 
   # add a timelog entry into the timesheet
   def add_entry
-    entry = TimeEntry.find(params[:entry_id])
-    entry.in_timesheet = true
-    entry.save!
+    TimeEntry.transaction do
+      params[:entry].each do |item|
+        entry = TimeEntry.find(item.to_i)
+        entry.order_id = params[:entry_order][item].to_i
+        if entry.project_id == @ts_project
+          order_act = TsActivity.where(:order_id => entry.order_id)
+          entry.order_activity_id = order_act.where(:activity_id => params[:entry_activity][item].to_i).all.empty? ? order_act.first.activity_id : params[:entry_activity][item].to_i
+        else
+          order_act = Project.find(entry.project_id).activities
+          entry.order_activity_id = order_act.where(:id => params[:entry_activity][item].to_i).all.empty? ? order_act.first.id : params[:entry_activity][item].to_i
+        end
+        entry.save!
+      end
+    end
+
     redirect_to :back
   end
 
   def save_period
     if @view != :day
-      entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@period_start,@period_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").all
-    else
-      entries = []
+      #REMOVE
+      #entries = TsTimeEntry.for_user(@user).spent_between(@period_start,@period_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").all
+      entries = TsTimeEntry.for_user(@user).spent_between(@period_start,@period_end)
+    #else
+    #  entries = []
     end
 
     params[:order].each_with_index do |order_id, idx|
 
-      tlogs = entries.select {|x| (x.fixed_version_id == order_id.to_i or (x.issue.fixed_version_id == order_id.to_i rescue false)) and
-          x.activity_id == params[:previous_activity][idx].to_i and
-          x.issue_id == (params[:issue][idx].empty? ? nil : params[:issue][idx].to_i)} rescue []
+      #REMOVE
+      #tlogs = entries.select {|x| (x.order_id == order_id.to_i or (x.issue.fixed_version_id == order_id.to_i rescue false)) and
+      #    x.activity_id == params[:previous_activity][idx].to_i and
+      #    x.issue_id == (params[:issue][idx].empty? ? nil : params[:issue][idx].to_i)} rescue []
+      if @view != :day
+        tlogs = entries.where(:order_id => order_id.to_i).where(:order_activity_id => params[:previous_activity][idx].to_i).where(:issue_id => (params[:issue][idx].empty? ? nil : params[:issue][idx].to_i)).all rescue []
+      end
 
       params[:hours].each do |s_date, hours|
         date = s_date.to_date
 
         if @view == :day
           # day view handles single entries
-          daylogs = [ TimeEntry.find(params[:entry][idx]) ] rescue nil
+          daylogs = [ TsTimeEntry.find(params[:entry][idx]) ] rescue nil
           old_sum = daylogs.first.hours rescue 0
         else
           # other views handle sets of similar entries
@@ -60,11 +78,12 @@ class TimesheetsController < ApplicationController
           item = daylogs.last
           if item.hours + diff <= 0
             diff = diff + item.hours
-            TimeEntry.delete(item.id)
+            TsTimeEntry.delete(item.id)
             daylogs.pop
           else
-            # need to find entries because join makes tlogs read only
-            entry = TimeEntry.find(item.id)
+            #REMOVE need to find entries because join makes tlogs read only
+            #entry = TsTimeEntry.find(item.id)
+            entry = item
             entry.hours = entry.hours + diff
             entry.save!
             diff = 0
@@ -74,15 +93,16 @@ class TimesheetsController < ApplicationController
           if daylogs.nil?
             # this is a new row
             if params[:issue][idx].empty?
-              entry = TimeEntry.create(:project => WorkOrder.find(order_id.to_i).project, :fixed_version_id => order_id.to_i, :hours => diff, :user => @user, :spent_on => date, :activity => Enumeration.find(params[:activity][idx].to_i), :in_timesheet => true)
+              entry = TsTimeEntry.create(:project => WorkOrder.find(order_id.to_i).project, :order_id => order_id.to_i, :hours => diff, :user => @user, :spent_on => date, :order_activity_id => Enumeration.find(params[:activity][idx].to_i).id)
             else
               issue = Issue.find(params[:issue][idx].to_i)
-              entry = TimeEntry.create(:project => issue.project, :issue => issue, :hours => diff, :user => @user, :spent_on => date, :activity => Enumeration.find(params[:activity][idx].to_i), :in_timesheet => true)
+              entry = TsTimeEntry.create(:project => issue.project, :issue => issue, :order_id => issue.fixed_version_id, :hours => diff, :user => @user, :spent_on => date, :order_activity_id => Enumeration.find(params[:activity][idx].to_i).id)
             end
             daylogs = [entry]
           else
-            # need to find entries because join makes tlogs read only
-            entry = TimeEntry.find(daylogs.last.id)
+            #REMOVE need to find entries because join makes tlogs read only
+            #entry = TsTimeEntry.find(daylogs.last.id)
+            entry = daylogs.last
             entry.hours = entry.hours + diff
             entry.save!
           end
@@ -98,8 +118,8 @@ class TimesheetsController < ApplicationController
 
         # check for change of activity
         if params[:activity][idx] != params[:previous_activity][idx] and daylogs
-          TimeEntry.find(daylogs.map(&:id)).each do |x|
-            x.activity_id = params[:activity][idx].to_i
+          TsTimeEntry.find(daylogs.map(&:id)).each do |x|
+            x.order_activity_id = params[:activity][idx].to_i
             x.save
           end
         end
@@ -111,52 +131,43 @@ class TimesheetsController < ApplicationController
   end
 
   def row_entries
-    entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@period_start,@period_end).where(:activity_id => params[:activity_id])
-    if params[:issue_id]
-      entries = entries.joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{Issue.table_name}.fixed_version_id = ?", params[:order_id])
+    if params[:entry_id]
+      entries = TsTimeEntry.find(params[:entry_id]) rescue render_404
+      entries
     else
-      entries = entries.where(:fixed_version_id => params[:order_id])
+      entries = TsTimeEntry.for_user(@user).spent_between(@period_start,@period_end).where(:order_activity_id => params[:activity_id])
+      if params[:issue_id]
+        #REMOVE entries = entries.joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{Issue.table_name}.fixed_version_id = ?", params[:order_id])
+        entries = entries.where(:issue_id => params[:issue_id].to_i)
+      end
+      if params[:order_id]
+        entries = entries.where(:order_id => params[:order_id])
+      end
+      entries.all
     end
-
-    entries
   end
 
   def delete_row
-    if params[:entry_id]
-      TimeEntry.delete(params[:entry_id]) rescue render_404
-    else
-      TimeEntry.delete(row_entries.all)
-    end
+    TsTimeEntry.delete(row_entries)
 
     redirect_to :back
   end
 
   def copy_row
-    if params[:entry_id]
-      set = [TimeEntry.find(params[:entry_id])] rescue render_404
-    else
-      set = row_entries.all
-    end
-
-    set.each do |x|
-      tlog = TimeEntry.find(x.id).dup
-      tlog.spent_on = tlog.spent_on+@period_shift
-      tlog.save!
+    row_entries.each do |x|
+      #REMOVE tlog = TimeEntry.find(x.id).dup
+      x.spent_on = x.spent_on+@period_shift
+      x.save!
     end
 
     redirect_to url_for({ :controller => params[:controller], :action => 'index', :user_id => params[:user_id], :view => @view, :day => @current_day + @period_shift})
   end
 
   def remove_entry
-    if params[:entry_id]
-      set = [TimeEntry.find(params[:entry_id])] rescue render_404
-    else
-      set = row_entries.all
-    end
-
-    set.each do |x|
-      tlog = TimeEntry.find(x.id)
-      tlog.in_timesheet = false
+    row_entries.each do |tlog|
+      #REMOVE tlog = TimeEntry.find(x.id)
+      tlog.order_id = nil
+      tlog.order_activity_id = nil
       tlog.save!
     end
 
@@ -229,7 +240,7 @@ class TimesheetsController < ApplicationController
     @active_own_orders = (Issue.where(:project_id => @ts_project).watched_by(User.current).joins(:fixed_version).map(&:fixed_version) +
         Project.find(@ts_project).shared_versions.visible.all).uniq.sort_by{ |v| v.name.downcase}
     @orders = (@active_orders +
-        Version.where(:id => TimeEntry.for_user(@user).map(&:fixed_version_id)).all +
+        Version.where(:id => TsTimeEntry.for_user(@user).map(&:order_id)).all +
         Version.where(:id => Issue.joins(:time_entries).where('user_id = ?', @user.id).where(:fixed_version_id => Project.find(@ts_project).shared_versions.map(&:id)).map(&:fixed_version_id)).all
     ).uniq.sort_by{ |v| v.name.downcase}
 
@@ -253,8 +264,9 @@ class TimesheetsController < ApplicationController
       # format suitable for options_for_select
       row[:activities] = TsActivity.where(:order_id => order).map {|t| [t.activity_name, t.activity_id.to_s]}
       row[:activities] = TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]} if row[:activities].empty?
-      entries = TimeEntry.for_user(@user).where(:in_timesheet => true).spent_between(@period_start-@period_length,@period_end+@period_length).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
-      entries.all.group_by(&:activity_id).each do |activity, values|
+      #REMOVE entries = TsTimeEntry.for_user(@user).spent_between(@period_start-@period_length,@period_end+@period_length).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
+      entries = TsTimeEntry.for_user(@user).spent_between(@period_start-@period_length,@period_end+@period_length).where(:order_id => order.id)
+      entries.all.group_by(&:order_activity_id).each do |activity, values|
         row[:activity] = Enumeration.find(activity)
         values.group_by(&:issue_id).each do |issue, iv|
           row[:spent] = {}
@@ -277,11 +289,15 @@ class TimesheetsController < ApplicationController
         @week_matrix << row unless row[:spent].empty?
       end
 
-      TimeEntry.for_user(@user).where(:in_timesheet => false).spent_between(@period_start,@period_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id).each do |entry|
-        @available << { :order => order, :timelog => entry }
-      end
+      #REMOVE time entries available to enter the timesheet
+      #TimeEntry.for_user(@user).where(:order_id => nil).spent_between(@period_start,@period_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id).each do |entry|
+      #  @available << { :order => order, :timelog => entry }
+      #end
 
     end
+
+    # time entries available to enter the timesheet
+    @available = TimeEntry.for_user(@user).where(:order_id => nil).where("issue_id IS NOT NULL").spent_between(@period_start,@period_end).all
 
     if params[:newrow]
       # add the new empty row
@@ -289,7 +305,7 @@ class TimesheetsController < ApplicationController
         render_404
       else
         row = {}
-        row[:order] = WorkOrder.find(params[:order])
+        row[:order] = Version.find(params[:order])
         unless row[:order].project_id == @ts_project
           row[:issues] = Issue.visible(@user).where(:fixed_version_id => row[:order].id)
         end

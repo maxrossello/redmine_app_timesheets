@@ -17,15 +17,20 @@ module TimesheetsAppTimeReportPatch
       load_available_criteria_without_timelogs
 
       if @available_criteria
-        @available_criteria['work_order'] = {:sql => "#{TimeEntry.table_name}.fixed_version_id",
+        @available_criteria['work_order'] = {:sql => "#{TsTimeEntry.table_name}.order_id",
                                          :klass => WorkOrder,
                                          :label => :label_order,
-                                         :conditions => "time_entries.fixed_version_id is not NULL"}
+                                         :conditions => "#{TimeEntry.table_name}.order_id is not NULL"}
+
+        @available_criteria['order_activity'] = {:sql => "#{TsTimeEntry.table_name}.order_activity_id",
+                                             :klass => TimeEntryActivity,
+                                             :label => :label_order_activity,
+                                             :conditions => "#{TimeEntry.table_name}.order_id is not NULL"}
 
         @available_criteria['version'] = {:sql => "#{Issue.table_name}.fixed_version_id",
                                         :klass => Version,
                                         :label => :label_version,
-                                        :conditions => "issues.fixed_version_id is not NULL OR time_entries.fixed_version_id is NULL"}
+                                        :conditions => "#{Issue.table_name}.fixed_version_id is not NULL OR #{TimeEntry.table_name}.order_id is NULL"}
 
       end
 

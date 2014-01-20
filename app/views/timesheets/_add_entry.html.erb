@@ -2,38 +2,44 @@
     <br/><br/>
     <fieldset>
       <legend><strong><%= l(:label_timesheet_available_entries) %></strong></legend>
-    <table class="ts-display list">
-      <thead>
-      <tr>
-        <th></th>
-        <th><%= l(:label_order) %></th>
-        <th><%= l(:label_project) %></th>
-        <th><%= l(:label_activity) %></th>
-        <th><%= l(:label_issue) %></th>
-        <th><%= l(:field_spent_on) %></th>
-        <th><%= l(:field_hours) %></th>
-      </tr>
-      </thead>
-      <tbody>
-      <% @available.each do |entry| %>
+
+      <%= form_tag :controller => 'timesheets', :action => 'add_entry' do %>
+
+        <table class="ts-display list">
+          <thead>
           <tr>
-            <td style="width:5px">
-              <%= link_to image_tag('add.png'), { :controller => 'timesheets',
-                                                  :action => 'add_entry',
-                                                  :entry_id => entry[:timelog].id
-              },
-                          :method => :put,
-                          :title => l(:button_add) unless @visibility == :view and @user != User.current %>
-            </td>
-            <td><%= entry[:order].name %></td>
-            <td><%= entry[:order].project.name %></td>
-            <td><%= entry[:timelog].activity %></td>
-            <td><%= entry[:timelog].issue.to_s %></td>
-            <td><%= entry[:timelog].spent_on %></td>
-            <td><%= entry[:timelog].hours %></td>
+            <th><%= image_submit_tag("add.png", :title => l(:button_add)) unless @visibility == :view and @user != User.current %></th>
+            <th style="width:20%"><%= l(:label_order) %></th>
+            <th><%= l(:label_version) %></th>
+            <th><%= l(:label_project) %></th>
+            <th><%= l(:label_activity) %></th>
+            <th><%= l(:label_issue) %></th>
+            <th><%= l(:field_spent_on) %></th>
+            <th><%= l(:field_hours) %></th>
           </tr>
+          </thead>
+          <tbody>
+          <% @available.each do |entry|
+              issue = entry.issue
+              order = issue.fixed_version unless issue.nil? %>
+              <tr>
+                <td style="width:5px">
+                  <%= check_box_tag("entry[]", entry.id, false) %>
+                </td>
+                <td><%= select_tag "entry_order[#{entry.id}]", options_from_collection_for_select(@visible_orders, 'id', 'name', order.id) %></td>
+                <td><%= order.name unless order.nil? %></td>
+                <td><%= issue.project.name unless issue.nil? %></td>
+                <td>
+                  <%= entry.activity %>
+                  <%= hidden_field_tag("entry_activity[#{entry.id}]", entry.activity.id) %>
+                </td>
+                <td><%= entry.issue.to_s unless issue.nil? %></td>
+                <td><%= entry.spent_on %></td>
+                <td><%= entry.hours %></td>
+              </tr>
+          <% end %>
+          </tbody>
+        </table>
       <% end %>
-      </tbody>
-    </table>
     </fieldset>
 <% end %>

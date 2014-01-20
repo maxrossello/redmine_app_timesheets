@@ -1,4 +1,3 @@
-# use just the time entry's fixed_version_id to understand it's in timesheet
 
 class RevertTimeEntriesInTimesheet < ActiveRecord::Migration
   def up

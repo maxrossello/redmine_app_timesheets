@@ -24,6 +24,7 @@ en:
   label_enable: "enable"
   label_delete: "delete"
   label_order: "Order"
+  label_order_activity: "Order Activity"
   label_action: "Actions"
   label_for: "for"
   label_share: "share"
