@@ -27,13 +27,13 @@
                   <%= check_box_tag("entry[]", entry.id, false) %>
                 </td>
                 <td><%= select_tag "entry_order[#{entry.id}]", options_from_collection_for_select(@visible_orders, 'id', 'name', (order.id rescue nil)) %></td>
-                <td><%= order.name unless order.nil? %></td>
-                <td><%= issue.project.name unless issue.nil? %></td>
+                <td><%= link_to order.name, { :controller => 'versions', :action => 'show', :id => order.id } unless order.nil? or !order.visible?(User.current) %></td>
+                <td><%= link_to issue.project.name, { :controller => 'projects', :action => 'show', :id => issue.project_id }  unless issue.nil? %></td>
                 <td>
                   <%= entry.activity %>
                   <%= hidden_field_tag("entry_activity[#{entry.id}]", entry.activity.id) %>
                 </td>
-                <td><%= entry.issue.to_s unless issue.nil? %></td>
+                <td><%= link_to issue.to_s, { :controller => 'issues', :action => 'show', :id => issue.id } unless issue.nil? %></td>
                 <td><%= entry.spent_on %></td>
                 <td><%= entry.hours %></td>
               </tr>
