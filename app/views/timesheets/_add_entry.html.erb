@@ -26,7 +26,7 @@
                 <td style="width:5px">
                   <%= check_box_tag("entry[]", entry.id, false) %>
                 </td>
-                <td><%= select_tag "entry_order[#{entry.id}]", options_from_collection_for_select(@visible_orders, 'id', 'name', order.id) %></td>
+                <td><%= select_tag "entry_order[#{entry.id}]", options_from_collection_for_select(@visible_orders, 'id', 'name', (order.id rescue nil)) %></td>
                 <td><%= order.name unless order.nil? %></td>
                 <td><%= issue.project.name unless issue.nil? %></td>
                 <td>
