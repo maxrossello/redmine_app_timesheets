@@ -1,7 +1,9 @@
 # Redmine Timesheet Application
 
 Tested with Redmine 2.3.3, compatible with 2.x.
-Application dependent to the redmine_app__space plugin.
+
+Application dependent from the [redmine_app__space](http://github.com/maxrossello/redmine_app__space) and
+[redmine_watcher_groups](http://github.com/maxrossello/redmine_watcher_groups) plugins.
 
 "True" timesheet application, handling time spent on orders rather than on issues, but still being capable of integrating that spent effort in the timesheet.
 
@@ -52,7 +54,7 @@ and for accountancy purposes (via Orders).
 * configure activity enumerations per order (enhances visibility management of shared activity definitions)
 * support both custom-defined orders and orders defined in projects as shared versions
 * using the global app space plugin, therefore both the administrative and user views can be enabled to selected user groups and showing in the applications menu if they wish
-* new Order criteria in spent time reports
+* new Order and Order Activity criteria in spent time reports
 * permissions for editing own timesheet, view other user's timesheet (readonly), edit other user's timesheet
 * daily and weekly view (the time span can be easily changed to arbitrary period via URL only currently)
 * daily view manages all time entries and related comments; weekly view aggregates timelogs per order + activity + (opt.) issue
@@ -65,7 +67,8 @@ and for accountancy purposes (via Orders).
 
 ## Installation
 
-Install the redmine_app__space plugin first, then follow the standard Redmine procedure for this plugin, including database migrations.
+Install the [redmine_app__space](http://github.com/maxrossello/redmine_app__space) and [redmine_watcher_groups](http://github.com/maxrossello/redmine_watcher_groups)
+plugins first, then follow the standard Redmine procedure for this plugin, including database migrations.
 
 ### General configuration
 
