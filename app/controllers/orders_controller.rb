@@ -59,21 +59,22 @@ class OrdersController < ApplicationController
 
   def create
     order = Project.find(@ts_project).versions.build
-    if params[:version]
-      attributes = params[:version].dup
+    if params[:work_order]
+      attributes = params[:work_order].dup
       attributes.delete('sharing') unless attributes.nil? || order.allowed_sharings.include?(attributes['sharing'])
       order.safe_attributes = attributes
     end
 
     order.in_timesheet = 1
 
-    saved = order.save if order.project_id == @ts_project and (i = new_issue(params[:version][:name])).save
+    saved = order.save if order.project_id == @ts_project and (i = new_issue(params[:work_order][:name])).save
     unless i.nil?
       if saved
         i.fixed_version_id = order.id
         i.save(:validate => false) # ok also with issue tracking off
       else
         # e.g. if duplicate order not saved
+        flash[:error] = l(:label_timesheet_order_not_saved)
         i.delete
       end
     end

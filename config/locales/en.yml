@@ -46,6 +46,8 @@ en:
   label_timesheet_project_label: "Backing project"
   label_timesheet_project_hint: "The project used to store timesheet data under the hoods"
   label_timesheets_warn_select_project: "Please select a project"
+  label_timesheet_missing_permission_on_order: "Missing write permission on some order"
+  label_timesheet_order_not_saved: "Order not saved"
 
   label_timesheet_tracker_label: "Backing tracker"
   label_timesheet_tracker_hint: "The tracker used to collect timesheet hours"

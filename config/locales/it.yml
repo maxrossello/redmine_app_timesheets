@@ -46,6 +46,8 @@ it:
   label_timesheet_project_label: "Progetto di appoggio"
   label_timesheet_project_hint: "Il progetto che conserva i dati dietro le quinte"
   label_timesheets_warn_select_project: "Selezionare un progetto"
+  label_timesheet_missing_permission_on_order: "Manca permesso di scrittura su qualche commessa"
+  label_timesheet_order_not_saved: "Commessa non salvata"
 
   label_timesheet_tracker_label: "Tracker di appoggio"
   label_timesheet_tracker_hint: "Il tracker usato per aggregare le ore riportate"
