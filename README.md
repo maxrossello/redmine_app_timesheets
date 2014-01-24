@@ -22,7 +22,7 @@ don't want to handle general activities, features, and their economics melted an
 so a project context is not sufficient for this scope
 
 The Redmine Timesheet Application plugin implements a global application which includes an administrative part for enabling
-Orders and defining their visibility (edit own time only, view all times, edit all times) with Order granularity.
+Orders and defining their visibility (edit own time only, view all times, edit all times) with per-Order granularity.
 
 It allows to define brand new Orders, but also to reuse data about time spent on issues.
 Orders can be created globally, in the administrative interface, or into projects. In the latter case, they are represented by
@@ -57,12 +57,15 @@ completely removes the need to enable the Issue Tracking module in it.
 
 Fixed several security issues.
 
+WARNING: if you migrate from version 1.2 or below you will have to redefine any view/edit permissions over Orders that you
+may have assigned through roles into the backing project.
+
 ### 1.2
 
 Activities logged on the timesheet is disjoint from activity logged in the project as well. Therefore, timesheets may
 define a lighter, or conversely a more rafinate, set of activities which do not impact project management.
 
-Added OrderActivity criteria for spent time.
+Added Order Activity criteria for spent time.
 
 Significative changes in database, may bring instability.
 
@@ -129,6 +132,9 @@ Define a group of users enabled to use the administrative view, and a group of u
 Enable the Time Tracking module into the backing project. All other modules (including Issue Tracking) can be off.
 The benefit of having the Issue Tracking module disabled is that you can provide the timesheet feature without the need to make the
 backing project visible to users.
+
+WARNING: if you migrate from version 1.2 or below you will have to redefine any view/edit permissions over Orders that you
+may have assigned through roles into the backing project.
 
 ### Allowing users to edit or view other user's timesheets
 
@@ -245,7 +251,7 @@ Individual rows are reported readonly also when an Order is not enabled for the 
 
 ![Reports](screenshots/SpentTimeReport.png)
 
-Time spent can be categorized differently for Target Versions (for project management purposes) and Orders (for accounting purposes).
+Spent time can be categorized differently for Target Versions (for project management purposes) and Orders (for accounting purposes).
 
 Furthermore, it can be categorized differently for Activities (for project management purposes) and Order Activities (for
 accounting purposes.
