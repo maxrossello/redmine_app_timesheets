@@ -49,11 +49,14 @@
     </div>
 
     <div class="splitcontentright">
-      <% if @members.any? %>
+      <% if @members.any?
+         roles = ['none', 'inspector', 'manager', 'admin']
+         titles = [l(:label_timesheet_ownonly_access), l(:label_timesheet_readonly_access), l(:label_timesheet_readwrite_access), l(:label_timesheet_admin_access)] %>
           <table class="list members">
             <thead><tr>
               <th><%= l(:label_user) %> / <%= l(:label_group) %></th>
-              <th style="width:15%"></th>
+              <th><%= l(:label_timesheet_access) %></th>
+              <th><%= l(:label_action) %></th>
             </tr></thead>
             <tbody>
             <% @members.each do |member| %>
@@ -61,17 +64,35 @@
                 <% if member.is_a?(User)
                     listed << member %>
                     <tr id="member-<%= member.id %>" class="member">
-                      <td class="<%= member.class.name.downcase %>"><%= link_to_user member %></td>
-                      <td class="buttons">
-                        <%= link_to l(:button_delete), { :controller => 'order_users', :action => 'destroy', :object_type => "issue", :object_id => @issue.id, :user_id => member.id},
+                      <td class="<%= member.class.name.downcase %>">
+                        <%= link_to_user member %>
+                      </td>
+                      <td class="buttons" style="width:16px">
+                      <% if (role = @permissions[member.id] || TsPermission::NONE) != TsPermission::NONE  %>
+                            <span class="icon icon-<%=roles[role]%>" style="float:right; padding-top:13px" title="<%=titles[role]%>"/>
+                        <% end %>
+                      </td><td class="buttons" style="width:16px; text-align: left">
+                        <% (TsPermission::NONE..TsPermission::EDIT).reverse_each do |perm| %>
+                          <% if role != perm and role != TsPermission::ADMIN %>
+                              <%= link_to_if role != perm, "", { :controller => 'order_users', :action => 'set_permission', :role => perm, :user_id => member.id},
+                                             {:remote => true, :method => :put, :class => "icon icon-#{roles[perm]}",
+                                              :title => titles[perm], :onmouseup => "setTimeout(function() {location.reload(true)}, 100)" } %>
+                          <% else %>
+                              <span class="icon icon-<%=roles[perm]%>" style="opacity:0.3"></span>
+                          <% end %>
+                        <% end %>
+                        <%= link_to "", { :controller => 'order_users', :action => 'destroy', :object_type => "issue", :object_id => @issue.id, :user_id => member.id},
                                       {:remote => true, :method => :delete, :class => 'icon icon-del', :onmouseup => "setTimeout(function() {location.reload(true)}, 100)" } %>
                       </td>
                     </tr>
                 <% else %>
                     <tr id="member-<%= member.id %>" class="member">
-                      <td class="<%= member.class.name.downcase %>"><%= link_to_user member %></td>
-                      <td class="buttons">
-                        <%= link_to l(:button_delete), { :controller => 'watcher_groups', :action => 'destroy', :object_type => "issue", :object_id => @issue.id, :group_id => member.id },
+                      <td class="<%= member.class.name.downcase %>">
+                        <%= link_to_user member %>
+                      </td><td class="buttons" style="width:16px">
+                      </td>
+                      <td class="buttons" style="width:16px">
+                        <%= link_to "", { :controller => 'watcher_groups', :action => 'destroy', :object_type => "issue", :object_id => @issue.id, :group_id => member.id },
                                     {:remote => true, :method => :post, :class => 'icon icon-del', :onmouseup => "setTimeout(function() {location.reload(true)}, 100)" } %>
                       </td>
                     </tr>
@@ -79,8 +100,23 @@
                         next if listed.include?(user)
                         listed << user %>
                         <tr id="member-<%= user.id %>" class="member">
-                          <td class="<%= user.class.name.downcase %> odd ts-child"><%= link_to_user user %></td>
-                          <td class="buttons odd">
+                          <td class="<%= user.class.name.downcase %> odd ts-child">
+                            <%= link_to_user user %>
+                          </td>
+                          <td class="buttons" style="width:16px">
+                          <% if (role = @permissions[user.id] || TsPermission::NONE) != TsPermission::NONE  %>
+                                <span class="icon icon-<%=roles[role]%>" style="float:right; padding-top:13px" title="<%=titles[role]%>"/>
+                            <% end %>
+                          </td><td class="buttons" style="width:16px; text-align: left">
+                            <% (TsPermission::NONE..TsPermission::EDIT).reverse_each do |perm| %>
+                              <% if role != perm and role != TsPermission::ADMIN %>
+                                  <%= link_to_if role != perm, "", { :controller => 'order_users', :action => 'set_permission', :role => perm, :user_id => user.id},
+                                                 {:remote => true, :method => :put, :class => "icon icon-#{roles[perm]}",
+                                                  :title => titles[perm], :onmouseup => "setTimeout(function() {location.reload(true)}, 100)" } %>
+                              <% else %>
+                                  <span class="icon icon-<%=roles[perm]%>" style="opacity:0.3"></span>
+                              <% end %>
+                            <% end %>
                           </td>
                         </tr>
                     <% end %>

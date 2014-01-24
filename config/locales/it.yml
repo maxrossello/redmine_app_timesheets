@@ -52,5 +52,10 @@ it:
   label_timesheet_tracker_label: "Tracker di appoggio"
   label_timesheet_tracker_hint: "Il tracker usato per aggregare le ore riportate"
   label_timesheets_warn_select_tracker: "Selezionare un tracker"
-
   label_public_versions: "Versioni condivise visibili a non membri (Default di Redmine: true)"
+
+  label_timesheet_readonly_access: "Visiona ore su commessa di altri utenti"
+  label_timesheet_readwrite_access: "Modifica ore su commessa di altri utenti"
+  label_timesheet_ownonly_access: "Modifica solo le proprie ore su commessa"
+  label_timesheet_admin_access: "Amministratore commesse"
+  label_timesheet_access: "Accesso"

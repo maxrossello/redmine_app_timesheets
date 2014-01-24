@@ -14,7 +14,7 @@
                                    :include_blank => true %></td>
 
                 <% if @activities %>
-                    <td><strong><%= l(:label_activity) %></strong></td>
+                    <td><strong><%= l(:label_order_activity) %></strong></td>
                     <td>
                       <%= select_tag 'activity', options_for_select(@activities, params[:activity]),
                                      :onchange => "location.href='#{url_for(params.except(:activity))}&activity='+this.value",

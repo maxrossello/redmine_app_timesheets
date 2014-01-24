@@ -53,3 +53,9 @@ en:
   label_timesheet_tracker_hint: "The tracker used to collect timesheet hours"
   label_timesheets_warn_select_tracker: "Please select a tracker"
   label_public_versions: "Shared versions visible to non members (Redmine default: true)"
+
+  label_timesheet_readonly_access: "View other users' timelogs"
+  label_timesheet_readwrite_access: "Edit other users' timelogs"
+  label_timesheet_ownonly_access: "Edit own timelogs only"
+  label_timesheet_admin_access: "Orders administrator"
+  label_timesheet_access: "Access"

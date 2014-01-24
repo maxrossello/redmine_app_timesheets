@@ -2,13 +2,30 @@ class OrderUsersController < WatchersController
   unloadable
 
   skip_before_filter :authorize
+  before_filter :is_order_manager
+
+  def is_order_manager
+    render_403 unless User.current.admin? or User.current.is_or_belongs_to? Group.find(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].to_i)
+  end
 
   def index
-    @order = WorkOrder.find(params[:id]) rescue render_404
-    @issue = Issue.find_by_fixed_version_id(@order)
-    @issue = @issue.first if @issue.is_a?(Array)
-    @members = @issue.watchers.map{|w| Principal.find(w.user_id) }.sort
-    @activities = TsActivity.where(:order_id => @order).map(&:activity_id)
+    begin
+      @order = WorkOrder.find(params[:id])
+      @issue = Issue.find_by_fixed_version_id(@order)
+      @issue = @issue.first if @issue.is_a?(Array)
+      @members = @issue.watchers.map{|w| Principal.find(w.user_id) }.sort
+      @activities = TsActivity.where(:order_id => @order).map(&:activity_id)
+      @permissions = TsPermission.over(@order).inject({}) do |h,v|
+        h[v[:user_id]] = v[:access]
+        h
+      end
+
+      (User.where(:admin => true).all + User.in_group(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'])).uniq.each do |user|
+        @permissions[user.id] = TsPermission::ADMIN
+      end
+    rescue
+      render_404
+    end
   end
 
   def find_watchables
@@ -40,4 +57,15 @@ class OrderUsersController < WatchersController
       redirect_to :controller => 'orders', :action => 'index'
     end
   end
+
+  def set_permission
+    perm = TsPermission.where(:user_id => params[:user_id]).where(:order_id => params[:id]).first
+    if perm.nil?
+      TsPermission.create(:user_id => params[:user_id], :order_id => params[:id], :access => params[:role])
+    else
+      perm.access = params[:role]
+      perm.save!
+    end
+  end
+
 end

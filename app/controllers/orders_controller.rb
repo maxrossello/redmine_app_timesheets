@@ -1,10 +1,14 @@
 class OrdersController < ApplicationController
   unloadable
 
-  before_filter :require_login, :get_project
+  before_filter :require_login, :is_order_manager, :get_project
 
   helper ProjectsHelper
   helper CustomFieldsHelper
+
+  def is_order_manager
+    render_403 unless User.current.admin? or User.current.is_or_belongs_to? Group.find(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].to_i)
+  end
 
   def index
     unless User.is_app_visible?('order_mgmt')

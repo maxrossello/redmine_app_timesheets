@@ -4,7 +4,6 @@ class TimesheetsController < ApplicationController
   before_filter :require_login
   before_filter :get_project
   before_filter :get_user
-  before_filter :access_control, :except => :index
   before_filter :get_dates
   before_filter :get_timelogs, :except => :save_period
 
@@ -13,6 +12,7 @@ class TimesheetsController < ApplicationController
   @@DEFAULT_ACTIVITY = Enumeration.where(:type => 'TimeEntryActivity', :is_default => true).first
 
   def index
+    render_403 if @visibility.empty? and @user != User.current
   end
 
   def new
@@ -25,6 +25,10 @@ class TimesheetsController < ApplicationController
       params[:entry].each do |item|
         entry = TimeEntry.find(item.to_i)
         entry.order_id = params[:entry_order][item].to_i
+        if !write_enabled(order_id)
+          flash[:error] = l(:label_timesheet_missing_permission_on_order)
+          raise ActiveRecord::Rollback
+        end
         if entry.project_id == @ts_project
           order_act = TsActivity.where(:order_id => entry.order_id)
           entry.order_activity_id = order_act.where(:activity_id => params[:entry_activity][item].to_i).all.empty? ? order_act.first.activity_id : params[:entry_activity][item].to_i
@@ -41,19 +45,11 @@ class TimesheetsController < ApplicationController
 
   def save_period
     if @view != :day
-      #REMOVE
-      #entries = TsTimeEntry.for_user(@user).spent_between(@period_start,@period_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").all
       entries = TsTimeEntry.for_user(@user).spent_between(@period_start,@period_end)
-    #else
-    #  entries = []
     end
 
     params[:order].each_with_index do |order_id, idx|
 
-      #REMOVE
-      #tlogs = entries.select {|x| (x.order_id == order_id.to_i or (x.issue.fixed_version_id == order_id.to_i rescue false)) and
-      #    x.activity_id == params[:previous_activity][idx].to_i and
-      #    x.issue_id == (params[:issue][idx].empty? ? nil : params[:issue][idx].to_i)} rescue []
       if @view != :day
         tlogs = entries.where(:order_id => order_id.to_i).where(:order_activity_id => params[:previous_activity][idx].to_i).where(:issue_id => (params[:issue][idx].empty? ? nil : params[:issue][idx].to_i)).all rescue []
       end
@@ -74,6 +70,11 @@ class TimesheetsController < ApplicationController
         next if hours[idx].to_f < 0
         diff = hours[idx].to_f - old_sum
 
+        if !write_enabled(order_id)
+          flash[:error] = l(:label_timesheet_missing_permission_on_order) + ": #{order_id}"
+          next
+        end
+
         while diff < 0
           item = daylogs.last
           if item.hours + diff <= 0
@@ -81,8 +82,6 @@ class TimesheetsController < ApplicationController
             TsTimeEntry.delete(item.id)
             daylogs.pop
           else
-            #REMOVE need to find entries because join makes tlogs read only
-            #entry = TsTimeEntry.find(item.id)
             entry = item
             entry.hours = entry.hours + diff
             entry.save!
@@ -100,8 +99,6 @@ class TimesheetsController < ApplicationController
             end
             daylogs = [entry]
           else
-            #REMOVE need to find entries because join makes tlogs read only
-            #entry = TsTimeEntry.find(daylogs.last.id)
             entry = daylogs.last
             entry.hours = entry.hours + diff
             entry.save!
@@ -133,14 +130,21 @@ class TimesheetsController < ApplicationController
   def row_entries
     if params[:entry_id]
       entries = TsTimeEntry.find(params[:entry_id]) rescue render_404
+      if !write_enabled(entries.order_id)
+        flash[:error] = l(:label_timesheet_missing_permission_on_order)
+        return []
+      end
       entries
     else
       entries = TsTimeEntry.for_user(@user).spent_between(@period_start,@period_end).where(:order_activity_id => params[:activity_id])
       if params[:issue_id]
-        #REMOVE entries = entries.joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{Issue.table_name}.fixed_version_id = ?", params[:order_id])
         entries = entries.where(:issue_id => params[:issue_id].to_i)
       end
       if params[:order_id]
+        if !write_enabled(params[:order_id].to_i)
+          flash[:error] = l(:label_timesheet_missing_permission_on_order)
+          return []
+        end
         entries = entries.where(:order_id => params[:order_id])
       end
       entries.all
@@ -155,7 +159,6 @@ class TimesheetsController < ApplicationController
 
   def copy_row
     row_entries.each do |x|
-      #REMOVE tlog = TimeEntry.find(x.id).dup
       x.spent_on = x.spent_on+@period_shift
       x.save!
     end
@@ -165,7 +168,6 @@ class TimesheetsController < ApplicationController
 
   def remove_entry
     row_entries.each do |tlog|
-      #REMOVE tlog = TimeEntry.find(x.id)
       tlog.order_id = nil
       tlog.order_activity_id = nil
       tlog.save!
@@ -176,8 +178,13 @@ class TimesheetsController < ApplicationController
 
   private
 
-  def access_control
-    render_403 unless @visibility == :edit or @user == User.current
+  def write_enabled(order_id)
+    # access granted for own timesheet, non-native versions, or explicit permission
+    if @user == User.current or WorkOrder.find(order_id).nil? or @visibility[order_id] == TsPermission::EDIT or @visibility[order_id] == TsPermission::ADMIN
+      return true
+    else
+      return false
+    end
   end
 
   def get_dates
@@ -216,13 +223,15 @@ class TimesheetsController < ApplicationController
       @user = User.current
     end
 
-    if User.current.admin? or User.current.allowed_to?(:edit_time_entries, Project.find(@ts_project))
-      @visibility = :edit
-    elsif User.current.allowed_to?(:view_time_entries, Project.find(@ts_project))
-      @visibility = :view
-    else
-      redirect_to url_for params.except :user_id if @user != User.current
-      @visibility = :edit_own
+    # retrieve permissions over native orders
+    @visibility = TsPermission.for_user.inject({}) do |h,v|
+      h[v[:order_id]] = v[:access]
+      h
+    end
+    Project.find(@ts_project).versions.each do |order|
+      if User.current.admin? or User.current.is_or_belongs_to?(Group.find(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].to_i))
+        @visibility[order.id] = TsPermission::ADMIN
+      end
     end
 
   end
@@ -251,7 +260,7 @@ class TimesheetsController < ApplicationController
 
     @orders.each do |order|
       # skip orders not visible to the current user
-      next if User.current != @user and !@active_own_orders.include?(order)
+      next if User.current != @user and (!@active_own_orders.include?(order) or @visibility.empty? or @visibility[order.id] == TsPermission::NONE)
       @visible_orders << order if @active_orders.include?(order)
 
       row = {}
@@ -264,7 +273,6 @@ class TimesheetsController < ApplicationController
       # format suitable for options_for_select
       row[:activities] = TsActivity.where(:order_id => order).map {|t| [t.activity_name, t.activity_id.to_s]}
       row[:activities] = TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]} if row[:activities].empty?
-      #REMOVE entries = TsTimeEntry.for_user(@user).spent_between(@period_start-@period_length,@period_end+@period_length).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id)
       entries = TsTimeEntry.for_user(@user).spent_between(@period_start-@period_length,@period_end+@period_length).where(:order_id => order.id)
       entries.all.group_by(&:order_activity_id).each do |activity, values|
         row[:activity] = Enumeration.find(activity)
@@ -288,11 +296,6 @@ class TimesheetsController < ApplicationController
         row[:activity], row[:days] = @@DEFAULT_ACTIVITY, {}
         @week_matrix << row unless row[:spent].empty?
       end
-
-      #REMOVE time entries available to enter the timesheet
-      #TimeEntry.for_user(@user).where(:order_id => nil).spent_between(@period_start,@period_end).joins("LEFT OUTER JOIN issues ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").where("#{TimeEntry.table_name}.fixed_version_id = ? OR #{Issue.table_name}.fixed_version_id = ?", order.id, order.id).each do |entry|
-      #  @available << { :order => order, :timelog => entry }
-      #end
 
     end
 

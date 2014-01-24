@@ -40,7 +40,7 @@
 
                    readonly = false
                    readonly = true unless @active_orders.include?(order)
-                   readonly = true if @visibility == :view and @user != User.current and project.id == @ts_project
+                   readonly = true if @visibility[order.id] == TsPermission::VIEW and @user != User.current and project.id == @ts_project
                    readonly = true if !User.current.allowed_to?(:edit_time_entries, project) and @user != User.current and project.id != @ts_project
 
                    emptyrow = row[:spent].select {|x,y| x >= @period_start and x <= @period_end }.empty?
@@ -142,7 +142,7 @@
               <tr>
                 <td style="text-align: left">
                   <p>
-                    <%= submit_tag l(:button_save) unless @visibility == :view and @user != User.current %>
+                    <%= submit_tag l(:button_save) unless @visibility.empty? and @user != User.current %>
                   </p>
                 </td>
               </tr>

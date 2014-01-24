@@ -24,12 +24,12 @@ Redmine::Plugin.register :redmine_app_timesheets do
   name 'Redmine Timesheets Application'
   author 'Massimo Rossello'
   description 'Timesheets application for global app space'
-  version '1.2.3'
+  version '1.3.0'
   url 'https://github.com/maxrossello/redmine_app_timesheets.git'
   author_url 'https://github.com/maxrossello'
   requires_redmine :version_or_higher => '2.0.0'
   requires_redmine_plugin :redmine_app__space, :version_or_higher => '0.0.2'
-  requires_redmine_plugin :redmine_watcher_groups, :version_or_higher => '0.0.2'
+  requires_redmine_plugin :redmine_watcher_groups, :version_or_higher => '0.0.3'
 
   settings(:default => {
       'project' => "",
@@ -72,6 +72,7 @@ RedmineApp::Application.routes.prepend do
   post 'apps/order_users/:id/append', :controller => 'order_users', :action => 'append'
   delete 'apps/order_users/:id/destroy', :controller => 'order_users', :action => 'destroy'
   post 'apps/order_users/activities', :controller => 'order_users', :action => 'activities'
+  put 'apps/order_users/:id/set_perm/:role', :controller => 'order_users', :action => 'set_permission'
 
   get 'apps/timesheets/log_time', :controller => 'timesheets', :action => 'new'
   post 'apps/timesheets/add_entry', :controller => 'timesheets', :action => 'add_entry'
