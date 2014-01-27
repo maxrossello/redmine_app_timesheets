@@ -25,7 +25,7 @@ class TimesheetsController < ApplicationController
       params[:entry].each do |item|
         entry = TimeEntry.find(item.to_i)
         entry.order_id = params[:entry_order][item].to_i
-        if !write_enabled(order_id)
+        if !write_enabled(entry.order_id)
           flash[:error] = l(:label_timesheet_missing_permission_on_order)
           raise ActiveRecord::Rollback
         end
@@ -38,7 +38,7 @@ class TimesheetsController < ApplicationController
         end
         entry.save!
       end
-    end
+    end if params[:entry]
 
     redirect_to :back
   end
