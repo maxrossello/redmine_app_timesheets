@@ -7,7 +7,7 @@ class TsPermissions < ActiveRecord::Migration
     end
     add_index :ts_permissions, [:user_id, :order_id]
 
-    backing = Project.find(Setting.plugin_redmine_app_timesheets['project'].to_i)
+    backing = (Project.find(Setting.plugin_redmine_app_timesheets['project'].to_i) rescue nil)
     if backing != nil
       TsPermission.transaction do
         backing.versions.each do |order|
