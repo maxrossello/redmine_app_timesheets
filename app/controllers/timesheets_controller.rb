@@ -34,7 +34,8 @@ class TimesheetsController < ApplicationController
           entry.order_activity_id = order_act.where(:activity_id => params[:entry_activity][item].to_i).all.empty? ? order_act.first.activity_id : params[:entry_activity][item].to_i
         else
           order_act = Project.find(entry.project_id).activities
-          entry.order_activity_id = order_act.where(:id => params[:entry_activity][item].to_i).all.empty? ? order_act.first.id : params[:entry_activity][item].to_i
+          (order_act = order_act.all) unless order_act.is_a? Array
+          entry.order_activity_id = order_act.map(&:id).include?(params[:entry_activity][item].to_i) ? params[:entry_activity][item].to_i : order_act.first.id
         end
         entry.save!
       end
