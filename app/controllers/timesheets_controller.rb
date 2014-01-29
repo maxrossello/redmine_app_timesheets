@@ -92,11 +92,12 @@ class TimesheetsController < ApplicationController
         if diff > 0
           if daylogs.nil?
             # this is a new row
+            activity = Enumeration.find(params[:activity][idx].to_i).id
             if params[:issue][idx].empty?
-              entry = TsTimeEntry.create(:project => WorkOrder.find(order_id.to_i).project, :order_id => order_id.to_i, :hours => diff, :user => @user, :spent_on => date, :order_activity_id => Enumeration.find(params[:activity][idx].to_i).id)
+              entry = TsTimeEntry.create(:project => WorkOrder.find(order_id.to_i).project, :order_id => order_id.to_i, :hours => diff, :user => @user, :spent_on => date, :order_activity_id => activity, :activity_id => activity)
             else
               issue = Issue.find(params[:issue][idx].to_i)
-              entry = TsTimeEntry.create(:project => issue.project, :issue => issue, :order_id => issue.fixed_version_id, :hours => diff, :user => @user, :spent_on => date, :order_activity_id => Enumeration.find(params[:activity][idx].to_i).id)
+              entry = TsTimeEntry.create(:project => issue.project, :issue => issue, :order_id => issue.fixed_version_id, :hours => diff, :user => @user, :spent_on => date, :order_activity_id => activity, :activity_id => activity)
             end
             daylogs = [entry]
           else
