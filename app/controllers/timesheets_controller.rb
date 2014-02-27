@@ -160,7 +160,8 @@ class TimesheetsController < ApplicationController
   end
 
   def copy_row
-    row_entries.each do |x|
+    row_entries.each do |tlog|
+      x = tlog.dup
       x.spent_on = x.spent_on+@period_shift
       x.save!
     end
