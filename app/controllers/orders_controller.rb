@@ -105,7 +105,7 @@ class OrdersController < ApplicationController
       i.subject = name
       i.status_id = IssueStatus.where(is_closed: 1).joins(workflows: :tracker).where('workflows.new_status_id = issue_statuses.id').where('workflows.tracker_id = trackers.id').where('trackers.id = ?', i.tracker_id).first.id rescue 1
       i.fixed_version_id = vid
-      i.author = User.find(1) # admin
+      i.author = User.first
     end
     i
   end
