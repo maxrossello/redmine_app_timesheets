@@ -232,7 +232,8 @@ class TimesheetsController < ApplicationController
       h
     end
     Project.find(@ts_project).versions.each do |order|
-      if User.current.admin? or User.current.is_or_belongs_to?(Group.find(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].to_i))
+      if User.current.admin? or Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].empty? or
+          User.current.is_or_belongs_to?(Group.find(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].to_i))
         @visibility[order.id] = TsPermission::ADMIN
       end
     end

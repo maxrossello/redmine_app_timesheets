@@ -1,6 +1,6 @@
 # Redmine Timesheet Application
 
-Tested with Redmine 2.3.3, compatible with 2.x.
+Tested with Redmine 2.4.5, compatible with 2.x.
 
 Application dependent from the [redmine_app__space](http://github.com/maxrossello/redmine_app__space) and
 [redmine_watcher_groups](http://github.com/maxrossello/redmine_watcher_groups) plugins.
