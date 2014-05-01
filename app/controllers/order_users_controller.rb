@@ -5,7 +5,8 @@ class OrderUsersController < WatchersController
   before_filter :is_order_manager
 
   def is_order_manager
-    render_403 unless User.current.admin? or User.current.is_or_belongs_to? Group.find(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].to_i)
+    render_403 unless User.current.admin? or Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].empty? or
+        User.current.is_or_belongs_to? Group.find(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].to_i)
   end
 
   def index
@@ -20,7 +21,7 @@ class OrderUsersController < WatchersController
         h
       end
 
-      (User.where(:admin => true).all + User.in_group(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'])).uniq.each do |user|
+      (Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].empty? ? User.all : User.where(:admin => true).all + User.in_group(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'])).uniq.each do |user|
         @permissions[user.id] = TsPermission::ADMIN
       end
     rescue
