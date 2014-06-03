@@ -1,8 +1,7 @@
 
 <h2><%=l(:label_order_mgmt)%></h2>
 <%
-  unless Setting.plugin_redmine_app_timesheets['project'] == "" or
-           Setting.plugin_redmine_app_timesheets['tracker'] == "" %>
+  unless Setting.plugin_redmine_app_timesheets['project'] == "" %>
     <div style="padding-bottom:20px"><%= l(:label_order_mgmt_help) %></div>
 
     <div class="order-new"><%= link_to l(:label_order_create_placeholder), { :action => 'new', :project_id => @ts_project }, :class => 'icon icon-add' %></div>

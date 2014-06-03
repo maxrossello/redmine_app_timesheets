@@ -4,8 +4,7 @@
 </div>
 <h2><%= l(:label_order_permissions) + ": " + @order.name %></h2>
 <%
-  unless Setting.plugin_redmine_app_timesheets['project'] == "" or
-           Setting.plugin_redmine_app_timesheets['tracker'] == "" %>
+  unless Setting.plugin_redmine_app_timesheets['project'] == "" %>
 
     <% listed = []
        reset_cycle %>

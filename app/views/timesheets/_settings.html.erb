@@ -13,19 +13,6 @@
 </p>
 
 <p>
-  <%=content_tag(:label, l(:label_timesheet_tracker_label) + ":") %>
-  <% admins = settings["tracker"] == "" ? [[l(:label_timesheet_select), ""]] : []
-     admins.concat(Tracker.all.map { |x| [ x.name, x.id ]})  %>
-     <%=select_tag("settings[tracker]",
-                options_for_select(admins,
-                                   :selected => settings["tracker"])) %><br/>
-  <%=l(:label_timesheet_tracker_hint)%>
-  <% if settings["tracker"] == "" %>
-      <br><span style="color: red;"><%=l(:label_timesheets_warn_select_tracker)%></span>
-  <% end %>
-</p>
-
-<p>
   <%=content_tag(:label, l(:label_public_versions)) %>
   <%= check_box_tag "settings[public_versions]", "1", settings['public_versions']  %>
 </p>

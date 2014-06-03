@@ -1,6 +1,6 @@
 # Redmine Timesheet Application
 
-Tested with Redmine 2.4.5, compatible with 2.x.
+Tested with Redmine 2.4.5 and 2.5.1, compatible with 2.x.
 
 Application dependent from the [redmine_app__space](http://github.com/maxrossello/redmine_app__space) and
 [redmine_watcher_groups](http://github.com/maxrossello/redmine_watcher_groups) plugins.
@@ -57,7 +57,7 @@ completely removes the need to enable the Issue Tracking module in it.
 
 Fixed several security issues.
 
-Version 1.3.12 removes the need for hidden issues in the administrative project holding access permissions.
+Version 1.3.12 removes the need for hidden issues in the backing project holding access permissions.
 
 WARNING: if you migrate from version 1.2 or below you will have to redefine any view/edit permissions over Orders that you
 may have assigned through roles into the backing project.
@@ -123,8 +123,7 @@ plugins first, then follow the standard Redmine procedure for this plugin, inclu
 
 ### General configuration
 
-Create a backing project and, optionally, a new kind of tracker. You can name both of them "Timesheets", but any existing
-tracker will anyway do the job. Go to the plugin settings and reference them.
+Create a backing project. Go to the plugin settings and reference it.
 
 Unflag the entry 'Shared versions visible to non members' if you want to preserve Orders completely hidden to people not
 allowed to know their existence. Standard Redmine doesn't allow the usage to non project members, but nevertheless discloses
@@ -167,7 +166,7 @@ Since 1.3 you don't need to assign role permissions into the backing project.
 
 ![Configuration](screenshots/PluginConfig.png)
 
-Configure the backing project and the backing tracker. The backing project is an administrative-only one, and will not be
+Configure the backing project. The backing project is an administrative-only one, and will not be
 visible to users.
 
 Standard Redmine lists shared Target Versions to everybody (although they cannot be used by not project members).
