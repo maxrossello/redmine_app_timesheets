@@ -248,9 +248,9 @@ class TimesheetsController < ApplicationController
     # native versions assigned to user + shared versions visible in @ts_project
     # + versions associated to existing timelogs even if version no more visible to user
     # + versions associated to issues that are associated to some existing timelog
-    @active_orders = (TsPermission.for_user(@user).map(&:order) +
+    @active_orders = (TsPermission.for_user(@user).map(&:version) +
         Project.find(@ts_project).shared_versions.visible(@user).all).uniq.sort_by{ |v| v.name.downcase}
-    @active_own_orders = (TsPermission.for_user(User.current).map(&:order) +
+    @active_own_orders = (TsPermission.for_user(User.current).map(&:version) +
         Project.find(@ts_project).shared_versions.visible.all).uniq.sort_by{ |v| v.name.downcase}
     @orders = (@active_orders +
         Version.where(:id => TsTimeEntry.for_user(@user).map(&:order_id)).all +
@@ -261,11 +261,13 @@ class TimesheetsController < ApplicationController
     @week_matrix = []
     @available = []
     @visible_orders = []
+    @manageable_orders = []
 
     @orders.each do |order|
       # skip orders not visible to the current user
       next if User.current != @user and (!@active_own_orders.include?(order) or @visibility.empty? or @visibility[order.id] == TsPermission::NONE)
-      @visible_orders << order if @active_orders.include?(order)
+      @visible_orders << order if @active_orders.include?(order) and order.in_timesheet == true
+      @manageable_orders << order if order.in_timesheet == true and (User.current == @user or (@visibility.present? and @visibility[order.id].present? and (@visibility[order.id] >= TsPermission::EDIT)))
 
       row = {}
       row[:order] = order
