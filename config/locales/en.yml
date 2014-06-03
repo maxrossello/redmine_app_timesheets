@@ -50,9 +50,6 @@ en:
   label_timesheet_missing_permission_on_order: "Missing write permission on some order"
   label_timesheet_order_not_saved: "Order not saved"
 
-  label_timesheet_tracker_label: "Backing tracker"
-  label_timesheet_tracker_hint: "The tracker used to collect timesheet hours"
-  label_timesheets_warn_select_tracker: "Please select a tracker"
   label_public_versions: "Shared versions visible to non members (Redmine default: true)"
 
   label_timesheet_readonly_access: "View other users' timelogs"
