@@ -248,9 +248,9 @@ class TimesheetsController < ApplicationController
     # native versions assigned to user + shared versions visible in @ts_project
     # + versions associated to existing timelogs even if version no more visible to user
     # + versions associated to issues that are associated to some existing timelog
-    @active_orders = (TsPermission.for_user(@user).map(:order_id) +
+    @active_orders = (TsPermission.for_user(@user).map(&:order) +
         Project.find(@ts_project).shared_versions.visible(@user).all).uniq.sort_by{ |v| v.name.downcase}
-    @active_own_orders = (TsPermission.for_user(User.current).map(:order_id) +
+    @active_own_orders = (TsPermission.for_user(User.current).map(&:order) +
         Project.find(@ts_project).shared_versions.visible.all).uniq.sort_by{ |v| v.name.downcase}
     @orders = (@active_orders +
         Version.where(:id => TsTimeEntry.for_user(@user).map(&:order_id)).all +
