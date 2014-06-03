@@ -1,7 +1,9 @@
 
 class TsPermission < ActiveRecord::Base
   belongs_to :order, :class_name => 'WorkOrder', :foreign_key => 'order_id'
-  belongs_to :user
+  belongs_to :principal
+
+  attr_accessible :order_id, :principal_id, :access, :is_primary
 
   # permissions
   NONE = 0
@@ -13,10 +15,14 @@ class TsPermission < ActiveRecord::Base
 
   scope :for_user, lambda {|*args|
     user = (args.first || User.current)
-    where(:user_id => user)
+    if Principal.find(user).is_a?(Group)
+      user = Group.find(user).users.active
+    end
+    where(:principal_id => user)
   }
 
   scope :over, lambda {|order|
     where(:order_id => order)
   }
+
 end

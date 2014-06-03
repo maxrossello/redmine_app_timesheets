@@ -1,26 +1,39 @@
-<h3 class="title"><%= l(:permission_add_issue_watchers) %></h3>
+<% object_type = params[:object_type] %>
+
+<h3 class="title"><%= l("label_add_#{object_type}") %></h3>
 
 <%= form_tag({:controller => 'order_users',
-              :action => (watched ? 'create' : 'append'),
-              :object_type => (watched && watched.class.name.underscore),
+              :action => 'create',
               :id => params[:id],
-              :object_id => watched,
-              :project_id => @project},
+              :object_type => object_type},
              :remote => true,
-             :method => :post,
-             :id => 'new-watcher-form') do %>
+             :method => :post) do %>
 
+<% if object_type == 'user' %>
   <p><%= label_tag 'user_search', l(:label_user_search) %><%= text_field_tag 'user_search', nil %></p>
   <%= javascript_tag "observeSearchfield('user_search', 'users_for_watcher', '#{ escape_javascript url_for(:controller => 'order_users',
                  :action => 'autocomplete_for_user',
-                 :object_type => (watched && watched.class.name.underscore),
-                 :object_id => watched,
-                 :id => params[:id],
-                 :project_id => @project) }')" %>
+                 :id => params[:id]) }')" %>
 
   <div id="users_for_watcher">
-    <%= principals_check_box_tags 'watcher[user_ids][]', User.active.all(:limit => 100) - (watched.watcher_users | []) %>
+    <%= principals_check_box_tags 'order_users[user_ids][]', User.active.sorted.all(:limit => 100) -
+                                (TsPermission.where(:order_id => params[:id], :is_primary => true).map{|p| p.principal if p.principal.is_a?(User)} | []) %>
   </div>
+
+<% else %>
+
+    <p><%= label_tag 'group_search', l(:label_group_search) %><%= text_field_tag 'group_search', nil %></p>
+    <%= javascript_tag "observeSearchfield('group_search', 'groups_for_watcher', '#{ escape_javascript url_for(:controller => 'order_users',
+                                                                                                               :action => 'autocomplete_for_group',
+                                                                                                               :id => params[:id]) }')" %>
+
+    <div id="groups_for_watcher">
+      <%= principals_check_box_tags 'order_users[user_ids][]', (
+              # watched ? watched.addable_watcher_groups :
+      Group.active.all(:limit => 100) - (TsPermission.where(:order_id => params[:id], :is_primary => true).map{|p| p.principal if p.principal.is_a?(Group)} | [])) %>
+    </div>
+
+<% end %>
 
   <p class="buttons">
     <%= submit_tag l(:button_add), :name => nil, :onclick => "hideModal(this);" %>

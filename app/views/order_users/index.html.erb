@@ -1,6 +1,6 @@
 <div class="contextual">
-    <%= link_to l(:label_add_user), { :controller => 'order_users', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :class => "icon icon-user", :remote => true %>
-    <%= link_to l(:label_add_group), { :controller => 'watcher_groups', :action => 'new', :object_type => "issue", :object_id => @issue.id }, :class => "icon icon-group", :remote => true %>
+    <%= link_to l(:label_add_user), { :controller => 'order_users', :action => 'new', :object_type => "user", :id => @order.id }, :class => "icon icon-user", :remote => true %>
+    <%= link_to l(:label_add_group), { :controller => 'order_users', :action => 'new', :object_type => "group", :id => @order.id }, :class => "icon icon-group", :remote => true %>
 </div>
 <h2><%= l(:label_order_permissions) + ": " + @order.name %></h2>
 <%
@@ -81,7 +81,7 @@
                               <span class="icon icon-<%=roles[perm]%>" style="opacity:0.3"></span>
                           <% end %>
                         <% end %>
-                        <%= link_to "", { :controller => 'order_users', :action => 'destroy', :object_type => "issue", :object_id => @issue.id, :user_id => member.id},
+                        <%= link_to "", { :controller => 'order_users', :action => 'destroy', :order_id => @order.id, :user_id => member.id},
                                       {:remote => true, :method => :delete, :class => 'icon icon-del', :onmouseup => "setTimeout(function() {location.reload(true)}, 100)" } %>
                       </td>
                     </tr>
@@ -92,33 +92,36 @@
                       </td><td class="buttons" style="width:16px">
                       </td>
                       <td class="buttons" style="width:16px">
-                        <%= link_to "", { :controller => 'watcher_groups', :action => 'destroy', :object_type => "issue", :object_id => @issue.id, :group_id => member.id },
-                                    {:remote => true, :method => :post, :class => 'icon icon-del', :onmouseup => "setTimeout(function() {location.reload(true)}, 100)" } %>
+                        <%= link_to "", { :controller => 'order_users', :action => 'destroy', :order_id => @order.id, :user_id => member.id },
+                                    {:remote => true, :method => :delete, :class => 'icon icon-del', :onmouseup => "setTimeout(function() {location.reload(true)}, 100)" } %>
                       </td>
                     </tr>
-                    <% member.users.active.each do |user|
+                    <% (1..2).each do |pass| %>
+                      <% member.users.active.each do |user|
                         next if listed.include?(user)
+                        next if pass==1 and ((tp = TsPermission.where(:order_id => @order.id, :principal_id => user.id) and !tp.any?) or tp.first.access == TsPermission::NONE)
                         listed << user %>
-                        <tr id="member-<%= user.id %>" class="member">
-                          <td class="<%= user.class.name.downcase %> odd ts-child">
-                            <%= link_to_user user %>
-                          </td>
-                          <td class="buttons" style="width:16px">
-                          <% if (role = @permissions[user.id] || TsPermission::NONE) != TsPermission::NONE  %>
-                                <span class="icon icon-<%=roles[role]%>" style="float:right; padding-top:13px" title="<%=titles[role]%>"/>
-                            <% end %>
-                          </td><td class="buttons" style="width:16px; text-align: left">
-                            <% (TsPermission::NONE..TsPermission::EDIT).reverse_each do |perm| %>
-                              <% if role != perm and role != TsPermission::ADMIN %>
-                                  <%= link_to_if role != perm, "", { :controller => 'order_users', :action => 'set_permission', :role => perm, :user_id => user.id},
-                                                 {:remote => true, :method => :put, :class => "icon icon-#{roles[perm]}",
-                                                  :title => titles[perm], :onmouseup => "setTimeout(function() {location.reload(true)}, 100)" } %>
-                              <% else %>
-                                  <span class="icon icon-<%=roles[perm]%>" style="opacity:0.3"></span>
+                            <tr id="member-<%= user.id %>" class="member">
+                              <td class="<%= user.class.name.downcase %> odd ts-child">
+                                <%= link_to_user user %>
+                              </td>
+                              <td class="buttons" style="width:16px">
+                                <% if (role = @permissions[user.id] || TsPermission::NONE) != TsPermission::NONE  %>
+                                    <span class="icon icon-<%=roles[role]%>" style="float:right; padding-top:13px" title="<%=titles[role]%>"/>
+                                <% end %>
+                              </td><td class="buttons" style="width:16px; text-align: left">
+                              <% (TsPermission::NONE..TsPermission::EDIT).reverse_each do |perm| %>
+                                  <% if role != perm and role != TsPermission::ADMIN %>
+                                      <%= link_to_if role != perm, "", { :controller => 'order_users', :action => 'set_permission', :role => perm, :user_id => user.id},
+                                                     {:remote => true, :method => :put, :class => "icon icon-#{roles[perm]}",
+                                                      :title => titles[perm], :onmouseup => "setTimeout(function() {location.reload(true)}, 100)" } %>
+                                  <% else %>
+                                      <span class="icon icon-<%=roles[perm]%>" style="opacity:0.3"></span>
+                                  <% end %>
                               <% end %>
-                            <% end %>
-                          </td>
-                        </tr>
+                            </td>
+                            </tr>
+                        <% end %>
                     <% end %>
                 <% end %>
             <% end; reset_cycle %>

@@ -56,7 +56,7 @@ class OrdersController < ApplicationController
   def enable
     order = WorkOrder.find(params[:id])
     order.in_timesheet = true
-    order.save! if order.project_id != @ts_project or new_issue(order.name, order.id).save(:validate => false)
+    order.save!
 
     redirect_to :action => 'index'
   end
@@ -71,16 +71,10 @@ class OrdersController < ApplicationController
 
     order.in_timesheet = 1
 
-    saved = order.save if order.project_id == @ts_project and (i = new_issue(params[:work_order][:name])).save
-    unless i.nil?
-      if saved
-        i.fixed_version_id = order.id
-        i.save(:validate => false) # ok also with issue tracking off
-      else
-        # e.g. if duplicate order not saved
-        flash[:error] = l(:label_timesheet_order_not_saved)
-        i.delete
-      end
+    saved = order.save if order.project_id == @ts_project
+    unless saved
+      # e.g. if duplicate order not saved
+      flash[:error] = l(:label_timesheet_order_not_saved)
     end
 
     if order.id.nil?
@@ -95,20 +89,6 @@ class OrdersController < ApplicationController
   end
 
   private
-
-  def new_issue(name, vid=nil)
-    i = Issue.where(:project_id => @ts_project, :fixed_version_id => vid).first unless vid.nil?
-    if i.nil?
-      i = Issue.new
-      i.tracker_id = Setting.plugin_redmine_app_timesheets['tracker']
-      i.project_id = Setting.plugin_redmine_app_timesheets['project'].to_i
-      i.subject = name
-      i.status_id = IssueStatus.where(:is_closed => 1).joins(:workflows => :tracker).where('workflows.new_status_id = issue_statuses.id').where('workflows.tracker_id = trackers.id').where('trackers.id = ?', i.tracker_id).first.id rescue 1
-      i.fixed_version_id = vid
-      i.author = User.first
-    end
-    i
-  end
 
   def get_project
     @ts_project = Setting.plugin_redmine_app_timesheets['project'].to_i

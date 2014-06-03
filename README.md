@@ -57,8 +57,12 @@ completely removes the need to enable the Issue Tracking module in it.
 
 Fixed several security issues.
 
+Version 1.3.12 removes the need for hidden issues in the administrative project holding access permissions.
+
 WARNING: if you migrate from version 1.2 or below you will have to redefine any view/edit permissions over Orders that you
 may have assigned through roles into the backing project.
+
+WARNING: migrating to database migration 11 (removing hidden issues) is not reversible
 
 ### 1.2
 

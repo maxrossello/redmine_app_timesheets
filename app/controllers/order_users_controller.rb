@@ -1,7 +1,6 @@
-class OrderUsersController < WatchersController
+class OrderUsersController < ApplicationController
   unloadable
 
-  skip_before_filter :authorize
   before_filter :is_order_manager
 
   def is_order_manager
@@ -12,12 +11,10 @@ class OrderUsersController < WatchersController
   def index
     begin
       @order = WorkOrder.find(params[:id])
-      @issue = Issue.find_by_fixed_version_id(@order)
-      @issue = @issue.first if @issue.is_a?(Array)
-      @members = @issue.watchers.map{|w| Principal.find(w.user_id) }.sort
+      @members = TsPermission.where(:is_primary => true, :order_id => @order.id).order(:access => :desc).map{|p| p.principal}.sort{|a,b| a.is_a?(User) ? (b.is_a?(User) ? 0 : -1) : (b.is_a?(Group) ? 0 : 1) }
       @activities = TsActivity.where(:order_id => @order).map(&:activity_id)
       @permissions = TsPermission.over(@order).inject({}) do |h,v|
-        h[v[:user_id]] = v[:access]
+        h[v[:principal_id]] = v[:access]
         h
       end
 
@@ -29,13 +26,31 @@ class OrderUsersController < WatchersController
     end
   end
 
-  def find_watchables
-    klass = Object.const_get(params[:object_type].camelcase) rescue nil
-    if klass && klass.respond_to?('watched_by')
-      @watchables = klass.find_all_by_id(Array.wrap(params[:object_id]))
-      #raise Unauthorized if @watchables.any? {|w| w.respond_to?(:visible?) && !w.visible?}
+  def create
+    order = WorkOrder.find(params[:id])
+    user_ids = []
+    user_ids << params[:order_users][:user_ids]
+    user_ids.flatten.compact.uniq.each do |user_id|
+      p = TsPermission.where(:order_id => order.id, :principal_id => user_id).first
+      if p.nil?
+        p = TsPermission.new(:order_id => order.id, :principal_id => user_id, :access => TsPermission::NONE)
+      end
+      p.is_primary = true
+      p.save!
     end
-    render_404 unless @watchables.present?
+    redirect_to_referer_or {render :text => (Principal.find(user_ids[0]).is_a?(User) ? 'User added.' : 'Group added.'), :layout => true}
+  end
+
+  def destroy
+    user = Principal.find(params[:user_id])
+    p = TsPermission.where(:order_id => params[:order_id], :principal_id => user.id).first
+    if user.is_a?(User)
+      p.is_primary = false
+      p.save!
+    else
+      p.destroy
+    end unless p.nil?
+    redirect_to :back
   end
 
   def activities
@@ -60,13 +75,24 @@ class OrderUsersController < WatchersController
   end
 
   def set_permission
-    perm = TsPermission.where(:user_id => params[:user_id]).where(:order_id => params[:id]).first
+    perm = TsPermission.where(:principal_id => params[:user_id]).where(:order_id => params[:id]).first
     if perm.nil?
-      TsPermission.create(:user_id => params[:user_id], :order_id => params[:id], :access => params[:role])
+      TsPermission.create(:principal_id => params[:user_id], :order_id => params[:id], :access => params[:role])
     else
       perm.access = params[:role]
       perm.save!
     end
   end
 
+  def autocomplete_for_user
+    @users = User.active.sorted.like(params[:q]).limit(100)
+    @users -= TsPermission.where(:order_id => params[:id], :is_primary => true).map{|p| p.principal if p.principal.is_a?(User)}
+    render :layout => false
+  end
+
+  def autocomplete_for_group
+    @users = Group.active.sorted.like(params[:q]).limit(100)
+    @users -= TsPermission.where(:order_id => params[:id], :is_primary => true).map{|p| p.principal if p.principal.is_a?(Group)}
+    render :layout => false
+  end
 end
