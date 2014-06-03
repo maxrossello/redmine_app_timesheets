@@ -24,12 +24,11 @@ Redmine::Plugin.register :redmine_app_timesheets do
   name 'Redmine Timesheets Application'
   author 'Massimo Rossello'
   description 'Timesheets application for global app space'
-  version '1.3.14'
+  version '1.3.15'
   url 'https://github.com/maxrossello/redmine_app_timesheets.git'
   author_url 'https://github.com/maxrossello'
   requires_redmine :version_or_higher => '2.0.0'
   requires_redmine_plugin :redmine_app__space, :version_or_higher => '0.0.2'
-  requires_redmine_plugin :redmine_watcher_groups, :version_or_higher => '0.0.3'
 
   settings(:default => {
       'project' => "",
