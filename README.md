@@ -2,8 +2,7 @@
 
 Tested with Redmine 2.4.5 and 2.5.1, compatible with 2.x.
 
-Application dependent from the [redmine_app__space](http://github.com/maxrossello/redmine_app__space) and
-[redmine_watcher_groups](http://github.com/maxrossello/redmine_watcher_groups) plugins.
+Application dependent from the [redmine_app__space](http://github.com/maxrossello/redmine_app__space) plugin.
 
 "True" timesheet application, handling time spent on Orders rather than on issues, but still being capable of integrating that spent effort in the timesheet.
 
