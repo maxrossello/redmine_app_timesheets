@@ -1,3 +1,5 @@
+require_dependency 'appspace_users_patch'
+
 class OrdersController < ApplicationController
   unloadable
 
