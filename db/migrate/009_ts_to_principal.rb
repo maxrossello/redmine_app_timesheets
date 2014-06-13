@@ -3,7 +3,7 @@
 
 class TsToPrincipal < ActiveRecord::Migration
   def up
-    add_column :ts_permissions, :principal_id, :integer, :null => false
+    add_column :ts_permissions, :principal_id, :integer, :null => false, :default => 0
     TsPermission.all.each do |p|
       p.principal_id = p.user_id
       p.save!
@@ -12,7 +12,7 @@ class TsToPrincipal < ActiveRecord::Migration
   end
 
   def down
-    add_column :ts_permissions, :user_id, :integer, :null => false
+    add_column :ts_permissions, :user_id, :integer, :null => false, :default => 0
     TsPermission.all.each do |p|
       p.user_id = p.principal_id
       p.save!
