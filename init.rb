@@ -1,12 +1,6 @@
 require 'redmine'
 require_dependency 'appspace_users_patch'
 
-# load plugin dependencies
-dep = File.join(Rails.root,'plugins','redmine_watcher_groups')
-ActiveSupport::Dependencies.autoload_paths += [File.join(dep, 'lib')]
-require_dependency File.join(dep, 'init')
-
-
 Time::DATE_FORMATS[:param_date] = "%Y-%m-%d"
 Time::DATE_FORMATS[:week] = "%Y %b %e"
 Time::DATE_FORMATS[:day] = "%a %e"
@@ -24,7 +18,7 @@ Redmine::Plugin.register :redmine_app_timesheets do
   name 'Redmine Timesheets Application'
   author 'Massimo Rossello'
   description 'Timesheets application for global app space'
-  version '1.3.19'
+  version '1.3.20'
   url 'https://github.com/maxrossello/redmine_app_timesheets.git'
   author_url 'https://github.com/maxrossello'
   requires_redmine :version_or_higher => '2.0.0'
