@@ -11,7 +11,7 @@ class OrderUsersController < ApplicationController
   def index
     begin
       @order = WorkOrder.find(params[:id])
-      @members = TsPermission.where(:is_primary => true, :order_id => @order.id).order(:access => :desc).map{|p| p.principal}.sort{|a,b| a.is_a?(User) ? (b.is_a?(User) ? 0 : -1) : (b.is_a?(Group) ? 0 : 1) }
+      @members = TsPermission.where(:is_primary => true, :order_id => @order.id).order('access DESC').map{|p| p.principal}.sort{|a,b| a.is_a?(User) ? (b.is_a?(User) ? 0 : -1) : (b.is_a?(Group) ? 0 : 1) }
       @activities = TsActivity.where(:order_id => @order).map(&:activity_id)
       @permissions = TsPermission.over(@order).inject({}) do |h,v|
         h[v[:principal_id]] = v[:access]
