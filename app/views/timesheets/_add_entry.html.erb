@@ -8,7 +8,7 @@
         <table class="ts-display list">
           <thead>
           <tr>
-            <th><%= image_submit_tag("add.png", :title => l(:button_add)) %></th>
+            <th style="text-align: center"><%= link_to image_tag("toggle_check.png"), url_for(params[:clear] ? params.except(:clear) : params.merge(:clear => '')) %></th>
             <th style="width:20%"><%= l(:label_order) %></th>
             <th><%= l(:label_version) %></th>
             <th><%= l(:label_project) %></th>
@@ -24,7 +24,7 @@
               order = issue.fixed_version unless issue.nil? %>
               <tr>
                 <td style="width:5px">
-                  <%= check_box_tag("entry[]", entry.id, false) %>
+                  <%= check_box_tag("entry[]", entry.id, !params[:clear]) %>
                 </td>
                 <td><%= select_tag "entry_order[#{entry.id}]", options_from_collection_for_select(@manageable_orders, 'id', 'name', (order.id rescue nil)) %></td>
                 <td><%= link_to order.name, { :controller => 'versions', :action => 'show', :id => order.id } unless order.nil? or !order.visible?(User.current) %></td>
@@ -38,6 +38,7 @@
                 <td><%= entry.hours %></td>
               </tr>
           <% end %>
+          <tr><td colspan="8" style="text-align: left; border:0px;"><%= submit_tag l(:button_save) %></td></tr>
           </tbody>
         </table>
       <% end %>
