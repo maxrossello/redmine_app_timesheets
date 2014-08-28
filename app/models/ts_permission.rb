@@ -37,4 +37,16 @@ class TsPermission < ActiveRecord::Base
     where(:order_id => order)
   }
 
+  def self.permission(user,version)
+    return ADMIN if user.admin? or User.in_group(Setting.plugin_redmine_app__space['auth_group']['order_mgmt']).include?(user)
+
+    perm = TsPermission.over(version).for_user(user).all
+
+    if perm.empty?
+      return NONE
+    else
+      return perm.first.access
+    end
+
+  end
 end

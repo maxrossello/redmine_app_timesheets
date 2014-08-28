@@ -100,3 +100,7 @@ module TimesheetsAppTimeReportPatch
 
 end
 
+
+unless Redmine::Helpers::TimeReport.included_modules.include?(TimesheetsAppTimeReportPatch)
+  Redmine::Helpers::TimeReport.send(:include, TimesheetsAppTimeReportPatch)
+end

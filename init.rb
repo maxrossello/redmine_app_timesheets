@@ -18,7 +18,7 @@ Redmine::Plugin.register :redmine_app_timesheets do
   name 'Redmine Timesheets Application'
   author 'Massimo Rossello'
   description 'Timesheets application for global app space'
-  version '1.3.22'
+  version '1.3.23'
   url 'https://github.com/maxrossello/redmine_app_timesheets.git'
   author_url 'https://github.com/maxrossello'
   requires_redmine :version_or_higher => '2.0.0'
@@ -31,18 +31,9 @@ Redmine::Plugin.register :redmine_app_timesheets do
   :partial => 'timesheets/settings'
   )
 
-  unless Redmine::Helpers::TimeReport.included_modules.include?(TimesheetsAppTimeReportPatch)
-    Redmine::Helpers::TimeReport.send(:include, TimesheetsAppTimeReportPatch)
-  end
-
-  unless Project.included_modules.include?(TimesheetsAppProjectPatch)
-    Project.send(:include, TimesheetsAppProjectPatch)
-  end
-
-  unless Issue.included_modules.include?(TimesheetsAppIssuePatch)
-    Issue.send(:include, TimesheetsAppIssuePatch)
-  end
-
+  require 'timesheets_app_issue_patch'
+  require 'timesheets_app_project_patch'
+  require 'timesheets_app_time_report_patch'
 
 end
 
