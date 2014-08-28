@@ -41,7 +41,7 @@ accounting purposes.
 Redmine's spent time statistics can split for Orders and Order Activities too, orthogonally to Versions and Activities.
 
 Global Orders are stored into a dedicated administrative project that does not need to be visible to users filling data
-into the timesheet: the issue tracking module needs not to be enabled on it.
+into the timesheet, nor any module except Time Tracking needs to be enabled on it.
 
 ## Changelog
 
@@ -128,9 +128,11 @@ plugin first, then follow the standard Redmine procedure for this plugin, includ
 
 Create a backing project. Go to the plugin settings and reference it.
 
-Unflag the entry 'Shared versions visible to non members' if you want to preserve Orders completely hidden to people not
+Unflag the entry 'Shared versions visible to non members' if you want to preserve Orders hidden to people not
 allowed to know their existence. Standard Redmine doesn't allow the usage to non project members, but nevertheless discloses
 the name of the Version in some situations.
+
+Note that if a shared Target Version is used as an Order, its name will be visible with the issues if assigned to issues on foreign projects accessible to further users.
 
 Define a group of users enabled to use the administrative view, and a group of users enabled to use the Timesheet application
 (e.g. All Users). Go to the redmine_app__space plugin settings and enable both applications to the proper user groups.
@@ -175,6 +177,8 @@ visible to users.
 Standard Redmine lists shared Target Versions to everybody (although they cannot be used by not project members).
 Nevertheless, a company may not want to disclose the existence of every Order to anybody at all.
 Unflag the entry 'Shared versions visible to non members' in order to keep Orders privacy.
+
+Note that if a shared Target Version is used as an Order, its name will be visible with the issues if assigned to issues on foreign projects accessible to further users.
 
 ### Order Management
 
