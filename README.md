@@ -116,9 +116,13 @@ user groups, and then enabled by them to show in the applications menu
 
 ## Installation
 
-Install the [redmine_app__space](http://github.com/maxrossello/redmine_app__space) and
-[redmine_watcher_groups](http://github.com/maxrossello/redmine_watcher_groups)
-plugins first, then follow the standard Redmine procedure for this plugin, including database migrations.
+Install the [redmine_app__space](http://github.com/maxrossello/redmine_app__space) 
+plugin first, then follow the standard Redmine procedure for this plugin, including database migrations.
+
+    cd {redmine root}
+    git clone https://github.com/maxrossello/redmine_app__space.git plugins/redmine_app__space
+    git clone https://github.com/maxrossello/redmine_app_timesheets.git plugins/redmine_app_timesheets
+    RAILS_ENV=production rake redmine:plugins:migrate
 
 ### General configuration
 
