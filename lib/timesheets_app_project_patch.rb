@@ -15,7 +15,6 @@ module TimesheetsAppProjectPatch
 
     def rolled_up_versions_with_timelogs
       rolled_up_versions_without_timelogs
-      perm = TsPermission.over(version).for_user.all
       @rolled_up_versions.reject! { |version| version.project_id == Setting.plugin_redmine_app_timesheets['project'].to_i ?
                     TsPermission.permission(User.current, version) == TsPermission::NONE :
                     !User.current.allowed_to?(:view_issues, version.project)
