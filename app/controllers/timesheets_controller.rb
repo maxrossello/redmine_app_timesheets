@@ -297,6 +297,10 @@ class TimesheetsController < ApplicationController
         end
       end
 
+      @week_total = 0.0
+      (@period_start..@period_end).each do |day|
+ 	@week_total += @daily_totals[day].to_f
+      end
 
       if row[:activity].nil?
         row[:activity], row[:days] = @@DEFAULT_ACTIVITY, {}
