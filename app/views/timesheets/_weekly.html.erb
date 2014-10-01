@@ -135,9 +135,10 @@
               <tr>
                 <td colspan="4" style="text-align: right"><hr/><strong><%= l(:label_total) %>:</strong></td>
                 <% (@period_start..@period_end).each do |day| %>
-                    <td><hr /><%= @daily_totals[day] ? @daily_totals[day] : 0.0  %></td>
+                    <td><hr /><%= @daily_totals[day].to_f.round(2) %></td>
                 <% end %>
-              </tr>
+                    <td><hr /><strong><%= @week_total.round(2) %></strong></td>
+		   </tr>
               <tr><td></td></tr>
               <tr>
                 <td style="text-align: left">
