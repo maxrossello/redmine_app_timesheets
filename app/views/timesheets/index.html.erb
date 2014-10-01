@@ -12,11 +12,6 @@
 <%
    unless Setting.plugin_redmine_app_timesheets['project'] == "" %>
 
-    <%=  render :partial => "add_row" unless @visibility.empty? and @user != User.current %>
-    <%=  render :partial => "add_entry" unless @visibility.empty? and @user != User.current %>
-	  <br/><br/>
-
-
      <%= form_tag({:action => 'index'}, :method => :get) do %>
          <%= hidden_field_tag("day", (params[:day] || DateTime.now.to_s(:param_date)))%>
          <%= hidden_field_tag("view", (params[:view] || "week"))%>
@@ -26,16 +21,20 @@
                     <tr>
                     <%  s = content_tag('option', "<< #{l(:label_me)} >>", :value => User.current.id)
                         s << options_for_select(User.active.all.map {|u| [u.name, u.id]}.sort, params[:user_id]) %>
-                        <th><%= label_tag l(:label_user) %> </th>
-                        <td><%= select_tag 'user_id', s.html_safe, :onchange => "this.form.submit();"  %></td>
+                        <th align="left"><%= label_tag l(:label_user) %> </th>
+                        <td align="left"><%= select_tag 'user_id', s.html_safe, :onchange => "this.form.submit();"  %></td>
                       <td width="70%"></td>
                     </tr>
+              <tr><td><br/></td></tr>
            <%   end %>
+        </table>
 
-          <tr><td><br/></td></tr>
+        <%=  render :partial => "add_row" unless @visibility.empty? and @user != User.current %>
+        <%=  render :partial => "add_entry" unless @visibility.empty? and @user != User.current %>
+        <br/>
 
+        <table class="ts-display">
           <%=  render :partial => "navigation" %>
-
         </table>
     <%  end %>
 
