@@ -34,14 +34,9 @@
     <%=  render :partial => "add_entry" unless @visibility.empty? and @user != User.current %>
     <br/>
 
-    <%= form_tag({:action => 'index'}, :method => :get) do %>
-        <%= hidden_field_tag("day", (params[:day] || DateTime.now.to_s(:param_date)))%>
-        <%= hidden_field_tag("view", (params[:view] || "week"))%>
-        <%= hidden_field_tag 'user_id', params[:user_id] if params[:user_id] %>
-        <table class="ts-display">
-          <%=  render :partial => "navigation" %>
-        </table>
-    <%  end %>
+    <table class="ts-display">
+      <%=  render :partial => "navigation" %>
+    </table>
 
 
     <% if @view == :day %>

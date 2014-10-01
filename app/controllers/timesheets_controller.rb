@@ -119,7 +119,7 @@ class TimesheetsController < ApplicationController
         if params[:activity][idx] != params[:previous_activity][idx] and daylogs
           TsTimeEntry.find(daylogs.map(&:id)).each do |x|
             x.order_activity_id = params[:activity][idx].to_i
-            x.save
+            x.save if x.order_activity_id > 0
           end
         end
       end
