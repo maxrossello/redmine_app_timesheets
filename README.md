@@ -132,14 +132,17 @@ Unflag the entry 'Shared versions visible to non members' if you want to preserv
 allowed to know their existence. Standard Redmine doesn't allow the usage to non project members, but nevertheless discloses
 the name of the Version in some situations.
 
-Note that if a shared Target Version is used as an Order, its name will be visible with the issues if assigned to issues on foreign projects accessible to further users.
+Note that if a shared Target Version is used as an Order, its name will be visible with the issues if assigned to issues
+on foreign projects accessible to further users.
 
 Define a group of users enabled to use the administrative view, and a group of users enabled to use the Timesheet application
 (e.g. All Users). Go to the redmine_app__space plugin settings and enable both applications to the proper user groups.
 
 Enable the Time Tracking module into the backing project. All other modules (including Issue Tracking) can be off.
-The benefit of having the Issue Tracking module disabled is that you can provide the timesheet feature without the need to make the
-backing project visible to users.
+
+NOTE: in order for users to report timelogs over native Orders into standard views (e.g. spent time reports) you need to
+assign a role which allows to read timelogs into the backing project. This is not necessary for non-native Orders, nor
+for working with timelogs on native Orders within the Timesheets app.
 
 WARNING: if you migrate from version 1.2 or below you will have to redefine any view/edit permissions over Orders that you
 may have assigned through roles into the backing project.
