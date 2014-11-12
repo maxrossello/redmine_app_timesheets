@@ -52,7 +52,7 @@ as Orders. This feature may be split in a separate plugin in the future.
 
 ### 1.4
 
-Local Orders no not need to be shared with other projects any more. They are recognized as Orders through a special 
+Local Orders do not need to be shared with other projects any more. They are recognized as Orders through a special 
 custom field that appears in the Version create/edit view.
 
 Project Managers can autonomously make a Version become or not a local Order through the mentioned custom field, and
