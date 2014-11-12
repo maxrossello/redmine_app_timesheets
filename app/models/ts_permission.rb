@@ -7,7 +7,8 @@ class TsPermission < ActiveRecord::Base
   attr_accessible :order_id, :principal_id, :access, :is_primary
 
   # permissions
-  NONE = 0
+  FORBIDDEN = -1
+  NONE = 0  # should be better named "OWN"
   VIEW = 1
   EDIT = 2
   ADMIN = 3
@@ -18,15 +19,14 @@ class TsPermission < ActiveRecord::Base
     args = [User.current] unless args.present?
     users = args.dup
 
-    # if visibility != NONE, users shall have an entry unless they are order admin
-    # order admins must nevertheless be listed at least through some group
+    # order and system admins must nevertheless be listed at least through some group
     args.each do |user|
-      if user.admin? or user.groups.map(&:id).include?(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].to_i)
+      #if user.admin? or user.groups.map(&:id).include?(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].to_i)
         users << user.groups
-      end
+      #end
     end
 
-    where(:principal_id => users.flatten).uniq
+    where(:is_primary => true, :principal_id => users.flatten).uniq
   }
 
   scope :for_group, lambda {|group|
@@ -43,7 +43,7 @@ class TsPermission < ActiveRecord::Base
     perm = TsPermission.over(version).for_user(user).all
 
     if perm.empty?
-      return NONE
+      return FORBIDDEN
     else
       return perm.first.access
     end

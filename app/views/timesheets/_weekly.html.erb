@@ -36,35 +36,34 @@
                  last_project = 0
                  @week_matrix.each_with_index do |row, idx|
                    order = row[:order]
-                   project = order.project
+                   readonly = row[:readonly]
+                   disabled = row[:disabled]
+                   cellcolor = nil
+                   cellcolor = "#E0EEEE" if readonly
+                   cellcolor = "lightgrey" if disabled
 
-                   readonly = false
-                   readonly = true unless @active_orders.include?(order)
-                   readonly = true if @visibility[order.id] == TsPermission::VIEW and @user != User.current and project.id == @ts_project
-                   readonly = true if !User.current.allowed_to?(:edit_time_entries, project) and @user != User.current and project.id != @ts_project
-
-                   emptyrow = row[:spent].select {|x,y| x >= @period_start and x <= @period_end }.empty?
-                   emptynextrow = row[:spent].select {|x,y| x > @period_end }.empty?
+                   emptyrow = row[:emptyrow]
+                   emptynextrow = row[:emptynextrow]
 
                    # skip display of disabled orders into the next empty week
-                   hidden = (emptyrow and (!@active_orders.include?(order) or readonly))
+                   hidden = (emptyrow and disabled)
 
                    @css_class = cycle("ts-odd", "ts-even") if order.name != last_order || order.project_id != last_project %>
 
                   <tr class="<%= @css_class %>" <%="style=display:none" if hidden %>>
                     <td>
                       <%= hidden_field_tag 'order[]', order.id %>
-                      <% if order.project_id == @ts_project %>
+                      <% if order.is_native? %>
                           <%= order.name %>
                       <% else %>
-                          <%=link_to_if order.visible?(@user), project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } %> /
-                          <%= link_to_if order.visible?(@user), order.name, { :controller => 'versions', :action => 'show', :id => order.id } %>
+                          <%=link_to_if order.visible?, order.project.name, { :controller => 'projects', :action => 'show', :id => order.project_id } %> /
+                          <%= link_to_if order.visible?, order.name, { :controller => 'versions', :action => 'show', :id => order.id } %>
                       <% end %>
                     </td>
 
                     <td>
                       <%= hidden_field_tag 'previous_activity[]', row[:activity].id %>
-                      <%= select_tag 'activity[]', options_for_select(readonly ? [[Enumeration.find(row[:activity].id).name, Enumeration.find(row[:activity].id).id]] : row[:activities], row[:activity].id) %>
+                      <%= select_tag 'activity[]', options_for_select(disabled ? [[Enumeration.find(row[:activity].id).name, Enumeration.find(row[:activity].id).id]] : row[:activities], row[:activity].id) %>
                     </td>
 
                     <% last_order = order.name %>
@@ -72,7 +71,7 @@
 
                     <td>
                       <%= hidden_field_tag 'issue[]', (row[:issue].id rescue nil) %>
-                      <%= link_to_if row[:issue].visible?(@user), row[:issue].to_s, { :controller => 'issues', :action => 'show', :id => row[:issue].id } unless row[:issue].nil? %>
+                      <%= link_to_if row[:issue].visible?, row[:issue].to_s, { :controller => 'issues', :action => 'show', :id => row[:issue].id } unless row[:issue].nil? %>
                     </td>
 
                     <% if idx == @week_matrix.size - 1 %>
@@ -86,8 +85,8 @@
                                                row[:spent][d].nil? || row[:spent][d] == 0.0 ?
                                                        '' : row[:spent][d], :size => 1,
                                                :class => "hours",
-                                               !readonly ? '' : :readonly => true,
-                                               !readonly ? '' : :style => 'background-color:lightgrey'
+                                               !disabled ? '' : :readonly => true,
+                                               cellcolor.nil? ? '' : :style => "background-color:#{cellcolor}"
                         %></td>
                     <% end %>
 
@@ -103,7 +102,7 @@
                       },
                                     :confirm => l(:text_are_you_sure),
                                     :method => :delete,
-                                    :title => l(:button_delete) unless emptyrow or readonly %>
+                                    :title => l(:button_delete) unless emptyrow or disabled %>
                       </span><span>
                       <%= link_to image_tag('bullet_go.png'), {:controller => 'timesheets',
                                                             :action => 'copy_row',
@@ -115,7 +114,7 @@
                                                             :view => params[:view]
                       },
                                   :method => :post,
-                                  :title => l(:button_copy_and_follow) unless emptyrow or readonly or !emptynextrow %>
+                                  :title => l(:button_copy_and_follow) unless emptyrow or disabled or !emptynextrow %>
                       </span><span>
                         <%= link_to image_tag('bullet_delete.png'), {:controller => 'timesheets',
                                                              :action => 'remove_entry',
@@ -127,7 +126,7 @@
                                                              :view => params[:view]
                         },
                                     :method => :delete,
-                                    :title => l(:button_remove_from_timesheet) unless row[:issue].nil? or emptyrow or readonly %>
+                                    :title => l(:button_remove_from_timesheet) unless row[:issue].nil? or emptyrow or disabled %>
                       </span>
                     </td>
                   </tr>

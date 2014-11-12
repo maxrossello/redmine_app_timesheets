@@ -6,6 +6,7 @@ class TimesheetsController < ApplicationController
   before_filter :get_user
   before_filter :get_dates
   before_filter :get_timelogs, :except => :save_period
+  before_filter :check_is_editor, :only => :index
 
   helper CustomFieldsHelper
 
@@ -181,7 +182,8 @@ class TimesheetsController < ApplicationController
 
   private
 
-  def write_enabled(order_id)
+  def write_enabled(order)
+    order_id = order.to_i
     # access granted for own timesheet, non-native versions, or explicit permission
     if @user == User.current or WorkOrder.find(order_id).nil? or @visibility[order_id] == TsPermission::EDIT or @visibility[order_id] == TsPermission::ADMIN
       return true
@@ -217,6 +219,11 @@ class TimesheetsController < ApplicationController
 
   end
 
+  def is_order_admin?(user)
+    user.admin? or Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].empty? or
+        user.is_or_belongs_to?(Group.find(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].to_i))
+  end
+
   def get_user
     render_403 unless User.current.logged?
 
@@ -226,16 +233,26 @@ class TimesheetsController < ApplicationController
       @user = User.current
     end
 
-    # retrieve permissions over native orders
+    # retrieve permissions over orders
     @visibility = TsPermission.for_user.inject({}) do |h,v|
-      h[v[:order_id]] = v[:access]
+      h[v[:order_id]] = v[:access] if h[v[:order_id]].nil? or h[v[:order_id]] < v[:access]
       h
     end
-    Project.find(@ts_project).versions.each do |order|
-      if User.current.admin? or Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].empty? or
-          User.current.is_or_belongs_to?(Group.find(Setting.plugin_redmine_app__space['auth_group']['order_mgmt'].to_i))
+
+    WorkOrder.native.all.each do |order|
+      if (is_order_admin?(User.current) and @visibility[order.id].present?) # need to be listed anyway
         @visibility[order.id] = TsPermission::ADMIN
+      else
+        @visibility[order.id] ||= TsPermission::FORBIDDEN
       end
+    end
+
+    WorkOrder.not_native.all.each do |order|
+      @visibility[order.id] = TsPermission::NONE if User.current.allowed_to? :edit_own_time_entries, order.project
+      @visibility[order.id] = TsPermission::VIEW if User.current.allowed_to? :view_time_entries, order.project
+      @visibility[order.id] = TsPermission::EDIT if User.current.allowed_to? :edit_time_entries, order.project
+      @visibility[order.id] = TsPermission::ADMIN if User.current.admin?
+      @visibility[order.id] ||= TsPermission::FORBIDDEN
     end
 
   end
@@ -244,17 +261,25 @@ class TimesheetsController < ApplicationController
     @ts_project = Setting.plugin_redmine_app_timesheets['project'].to_i
   end
 
+  def check_is_editor
+    if is_order_admin?(User.current)
+      @order_admin = true
+    else
+      @order_admin = TsPermission.where("access >= ?", TsPermission::VIEW).joins(:order).where("#{WorkOrder.table_name}.in_timesheet = ?", true).for_user.any?
+    end
+  end
+
   def get_timelogs
-    # native versions assigned to user + shared versions visible in @ts_project
-    # + versions associated to existing timelogs even if version no more visible to user
-    # + versions associated to issues that are associated to some existing timelog
-    @active_orders = (TsPermission.for_user(@user).map(&:version).select{|x| x.in_timesheet == true} +
-        Project.find(@ts_project).shared_versions.visible(@user).where(:in_timesheet => true).all).uniq.sort_by{ |v| v.name.downcase}
-    @active_own_orders = (TsPermission.for_user(User.current).map(&:version).select{|x| x.in_timesheet == true} +
-        Project.find(@ts_project).shared_versions.visible.where(:in_timesheet => true).all).uniq.sort_by{ |v| v.name.downcase}
+    @active_orders = (TsPermission.for_user(@user).joins(:order).includes(:order).map{|t| t.order} +
+        WorkOrder.visible(@user)).uniq.sort_by{ |v| v.name.downcase}
+    @active_own_orders = (TsPermission.for_user(User.current).joins(:order).includes(:order).map{|t| t.order} +
+        WorkOrder.visible(User.current)).uniq.sort_by{ |v| v.name.downcase}
+    # native orders assigned to user + visible versions marked as orders
+    # + orders associated to existing timelogs even if version no more visible to user
+    # + orders associated to issues that are associated to some existing user timelog even if version no more visible to user
     @orders = (@active_orders +
-        Version.where(:id => TsTimeEntry.for_user(@user).map(&:order_id)).all +
-        Version.where(:id => Issue.joins(:time_entries).where('user_id = ?', @user.id).where(:fixed_version_id => Project.find(@ts_project).shared_versions.map(&:id)).map(&:fixed_version_id)).all
+        WorkOrder.includes(:time_entries).merge(TsTimeEntry.for_user(@user)).uniq.all +
+        WorkOrder.joins(:issues).merge(Issue.joins(:time_entries).where('time_entries.user_id = ?', @user.id)).uniq.all
     ).uniq.sort_by{ |v| v.name.downcase}
 
     @daily_totals = {}
@@ -265,16 +290,35 @@ class TimesheetsController < ApplicationController
 
     @orders.each do |order|
       # skip orders not visible to the current user
-      next if User.current != @user and (!@active_own_orders.include?(order) or @visibility.empty? or @visibility[order.id] == TsPermission::NONE)
-      @visible_orders << order if @active_orders.include?(order) and order.in_timesheet == true
-      @manageable_orders << order if order.in_timesheet == true and (User.current == @user or (@visibility.present? and @visibility[order.id].present? and (@visibility[order.id] >= TsPermission::EDIT)))
+      next if User.current != @user and (!@active_own_orders.include?(order) or @visibility.empty? or @visibility[order.id] <= TsPermission::NONE)
+      @visible_orders << order if @active_orders.include?(order) and order.in_timesheet
+      # orders in add row:
+      # I am manager of, even if not visible to @user
+      # I can edit time only if currently visibile by @user
+      if order.in_timesheet
+        if  ((User.current == @user and @visibility[order.id] != TsPermission::FORBIDDEN) or
+            @visibility[order.id] >= TsPermission::EDIT) #or
+            #(@visibility[order.id] == TsPermission::EDIT and @active_orders.include?(order)))
+
+          @manageable_orders << order
+        end
+      end
 
       row = {}
       row[:order] = order
       row[:spent] = {}
 
-      unless order.project_id == @ts_project
-        row[:issues] = Issue.visible(@user).where(:fixed_version_id => order.id)
+      row[:readonly] = false
+      row[:readonly] = true unless @visible_orders.include?(order)
+      row[:readonly] = true if @user != User.current and order.is_native? and @visibility[order.id] == TsPermission::VIEW
+      row[:readonly] = true if @user != User.current and !order.is_native? and !User.current.allowed_to?(:edit_time_entries, order.project)
+
+      # readonly for @user but writable for User.current
+      row[:disabled] = row[:readonly]
+      row[:disabled] = false if @active_own_orders.include?(order) and order.in_timesheet
+
+      unless order.is_native?
+        row[:issues] = order.issues.visible(@user).all
       end
       # format suitable for options_for_select
       row[:activities] = TsActivity.where(:order_id => order).map {|t| [t.activity_name, t.activity_id.to_s]}
@@ -292,6 +336,10 @@ class TimesheetsController < ApplicationController
             @daily_totals[day] = row[:spent][day] + (@daily_totals[day] || 0)
             row[:entries] = sv
           end
+
+          row[:emptyrow] = row[:spent].select {|x,y| x >= @period_start and x <= @period_end }.empty?
+          row[:emptynextrow] = row[:spent].select {|x,y| x > @period_end }.empty?
+
           @week_matrix << row unless row[:spent].empty?
           row = row.dup
         end
@@ -299,7 +347,7 @@ class TimesheetsController < ApplicationController
 
       @week_total = 0.0
       (@period_start..@period_end).each do |day|
- 	@week_total += @daily_totals[day].to_f
+        @week_total += @daily_totals[day].to_f
       end
 
       if row[:activity].nil?
@@ -308,6 +356,10 @@ class TimesheetsController < ApplicationController
       end
 
     end
+
+    # in add row, add orders where I am admin
+    @manageable_orders << WorkOrder.enabled.where("id IN (?)", @visibility.select{|k,v| v == TsPermission::ADMIN}.keys )
+    @manageable_orders = @manageable_orders.flatten.uniq
 
     # time entries available to enter the timesheet
     @available = TimeEntry.for_user(@user).where(:order_id => nil).where("issue_id IS NOT NULL").spent_between(@period_start,@period_end).all
@@ -318,14 +370,14 @@ class TimesheetsController < ApplicationController
         render_404
       else
         row = {}
-        row[:order] = Version.find(params[:order])
+        row[:order] = WorkOrder.find(params[:order])
         unless row[:order].project_id == @ts_project
-          row[:issues] = Issue.visible(@user).where(:fixed_version_id => row[:order].id)
+          row[:issues] = row[:order].issues.visible(@user).all
         end
         row[:activities] = TsActivity.where(:order_id => params[:order].to_i).map {|t| [t.activity_name, t.activity_id.to_s]}
-        row[:activities] = TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]} if row[:activities].empty?
+        row[:activities] = TimeEntryActivity.where('project_id IS NULL OR project_id = ?', row[:order].project_id).active.map {|t| [t.name,t.id.to_s]} if row[:activities].empty?
         row[:activity] = Enumeration.find(params[:activity])
-        row[:issue] = (params[:issue].nil? or params[:issue].empty?) ? nil : Issue.find(params[:issue])
+        row[:issue] = (params[:issue].blank? ? nil : Issue.find(params[:issue]))
         row[:spent] = {}
         # add only if unique
         @week_matrix << row if @week_matrix.select{|x| x if x[:order] == row[:order] and x[:activity] == row[:activity] and x[:issue] == row[:issue]}.empty?

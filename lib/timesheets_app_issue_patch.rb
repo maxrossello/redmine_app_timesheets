@@ -16,7 +16,7 @@ module TimesheetsAppIssuePatch
     def assignable_versions_with_timelogs
       assignable_versions_without_timelogs
       @assignable_versions.reject! { |version| version.project_id == Setting.plugin_redmine_app_timesheets['project'].to_i ?
-                              TsPermission.permission(User.current, version) == TsPermission::NONE :
+                              TsPermission.permission(User.current, version) <= TsPermission::NONE :
                               !User.current.allowed_to?(:view_issues, version.project)
       } if Setting.plugin_redmine_app_timesheets["public_versions"].nil?
       @assignable_versions

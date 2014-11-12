@@ -4,10 +4,10 @@ it:
   label_timesheets_description: "Funzionalità per gestire le ore spese sulle attività"
   label_order_mgmt: "Commesse"
   label_order_mgmt_description: "Gestione delle commesse referenziate nei fogli ore"
-  label_order_mgmt_help: "Crea, abilita e disabilita le commesse. Puoi usare anche le versioni di progetto, se condivise, in modo da consentire agli utenti di importare il tempo speso nei progetti come dato nel foglio ore"
+  label_order_mgmt_help: "Crea, abilita e disabilita le commesse. Puoi usare anche le versioni nel contesto, se condivise, in modo da consentire agli utenti di importare il tempo speso nei contesti come dato nel foglio ore"
 
   label_timesheets_configure: "Configurare l'applicazione"
-  label_available_orders: "Commesse e versioni di progetto attivabili"
+  label_available_orders: "Commesse e versioni di contesto attivabili"
   label_enabled_orders: "Commesse abilitate"
   label_order_create_placeholder: "Crea nuova commessa"
   label_order_permissions: "Impostazioni commessa"
@@ -41,12 +41,12 @@ it:
   label_timesheet_add_row: "Aggiungi riga"
   label_timesheet_available_entries: "Registrazioni disponibili"
   button_remove_from_timesheet: "Rimuovi dal foglio ore"
-  label_timesheets_share_tooltip: "Rendi questa commessa visibile nei progetti"
-  label_timesheets_unshare_tooltip: "Nascondi questa commessa ai progetti"
+  label_timesheets_share_tooltip: "Rendi questa commessa visibile nei contesti"
+  label_timesheets_unshare_tooltip: "Nascondi questa commessa ai contesti"
 
-  label_timesheet_project_label: "Progetto di appoggio"
-  label_timesheet_project_hint: "Il progetto che conserva i dati dietro le quinte"
-  label_timesheets_warn_select_project: "Selezionare un progetto"
+  label_timesheet_project_label: "Contesto di appoggio"
+  label_timesheet_project_hint: "Il contesto che conserva i dati dietro le quinte"
+  label_timesheets_warn_select_project: "Selezionare un contesto"
   label_timesheet_missing_permission_on_order: "Manca permesso di scrittura su qualche commessa"
   label_timesheet_order_not_saved: "Commessa non salvata"
 
@@ -57,3 +57,6 @@ it:
   label_timesheet_ownonly_access: "Modifica solo le proprie ore su commessa"
   label_timesheet_admin_access: "Amministratore commesse"
   label_timesheet_access: "Accesso"
+
+  error_timesheet_required_custom_field: ": questo campo personalizzato deve essere richiesto"
+  notice_unable_delete_version_due_to_timelogs: "Impossibile eliminare la versione: registrazioni di tempo collegate"

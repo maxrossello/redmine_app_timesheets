@@ -4,10 +4,10 @@ en:
   label_timesheets_description: "Facility to handle spent time logs"
   label_order_mgmt: "Orders"
   label_order_mgmt_description: "Management of orders used in timesheets"
-  label_order_mgmt_help: "Create, enable and disable orders. You can use shared target versions in projects as orders too, thus allowing the users to select time reports in projects as timesheet entries"
+  label_order_mgmt_help: "Create, enable and disable orders. You can use shared target versions in workspaces as orders too, thus allowing the users to select time reports in workspaces as timesheet entries"
 
   label_timesheets_configure: "Please configure the application"
-  label_available_orders: "Available orders and project versions"
+  label_available_orders: "Available orders and workspace versions"
   label_enabled_orders: "Enabled orders"
   label_order_create_placeholder: "Create new order"
   label_order_permissions: "Order settings"
@@ -41,12 +41,12 @@ en:
   label_timesheet_add_row: "Add row"
   label_timesheet_available_entries: "Available entries"
   button_remove_from_timesheet: "Remove from timesheet"
-  label_timesheets_share_tooltip: "Use this order into projects"
-  label_timesheets_unshare_tooltip: "Do not use this order into projects"
+  label_timesheets_share_tooltip: "Use this order into workspaces"
+  label_timesheets_unshare_tooltip: "Do not use this order into workspaces"
 
-  label_timesheet_project_label: "Backing project"
-  label_timesheet_project_hint: "The project used to store timesheet data under the hoods"
-  label_timesheets_warn_select_project: "Please select a project"
+  label_timesheet_project_label: "Backing workspace"
+  label_timesheet_project_hint: "The workspace used to store timesheet data under the hoods"
+  label_timesheets_warn_select_project: "Please select a workspace"
   label_timesheet_missing_permission_on_order: "Missing write permission on some order"
   label_timesheet_order_not_saved: "Order not saved"
 
@@ -57,3 +57,6 @@ en:
   label_timesheet_ownonly_access: "Edit own timelogs only"
   label_timesheet_admin_access: "Orders administrator"
   label_timesheet_access: "Access"
+
+  error_timesheet_required_custom_field: ": this custom field must be required"
+  notice_unable_delete_version_due_to_timelogs: "Unable to delete version: timelogs attached"
