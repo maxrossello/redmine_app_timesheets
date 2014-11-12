@@ -1,12 +1,18 @@
 module TimesheetsAppProjectPatch
 
   def self.included(base)
+    base.extend ClassMethods
     base.send(:include, InstanceMethods)
     base.instance_eval do
       unloadable
 
       alias_method_chain :rolled_up_versions, :timelogs
       alias_method_chain :shared_versions, :timelogs
+
+      class << self
+        alias_method_chain :allowed_to_condition, :timelogs
+      end
+
     end
 
   end
@@ -37,6 +43,26 @@ module TimesheetsAppProjectPatch
       end
       @shared_versions
     end
+  end
+
+
+  module ClassMethods
+    # allow to view timelogs in native workspace according to TsPermissions
+    def allowed_to_condition_with_timelogs(user, permission, options={})
+      statement = allowed_to_condition_without_timelogs(user, permission, options)
+      if user.logged? and !user.admin? and (permission == :view_time_entries)
+        orders = []
+        Project.find(Setting.plugin_redmine_app_timesheets['project'].to_i).versions.each do |version|
+          perm = TsPermission.over(version).for_user(user).first
+          orders << version.id if perm.present? and perm.access >= TsPermission::NONE
+        end
+
+        statement = "(#{TimeEntry.table_name}.order_id IN (#{orders.join(',')})) OR #{statement}"
+      else
+        statement
+      end
+    end
+
   end
 
 end

@@ -18,7 +18,7 @@ Redmine::Plugin.register :redmine_app_timesheets do
   name 'Redmine Timesheets Application'
   author 'Massimo Rossello'
   description 'Timesheets application for global app space'
-  version '1.3.35'
+  version '1.4.0'
   url 'https://github.com/maxrossello/redmine_app_timesheets.git'
   author_url 'https://github.com/maxrossello'
   requires_redmine :version_or_higher => '2.0.0'
@@ -26,7 +26,8 @@ Redmine::Plugin.register :redmine_app_timesheets do
 
   settings(:default => {
       'project' => "",
-      'public_versions' => true
+      'public_versions' => true,
+      'field' => 0
   },
   :partial => 'timesheets/settings'
   )
@@ -34,7 +35,9 @@ Redmine::Plugin.register :redmine_app_timesheets do
   require 'timesheets_app_issue_patch'
   require 'timesheets_app_project_patch'
   require 'timesheets_app_time_report_patch'
+  require 'timesheets_app_custom_field_patch'
   require 'timesheets_app_version_patch'
+  require 'timesheets_app_versions_controller_patch'
 
 end
 
