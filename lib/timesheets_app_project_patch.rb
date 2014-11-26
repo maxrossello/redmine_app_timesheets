@@ -52,12 +52,14 @@ module TimesheetsAppProjectPatch
       statement = allowed_to_condition_without_timelogs(user, permission, options)
       if user.logged? and !user.admin? and (permission == :view_time_entries)
         orders = []
+        own_orders = []
         Project.find(Setting.plugin_redmine_app_timesheets['project'].to_i).versions.each do |version|
           perm = TsPermission.over(version).for_user(user).first
-          orders << version.id if perm.present? and perm.access >= TsPermission::NONE
+          own_orders << version.id if perm.present? and perm.access >= TsPermission::NONE
+          orders << version.id if perm.present? and perm.access >= TsPermission::VIEW
         end
 
-        statement = "(#{TimeEntry.table_name}.order_id IN (#{orders.join(',')})) OR #{statement}"
+        statement = "(#{TimeEntry.table_name}.order_id IN ('#{orders.join('\',\'')}')) OR (#{TimeEntry.table_name}.user_id = #{user.id} AND #{TimeEntry.table_name}.order_id IN ('#{own_orders.join('\',\'')}')) OR #{statement}"
       else
         statement
       end
