@@ -22,8 +22,8 @@ module TimesheetsAppCustomFieldPatch
     end
 
     def prevent_destroy
-      if self.id == Setting.plugin_redmine_app_timesheets["field"]
-        flash[:error]
+      if self.name == TS_FIELD_NAME
+        errors.add :destroy, l(:error_timesheet_cannot_delete_field)
         false
       else
         true

@@ -14,13 +14,14 @@ class VersionIsOrder < ActiveRecord::Migration
     val = Setting.plugin_redmine_app_timesheets
     val['field'] = field.id
     record = Setting.where(:name => "plugin_redmine_app_timesheets").first
+    record = Setting.new :name => "plugin_redmine_app_timesheets" if record.nil?
     record.value = val
-    record.save
+    record.save :validate => false
   end
 
   def self.down
     remove_column :versions, :is_order
-    VersionCustomField.where(:name => "Is order").destroy_all
+    VersionCustomField.find(Setting.plugin_redmine_app_timesheets["field"]).delete
   end
 
 end
