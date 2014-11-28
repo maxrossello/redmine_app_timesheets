@@ -59,4 +59,5 @@ en:
   label_timesheet_access: "Access"
 
   error_timesheet_required_custom_field: ": this custom field must be required"
+  error_timesheet_cannot_delete_field: ": this field cannot be deleted"
   notice_unable_delete_version_due_to_timelogs: "Unable to delete version: timelogs attached"

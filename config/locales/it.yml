@@ -59,4 +59,5 @@ it:
   label_timesheet_access: "Accesso"
 
   error_timesheet_required_custom_field: ": questo campo personalizzato deve essere richiesto"
+  error_timesheet_cannot_delete_field: ": questo campo personalizzato non può essere rimosso"
   notice_unable_delete_version_due_to_timelogs: "Impossibile eliminare la versione: registrazioni di tempo collegate"
