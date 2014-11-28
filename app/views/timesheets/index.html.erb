@@ -20,7 +20,7 @@
            <%   if (@order_admin) %>
                     <tr>
                     <%  s = content_tag('option', "<< #{l(:label_me)} >>", :value => User.current.id)
-                        s << options_for_select((Group.find(Setting.plugin_redmine_app__space['auth_group']['timesheets'].to_i).users rescue User).active.all.map {|u| [u.name, u.id]}.sort, params[:user_id]) if User.is_app_enabled?('order_mgmt', User.current) %>
+                        s << options_for_select((Group.find(Setting.plugin_redmine_app__space['auth_group']['timesheets'].to_i).users rescue User).active.all.map {|u| [u.name, u.id]}.sort, params[:user_id]) %>
                         <th align="left"><%= label_tag l(:label_user) %> </th>
                         <td align="left"><%= select_tag 'user_id', s.html_safe, :onchange => "this.form.submit();"  %></td>
                       <td width="70%"></td>
