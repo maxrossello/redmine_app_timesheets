@@ -16,7 +16,7 @@ module TimesheetsAppVersionPatch
 
     def validate_order
       custom_field_values.each do |cv|
-        if cv.custom_field_id == Setting.plugin_redmine_app_timesheets["field"]
+        if cv.custom_field_id == Setting.plugin_redmine_app_timesheets["field"].to_i
           if TimeEntry.where(:order_id => self.id).any?  # timelogs associated
             self.is_order = true
             self.in_timesheet = cv.value
