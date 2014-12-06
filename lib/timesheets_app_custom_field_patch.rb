@@ -14,7 +14,7 @@ module TimesheetsAppCustomFieldPatch
   module InstanceMethods
 
     def validate_custom_field_with_timelogs
-      if self.id == Setting.plugin_redmine_app_timesheets["field"] and
+      if self.id == Setting.plugin_redmine_app_timesheets["field"].to_i and
          self.is_required == false
         errors.add :is_required, l(:error_timesheet_required_custom_field)
       end

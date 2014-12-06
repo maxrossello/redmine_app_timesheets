@@ -42,7 +42,7 @@ class OrdersController < ApplicationController
     order = WorkOrder.find(params[:id])
     if (!order.is_native?)
       order.becomes(Version).custom_field_values.each do |cv|
-        if cv.custom_field_id == Setting.plugin_redmine_app_timesheets["field"]
+        if cv.custom_field_id == Setting.plugin_redmine_app_timesheets["field"].to_i
           cv.value = false
         end
       end
