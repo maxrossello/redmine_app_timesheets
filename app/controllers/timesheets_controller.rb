@@ -136,7 +136,7 @@ class TimesheetsController < ApplicationController
         flash[:error] = l(:label_timesheet_missing_permission_on_order)
         return []
       end
-      entries
+      [entries]
     else
       entries = TsTimeEntry.for_user(@user).spent_between(@period_start,@period_end).where(:order_activity_id => params[:activity_id])
       if params[:issue_id]
