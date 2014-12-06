@@ -61,7 +61,7 @@
 
                         <td>
                           <%= hidden_field_tag 'issue[]', (row[:issue].id rescue nil) %>
-                          <%= link_to_if row[:issue].visible?, row[:issue].to_s, { :controller => 'issues', :action => 'show', :id => row[:issue].id } unless row[:issue].nil? %>
+                          <%= link_to_if row[:issue].visible?, row[:issue].to_s, { :controller => 'issues', :action => 'show', :id => row[:issue].id }, :class => row[:issue].css_classes unless row[:issue].nil? %>
                         </td>
 
                         <% if idx == @week_matrix.size - 1 %>
