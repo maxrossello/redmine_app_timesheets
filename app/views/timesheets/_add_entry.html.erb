@@ -33,7 +33,7 @@
                   <%= entry.activity %>
                   <%= hidden_field_tag("entry_activity[#{entry.id}]", entry.activity.id) %>
                 </td>
-                <td><%= link_to issue.to_s, { :controller => 'issues', :action => 'show', :id => issue.id } unless issue.nil? %></td>
+                <td><%= link_to issue.to_s, { :controller => 'issues', :action => 'show', :id => issue.id }, :class => issue.css_classes unless issue.nil? %></td>
                 <td><%= entry.spent_on %></td>
                 <td><%= entry.hours %></td>
               </tr>
