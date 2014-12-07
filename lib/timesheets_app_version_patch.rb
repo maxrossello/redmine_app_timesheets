@@ -15,21 +15,25 @@ module TimesheetsAppVersionPatch
   module InstanceMethods
 
     def validate_order
-      custom_field_values.each do |cv|
-        if cv.custom_field_id == Setting.plugin_redmine_app_timesheets["field"].to_i
-          if TimeEntry.where(:order_id => self.id).any?  # timelogs associated
-            self.is_order = true
-            self.in_timesheet = cv.value
-          else
-            self.is_order = cv.value
+      if self.project_id != Setting.plugin_redmine_app_timesheets['project'].to_i
+        custom_field_values.each do |cv|
+          if cv.custom_field_id == Setting.plugin_redmine_app_timesheets["field"].to_i
+            if !self.new_record? && TimeEntry.where(:order_id => self.id).any?  # timelogs associated
+              self.is_order = true
+              self.in_timesheet = cv.value
+            else
+              self.is_order = cv.value
+            end
           end
-
-          return false if (self.project_id == Setting.plugin_redmine_app_timesheets['project'].to_i and self.is_order == false)
         end
+        if self.is_order and changed_attributes['in_timesheet'].nil?
+          # if custom field saved as 'yes' then the order is always also enabled
+          self.in_timesheet = true
+        end
+      else
+        self.is_order = true  # native ones are always orders
       end
-      if self.is_order and changed_attributes['in_timesheet'].nil?
-        self.in_timesheet = true
-      end
+
       true
     end
 
