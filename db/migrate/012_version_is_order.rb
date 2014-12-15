@@ -10,7 +10,12 @@ class VersionIsOrder < ActiveRecord::Migration
       Version.where("project_id = ? OR in_timesheet = ?", project_id, true).update_all(:is_order => true)
     end
 
-    field = VersionCustomField.create!(:name => "Is order", :field_format => 'bool', :is_filter => true, :is_required => true, :default_value => false, :description => "Used as an order in timesheets")
+    if Redmine::VERSION::MAJOR < 2 || Redmine::VERSION::MINOR < 5
+      field = VersionCustomField.create!(:name => "Is order", :field_format => 'bool', :is_filter => true, :is_required => true, :default_value => false)
+    else
+      field = VersionCustomField.create!(:name => "Is order", :field_format => 'bool', :is_filter => true, :is_required => true, :default_value => false, :description => "Used as an order in timesheets")
+    end
+
     val = Setting.plugin_redmine_app_timesheets
     val['field'] = field.id.to_s
     record = Setting.where(:name => "plugin_redmine_app_timesheets").first
