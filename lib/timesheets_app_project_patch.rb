@@ -48,8 +48,8 @@ module TimesheetsAppProjectPatch
 
   module ClassMethods
     # allow to view timelogs in native workspace according to TsPermissions
-    def allowed_to_condition_with_timelogs(user, permission, options={})
-      statement = allowed_to_condition_without_timelogs(user, permission, options)
+    def allowed_to_condition_with_timelogs(user, permission, options={}, &block)
+      statement = allowed_to_condition_without_timelogs(user, permission, options, &block)
       if user.logged? and !user.admin? and (permission == :view_time_entries)
         orders = []
         own_orders = []
