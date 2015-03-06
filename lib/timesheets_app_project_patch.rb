@@ -31,7 +31,7 @@ module TimesheetsAppProjectPatch
         @shared_versions = @shared_versions.where("(#{Version.table_name}.project_id = ? AND #{Version.table_name}.id IN (?))
                                                   OR (#{Version.table_name}.project_id != ? AND #{Version.table_name}.project_id IN (?))",
                                ts_project,
-                               TsPermission.where(:order_id => @shared_versions.all).for_user.map(&:version),
+                               TsPermission.where(:order_id => @shared_versions.all).for_user.map(&:version).compact,
                                ts_project,
                                Project.where(Project.allowed_to_condition(User.current, :view_issues)))
       end
