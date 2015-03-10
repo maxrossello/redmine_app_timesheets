@@ -16,21 +16,21 @@
                  :id => params[:id]) }')" %>
 
   <div id="users_for_watcher">
-    <%= principals_check_box_tags 'order_users[user_ids][]', User.active.sorted.all(:limit => 100) -
+    <%= principals_check_box_tags 'order_users[user_ids][]', User.active.sorted.limit(100).all -
                                 (TsPermission.where(:order_id => params[:id], :is_primary => true).map{|p| p.principal if p.principal.is_a?(User)} | []) %>
   </div>
 
 <% else %>
 
-    <p><%= label_tag 'group_search', l(:label_group_search) %><%= text_field_tag 'group_search', nil %></p>
-    <%= javascript_tag "observeSearchfield('group_search', 'groups_for_watcher', '#{ escape_javascript url_for(:controller => 'order_users',
+    <p><%= label_tag 'user_search', l(:label_order_group_search) %><%= text_field_tag 'user_search', nil %></p>
+    <%= javascript_tag "observeSearchfield('user_search', 'users_for_watcher', '#{ escape_javascript url_for(:controller => 'order_users',
                                                                                                                :action => 'autocomplete_for_group',
                                                                                                                :id => params[:id]) }')" %>
 
-    <div id="groups_for_watcher">
+    <div id="users_for_watcher">
       <%= principals_check_box_tags 'order_users[user_ids][]', (
               # watched ? watched.addable_watcher_groups :
-      Group.active.all(:limit => 100) - (TsPermission.where(:order_id => params[:id], :is_primary => true).map{|p| p.principal if p.principal.is_a?(Group)} | [])) %>
+      Group.active.limit(100).all - (TsPermission.where(:order_id => params[:id], :is_primary => true).map{|p| p.principal if p.principal.is_a?(Group)} | [])) %>
     </div>
 
 <% end %>

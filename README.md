@@ -1,8 +1,7 @@
 # Redmine Timesheet Application
 
-Tested with Redmine 2.6.1, compatible with 2.x. Support follows Redmine policy (last two release branches).
+Tested with Redmine 3.0, compatible with 2.x. Support follows Redmine policy (last two release branches).
 Current master branch is version 1.4.x.
-Development version compatible with Redmine 3.0 on branch 1.5-dev.
 
 Application dependent from the [redmine_app__space](http://github.com/maxrossello/redmine_app__space) plugin.
 
@@ -50,6 +49,10 @@ version 1.3.x Target Versions needed to be shared up to the special hidden backe
 as Orders. This feature may be split in a separate plugin in the future.
 
 ## Changelog
+
+### 1.5
+
+Support for Redmine 3.0 / Rails 4.2. Changes should be backward compatible.
 
 ### 1.4
 

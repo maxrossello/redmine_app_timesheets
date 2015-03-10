@@ -47,7 +47,7 @@ class TimesheetsController < ApplicationController
 
   def save_period
     if @view != :day
-      entries = TsTimeEntry.for_user(@user).spent_between(@period_start,@period_end)
+      entries = TsTimeEntry.for_user(@user).where("#{TsTimeEntry.table_name}.spent_on BETWEEN ? AND ?",@period_start,@period_end)
     end
 
     params[:order].each_with_index do |order_id, idx|
@@ -139,7 +139,7 @@ class TimesheetsController < ApplicationController
       end
       [entries]
     else
-      entries = TsTimeEntry.for_user(@user).spent_between(@period_start,@period_end).where(:order_activity_id => params[:activity_id])
+      entries = TsTimeEntry.for_user(@user).where("#{TsTimeEntry.table_name}.spent_on BETWEEN ? AND ?",@period_start,@period_end).where(:order_activity_id => params[:activity_id])
       if params[:issue_id]
         entries = entries.where(:issue_id => params[:issue_id].to_i)
       end
@@ -278,7 +278,7 @@ class TimesheetsController < ApplicationController
     # + orders associated to existing timelogs even if version no more visible to user
     # + orders associated to issues that are associated to some existing user timelog even if version no more visible to user
     @orders = (@active_orders +
-        WorkOrder.includes(:time_entries).merge(TsTimeEntry.for_user(@user)).uniq.all +
+        WorkOrder.eager_load(:time_entries).merge(TsTimeEntry.for_user(@user)).uniq.all +
         WorkOrder.joins(:issues).merge(Issue.joins(:time_entries).where('time_entries.user_id = ?', @user.id)).uniq.all
     ).uniq.sort_by{ |v| v.name.downcase}
 
@@ -323,7 +323,7 @@ class TimesheetsController < ApplicationController
       # format suitable for options_for_select
       row[:activities] = TsActivity.where(:order_id => order).map {|t| [t.activity_name, t.activity_id.to_s]}
       row[:activities] = TimeEntryActivity.shared.active.map {|t| [t.name,t.id.to_s]} if row[:activities].empty?
-      entries = TsTimeEntry.for_user(@user).spent_between(@period_start-@period_length,@period_end+@period_length).where(:order_id => order.id)
+      entries = TsTimeEntry.for_user(@user).where("#{TimeEntry.table_name}.spent_on BETWEEN ? AND ?",@period_start-@period_length,@period_end+@period_length).where(:order_id => order.id)
       entries.all.group_by(&:order_activity_id).each do |activity, values|
         row[:activity] = Enumeration.find(activity)
         values.group_by(&:issue_id).each do |issue, iv|
@@ -362,7 +362,7 @@ class TimesheetsController < ApplicationController
     @manageable_orders = @manageable_orders.flatten.uniq
 
     # time entries available to enter the timesheet
-    @available = TimeEntry.for_user(@user).where(:order_id => nil).where("issue_id IS NOT NULL").spent_between(@period_start,@period_end).all
+    @available = TimeEntry.for_user(@user).where(:order_id => nil).where("issue_id IS NOT NULL").where("#{TimeEntry.table_name}.spent_on BETWEEN ? AND ?",@period_start,@period_end).all
 
     if params[:newrow]
       # add the new empty row

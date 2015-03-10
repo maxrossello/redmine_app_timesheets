@@ -41,11 +41,12 @@ module TimesheetsAppTimeReportPatch
       unless @criteria.empty?
         time_columns = %w(tyear tmonth tweek spent_on)
         @hours = []
-        @scope.sum(:hours,
-                   :include => [:issue, :activity],
-                   :group => @criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns,
-                   :joins => @criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact,
-                   :conditions => @criteria.collect{|criteria| @available_criteria[criteria][:conditions]}.compact).each do |hash, hours|
+        @scope.includes(:issue, :activity).
+            group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
+            joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
+            where(@criteria.collect{|criteria| @available_criteria[criteria][:conditions]}.compact).
+            sum(:hours).each do |hash, hours|
+
           h = {'hours' => hours}
           (@criteria + time_columns).each_with_index do |name, i|
             h[name] = hash[i]

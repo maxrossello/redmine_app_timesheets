@@ -35,6 +35,7 @@ it:
   label_add_group: "Aggiungi gruppo"
   label_log_time_on_issue: "Registra tempo su attività"
   label_order_new: "Nuova commessa"
+  label_order_group_search: "Cerca gruppo:"
 
   label_timesheet_select: "Selezionare"
   label_timesheet_no_entry: "Nessun dato disponibile."

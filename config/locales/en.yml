@@ -35,6 +35,7 @@ en:
   label_add_group: "Add group"
   label_log_time_on_issue: "Log time on issue"
   label_order_new: "New order"
+  label_order_group_search: "Search for group:"
 
   label_timesheet_select: "Select"
   label_timesheet_no_entry: "No entry yet."
