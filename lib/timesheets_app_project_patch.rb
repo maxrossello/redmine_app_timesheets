@@ -33,7 +33,7 @@ module TimesheetsAppProjectPatch
                                ts_project,
                                TsPermission.where(:order_id => @shared_versions.all).for_user.map(&:version),
                                ts_project,
-                               Project.where(Project.allowed_to_condition(User.current, :view_issues)))
+                               Project.select(:id).where(Project.allowed_to_condition(User.current, :view_issues)))
       end
       @shared_versions
     end
