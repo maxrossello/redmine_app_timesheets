@@ -270,9 +270,9 @@ class TimesheetsController < ApplicationController
   end
 
   def get_timelogs
-    @active_orders = (TsPermission.for_user(@user).joins(:order).includes(:order).map{|t| t.order} +
+    @active_orders = (TsPermission.for_user(@user).joins(:order).includes(:order).map{|t| t.order}.compact +
         WorkOrder.visible(@user)).uniq.sort_by{ |v| v.name.downcase}
-    @active_own_orders = (TsPermission.for_user(User.current).joins(:order).includes(:order).map{|t| t.order} +
+    @active_own_orders = (TsPermission.for_user(User.current).joins(:order).includes(:order).map{|t| t.order}.compact +
         WorkOrder.visible(User.current)).uniq.sort_by{ |v| v.name.downcase}
     # native orders assigned to user + visible versions marked as orders
     # + orders associated to existing timelogs even if version no more visible to user

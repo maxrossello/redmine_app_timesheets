@@ -8,7 +8,7 @@ module TimesheetsAppVersionPatch
       validate :validate_order
 
       has_many :time_entries, :class_name => 'TsTimeEntry', :foreign_key => 'order_id', :dependent => :destroy
-
+      has_many :ts_permissions, :class_name => 'TsPermission', :foreign_key => 'order_id', :dependent => :destroy
     end
   end
 
