@@ -21,10 +21,11 @@ module TimesheetsAppProjectPatch
 
     def rolled_up_versions_with_timelogs
       rolled_up_versions_without_timelogs
-      @rolled_up_versions.reject! { |version| version.project_id == Setting.plugin_redmine_app_timesheets['project'].to_i ?
-                    TsPermission.permission(User.current, version) == TsPermission::NONE :
-                    !User.current.allowed_to?(:view_issues, version.project)
-      } if Setting.plugin_redmine_app_timesheets["public_versions"].nil?
+      # reject native oders with permission NONE
+      ts_proj = Setting.plugin_redmine_app_timesheets['project'].to_i
+      noperm = @rolled_up_versions.select {|version| version.project_id == ts_proj && TsPermission.permission(User.current, version) == TsPermission::NONE }
+      noallow = @rolled_up_versions.select {|version| version.project_id != ts_proj && !User.current.allowed_to?(:view_issues, version.project)}
+      @rolled_up_versions = @rolled_up_versions.where("#{Version.table_name}.id NOT IN (?)", noperm + noallow + [""]) if Setting.plugin_redmine_app_timesheets["public_versions"].nil?
       @rolled_up_versions
     end
 
