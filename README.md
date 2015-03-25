@@ -1,7 +1,7 @@
 # Redmine Timesheet Application
 
-Tested with Redmine 3.0, compatible with 2.x. Support follows Redmine policy (last two release branches).
-Current master branch is version 1.4.x.
+Tested with Redmine 3.0.1, compatible with 2.x. Support follows Redmine policy (last two release branches).
+Current master branch is version 1.5.x.
 
 Application dependent from the [redmine_app__space](http://github.com/maxrossello/redmine_app__space) plugin.
 
