@@ -61,7 +61,7 @@ module TimesheetsAppProjectPatch
           orders << version.id if perm.present? and perm.access >= TsPermission::VIEW
         end
 
-        statement = "(#{TimeEntry.table_name}.order_id IN ('#{orders.join('\',\'')}')) OR (#{TimeEntry.table_name}.user_id = #{user.id} AND #{TimeEntry.table_name}.order_id IN ('#{own_orders.join('\',\'')}')) OR #{statement}"
+        statement = "(#{TimeEntry.table_name}.order_id IN ('#{orders.join('\',\'')}')) OR (#{TimeEntry.table_name}.user_id = #{user.id} AND #{TimeEntry.table_name}.order_id IN ('#{own_orders.join('\',\'')}')) OR #{statement}" unless orders.blank?
       else
         statement
       end
