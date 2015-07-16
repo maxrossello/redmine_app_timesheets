@@ -155,7 +155,7 @@ class TimesheetsController < ApplicationController
   end
 
   def delete_row
-    row_entries.destroy_all
+    TsTimeEntry.destroy(row_entries)
 
     redirect_to :back
   end
