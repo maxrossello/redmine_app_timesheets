@@ -25,7 +25,9 @@ module TimesheetsAppProjectPatch
       ts_proj = Setting.plugin_redmine_app_timesheets['project'].to_i
       noperm = @rolled_up_versions.select {|version| version.project_id == ts_proj && TsPermission.permission(User.current, version) == TsPermission::NONE }
       noallow = @rolled_up_versions.select {|version| version.project_id != ts_proj && !User.current.allowed_to?(:view_issues, version.project)}
-      @rolled_up_versions = @rolled_up_versions.where("#{Version.table_name}.id NOT IN (?)", noperm + noallow + [""]) if Setting.plugin_redmine_app_timesheets["public_versions"].nil?
+      if Setting.plugin_redmine_app_timesheets["public_versions"].nil?
+        @rolled_up_versions = @rolled_up_versions.where("#{Version.table_name}.id NOT IN (?)", noperm + noallow + [""])
+      end
       @rolled_up_versions
     end
 
@@ -61,10 +63,12 @@ module TimesheetsAppProjectPatch
           orders << version.id if perm.present? and perm.access >= TsPermission::VIEW
         end
 
-        statement = "(#{TimeEntry.table_name}.order_id IN ('#{orders.join('\',\'')}')) OR (#{TimeEntry.table_name}.user_id = #{user.id} AND #{TimeEntry.table_name}.order_id IN ('#{own_orders.join('\',\'')}')) OR #{statement}" unless orders.blank?
-      else
-        statement
+        unless orders.blank?
+          statement = "(#{TimeEntry.table_name}.order_id IN ('#{orders.join('\',\'')}')) OR (#{TimeEntry.table_name}.user_id = #{user.id} AND #{TimeEntry.table_name}.order_id IN ('#{own_orders.join('\',\'')}')) OR #{statement}"
+        end
       end
+
+      statement
     end
 
   end
