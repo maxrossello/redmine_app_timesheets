@@ -26,7 +26,7 @@ class TsPermission < ActiveRecord::Base
       #end
     end
 
-    where(:is_primary => true, :principal_id => users.flatten).uniq
+    where(:is_primary => true, :principal_id => users.flatten).order('access DESC').uniq
   }
 
   scope :for_group, lambda {|group|

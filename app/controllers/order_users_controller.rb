@@ -44,12 +44,19 @@ class OrderUsersController < ApplicationController
   def destroy
     user = Principal.find(params[:user_id])
     p = TsPermission.where(:order_id => params[:order_id], :principal_id => user.id).first
-    if user.is_a?(User)
-      p.is_primary = false
-      p.save!
-    else
-      p.destroy
-    end unless p.nil?
+
+    # can't keep the entry to restore old perms because of problems with perm scopes not considering other scopes
+    # so filtering for_user with is_primary is a problem with perms defined under groups
+
+    # if user.is_a?(User)
+    #   p.is_primary = false
+    #   p.save!
+    # else
+    #   p.destroy
+    # end unless p.nil?
+
+    p.destroy unless p.nil?
+
     redirect_to :back
   end
 
@@ -77,9 +84,10 @@ class OrderUsersController < ApplicationController
   def set_permission
     perm = TsPermission.where(:principal_id => params[:user_id]).where(:order_id => params[:id]).first
     if perm.nil?
-      TsPermission.create(:principal_id => params[:user_id], :order_id => params[:id], :access => params[:role])
+      TsPermission.create(:principal_id => params[:user_id], :order_id => params[:id], :access => params[:role], :is_primary => true)
     else
       perm.access = params[:role]
+      perm.is_primary = true if perm.access > TsPermission::NONE
       perm.save!
     end
   end
