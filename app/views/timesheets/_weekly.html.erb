@@ -63,7 +63,7 @@
 
                     <td>
                       <%= hidden_field_tag 'previous_activity[]', row[:activity].id %>
-                      <%= select_tag 'activity[]', options_for_select(disabled ? [[Enumeration.find(row[:activity].id).name, Enumeration.find(row[:activity].id).id]] : row[:activities], row[:activity].id) %>
+                      <%= select_tag 'activity[]', options_for_select(disabled ? [[Enumeration.find(row[:activity].id).name, Enumeration.find(row[:activity].id).id]] : row[:activities], row[:activity].id), :class => 'selectize' %>
                     </td>
 
                     <% last_order = order.name %>

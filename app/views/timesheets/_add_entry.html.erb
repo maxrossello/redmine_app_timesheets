@@ -26,7 +26,7 @@
                 <td style="width:5px">
                   <%= check_box_tag("entry[]", entry.id, !params[:clear]) %>
                 </td>
-                <td><%= select_tag "entry_order[#{entry.id}]", options_from_collection_for_select(@manageable_orders, 'id', 'name', (order.id rescue nil)) %></td>
+                <td><%= select_tag "entry_order[#{entry.id}]", options_from_collection_for_select(@manageable_orders, 'id', 'name', (order.id rescue nil)), :class => 'selectize' %></td>
                 <td><%= link_to order.name, { :controller => 'versions', :action => 'show', :id => order.id } unless order.nil? or !order.visible?(User.current) %></td>
                 <td><%= link_to issue.project.name, { :controller => 'projects', :action => 'show', :id => issue.project_id }  unless issue.nil? %></td>
                 <td>

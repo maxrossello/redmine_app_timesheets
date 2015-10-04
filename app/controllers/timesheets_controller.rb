@@ -227,7 +227,7 @@ class TimesheetsController < ApplicationController
   def get_user
     render_403 unless User.current.logged?
 
-    if params[:user_id] and params[:user_id] != User.current.id.to_s
+    if params[:user_id] and params[:user_id] != User.current.id.to_s and params[:user_id].present?
       @user = User.find(params[:user_id]) rescue render_404
     else
       @user = User.current

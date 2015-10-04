@@ -5,7 +5,7 @@ table.ts-display {
 .ts-display td {
     padding-left: 5px;
     padding-right: 5px;
-    text-align: center;
+    //text-align: center;
 }
 
 .ts-display select {
@@ -40,3 +40,4 @@ table.list td.buttons span { padding-right: 0.6em }
 .icon-inspector { background-image: url(../images/inspector.png); }
 .icon-manager { background-image: url(../images/manager.png); }
 .icon-admin { background-image: url(../images/admin.png); }
+

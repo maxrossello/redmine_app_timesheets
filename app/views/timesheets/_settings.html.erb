@@ -5,7 +5,7 @@
      projects.concat(Project.all.map { |x| [ x.name, x.id ]})  %>
      <%=select_tag("settings[project]",
                 options_for_select(projects,
-                                   :selected => settings["project"])) %><br/>
+                                   :selected => settings["project"]), :class => 'selectize') %><br/>
   <%=l(:label_timesheet_project_hint)%>
   <% if settings["project"] == "" %>
       <br><span style="color: red;"><%=l(:label_timesheets_warn_select_project)%></span>

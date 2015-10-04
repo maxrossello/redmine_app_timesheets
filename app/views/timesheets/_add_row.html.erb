@@ -11,21 +11,21 @@
                 <td><strong><%= l(:label_order) %></strong></td>
                 <td><%= select_tag 'order', options_from_collection_for_select(@manageable_orders, 'id', 'name', params[:order]),
                                    :onchange => "location.href='#{url_for(params.except(:order, :activity).merge({:new_row => ''}))}&order='+this.value",
-                                   :include_blank => true %></td>
+                                   :include_blank => true, :class => 'selectize' %></td>
 
                 <% if @activities %>
                     <td><strong><%= l(:label_order_activity) %></strong></td>
                     <td>
                       <%= select_tag 'activity', options_for_select(@activities, params[:activity]),
                                      :onchange => "location.href='#{url_for(params.except(:activity))}&activity='+this.value",
-                                     :include_blank => true %>
+                                     :include_blank => true, :class => 'selectize' %>
                     </td>
                 <% end %>
 
                 <% if @issues %>
                     <td><strong><%= l(:label_issue) %></strong></td>
                     <td>
-                      <%= select_tag 'issue', options_from_collection_for_select(@issues, 'id', 'subject'), :include_blank => true %>
+                      <%= select_tag 'issue', options_from_collection_for_select(@issues, 'id', 'subject'), :include_blank => true, :class => 'selectize' %>
                     </td>
                 <% end %>
 
