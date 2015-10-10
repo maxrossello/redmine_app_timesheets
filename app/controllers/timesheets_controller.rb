@@ -212,7 +212,7 @@ class TimesheetsController < ApplicationController
       @period_length = params[:view].to_i
       @period_shift = @period_length
       @period_start = @current_day
-      @period_end = @current_day + @period_length -1
+      @period_end = @current_day + @period_length - 1
     end
 
 
@@ -269,9 +269,9 @@ class TimesheetsController < ApplicationController
   end
 
   def get_timelogs
-    @active_orders = (TsPermission.for_user(@user).joins(:order).includes(:order).map{|t| t.order}.compact +
+    @active_orders = (TsPermission.for_user(@user).joins(:order).map{|t| t.order}.compact +
         WorkOrder.visible(@user)).uniq.sort_by{ |v| v.name.downcase}
-    @active_own_orders = (TsPermission.for_user(User.current).joins(:order).includes(:order).map{|t| t.order}.compact +
+    @active_own_orders = (TsPermission.for_user(User.current).joins(:order).map{|t| t.order}.compact +
         WorkOrder.visible(User.current)).uniq.sort_by{ |v| v.name.downcase}
     # native orders assigned to user + visible versions marked as orders
     # + orders associated to existing timelogs even if version no more visible to user
