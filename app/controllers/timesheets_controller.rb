@@ -140,15 +140,14 @@ class TimesheetsController < ApplicationController
       [entries]
     else
       entries = TsTimeEntry.for_user(@user).where("#{TsTimeEntry.table_name}.spent_on BETWEEN ? AND ?",@period_start,@period_end).where(:order_activity_id => params[:activity_id])
+      if !write_enabled(params[:order_id].to_i)
+        flash[:error] = l(:label_timesheet_missing_permission_on_order)
+        return []
+      end
       if params[:issue_id]
         entries = entries.where(:issue_id => params[:issue_id].to_i)
-      end
-      if params[:order_id]
-        if !write_enabled(params[:order_id].to_i)
-          flash[:error] = l(:label_timesheet_missing_permission_on_order)
-          return []
-        end
-        entries = entries.where(:order_id => params[:order_id])
+      else
+        entries = entries.where(:order_id => params[:order_id].to_i).where(:issue_id => nil)
       end
       entries.all
     end

@@ -26,7 +26,7 @@ module TimesheetsAppProjectPatch
       noperm = @rolled_up_versions.select {|version| version.project_id == ts_proj && TsPermission.permission(User.current, version) == TsPermission::NONE }
       noallow = @rolled_up_versions.select {|version| version.project_id != ts_proj && !User.current.allowed_to?(:view_issues, version.project)}
       if Setting.plugin_redmine_app_timesheets["public_versions"].nil?
-        @rolled_up_versions = @rolled_up_versions.where("#{Version.table_name}.id NOT IN (?)", noperm + noallow + [""])
+        @rolled_up_versions = @rolled_up_versions.where.not(id: [noperm, noallow].flatten)
       end
       @rolled_up_versions
     end
