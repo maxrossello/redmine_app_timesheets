@@ -297,12 +297,7 @@ class TimesheetsController < ApplicationController
       # I am manager of, even if not visible to @user
       # I can edit time only if currently visibile by @user
       if order.in_timesheet
-        if  ((User.current == @user and @visibility[order.id] != TsPermission::FORBIDDEN) or
-            @visibility[order.id] >= TsPermission::EDIT) #or
-            #(@visibility[order.id] == TsPermission::EDIT and @active_orders.include?(order)))
-
-          @manageable_orders << order
-        end
+        @manageable_orders << order if  @visibility[order.id] >= TsPermission::EDIT
       end
 
       row = {}
