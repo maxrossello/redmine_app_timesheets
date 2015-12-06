@@ -142,6 +142,8 @@ class TimesheetsController < ApplicationController
       entries = TsTimeEntry.for_user(@user).where("#{TsTimeEntry.table_name}.spent_on BETWEEN ? AND ?",@period_start,@period_end).where(:order_activity_id => params[:activity_id])
       if params[:issue_id]
         entries = entries.where(:issue_id => params[:issue_id].to_i)
+      else
+        entries = entries.where(:issue_id => nil)
       end
       if params[:order_id]
         if !write_enabled(params[:order_id].to_i)
