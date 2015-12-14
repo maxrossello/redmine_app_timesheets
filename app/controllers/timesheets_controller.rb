@@ -140,14 +140,17 @@ class TimesheetsController < ApplicationController
       [entries]
     else
       entries = TsTimeEntry.for_user(@user).where("#{TsTimeEntry.table_name}.spent_on BETWEEN ? AND ?",@period_start,@period_end).where(:order_activity_id => params[:activity_id])
-      if !write_enabled(params[:order_id].to_i)
-        flash[:error] = l(:label_timesheet_missing_permission_on_order)
-        return []
-      end
       if params[:issue_id]
         entries = entries.where(:issue_id => params[:issue_id].to_i)
       else
-        entries = entries.where(:order_id => params[:order_id].to_i).where(:issue_id => nil)
+        entries = entries.where(:issue_id => nil)
+      end
+      if params[:order_id]
+        if !write_enabled(params[:order_id].to_i)
+          flash[:error] = l(:label_timesheet_missing_permission_on_order)
+          return []
+        end
+        entries = entries.where(:order_id => params[:order_id])
       end
       entries.all
     end
@@ -295,9 +298,7 @@ class TimesheetsController < ApplicationController
       # I can edit time only if currently visibile by @user
       if order.in_timesheet
         if  ((User.current == @user and @visibility[order.id] != TsPermission::FORBIDDEN) or
-            @visibility[order.id] >= TsPermission::EDIT) #or
-            #(@visibility[order.id] == TsPermission::EDIT and @active_orders.include?(order)))
-
+              @visibility[order.id] >= TsPermission::EDIT)
           @manageable_orders << order
         end
       end
