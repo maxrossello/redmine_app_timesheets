@@ -32,7 +32,7 @@ module TimesheetsAppProjectPatch
     end
 
     def shared_versions_with_timelogs
-      shared_versions_without_timelogs
+      @shared_versions = shared_versions_without_timelogs
 
       ts_project = Setting.plugin_redmine_app_timesheets['project'].to_i
       # filter out versions that are in ts_project if user cannot watch the permission holding issue
