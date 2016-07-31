@@ -142,6 +142,8 @@ class TimesheetsController < ApplicationController
       entries = TsTimeEntry.for_user(@user).where("#{TsTimeEntry.table_name}.spent_on BETWEEN ? AND ?",@period_start,@period_end).where(:order_activity_id => params[:activity_id])
       if params[:issue_id]
         entries = entries.where(:issue_id => params[:issue_id].to_i)
+      else
+        entries = entries.where(:issue_id => nil)
       end
       if params[:order_id]
         if !write_enabled(params[:order_id].to_i)
@@ -292,14 +294,16 @@ class TimesheetsController < ApplicationController
       next if User.current != @user and (!@active_own_orders.include?(order) or @visibility.empty? or @visibility[order.id] <= TsPermission::NONE)
       @visible_orders << order if @active_orders.include?(order) and order.in_timesheet
       # orders in add row:
-      # I am manager of, even if not visible to @user
-      # I can edit time only if currently visibile by @user
       if order.in_timesheet
-        if  ((User.current == @user and @visibility[order.id] != TsPermission::FORBIDDEN) or
-            @visibility[order.id] >= TsPermission::EDIT) #or
-            #(@visibility[order.id] == TsPermission::EDIT and @active_orders.include?(order)))
-
-          @manageable_orders << order
+        if  (
+            # current user enabled to add row for local orders if he can log new timelogs
+            (!order.is_native? and User.current == @user and User.current.allowed_to? :log_time, order.project) or
+            # current user enabled to add row for global orders in his own timesheet
+            (order.is_native? and User.current == @user and @visibility[order.id] != TsPermission::FORBIDDEN) or
+            # everybody can edit and add rows in any timesheet if having EDIT permission
+            @visibility[order.id] >= TsPermission::EDIT
+            )
+              @manageable_orders << order
         end
       end
 
