@@ -1,6 +1,6 @@
 # Redmine Timesheet Application
 
-Tested with Redmine 3.0.1, compatible with 2.x. Support follows Redmine policy (last two release branches).
+Tested with Redmine 3.2.3, compatible with 2.x.
 Current master branch is version 1.5.x.
 
 Application dependent from the [redmine_app__space](http://github.com/maxrossello/redmine_app__space) plugin.
@@ -52,7 +52,7 @@ as Orders. This feature may be split in a separate plugin in the future.
 
 ### 1.5
 
-Support for Redmine 3.0 / Rails 4.2. Changes should be backward compatible.
+Support for Redmine 3.0, 3.1, 3.2 / Rails 4.2. Changes should be backward compatible.
 
 ### 1.4
 
