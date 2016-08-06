@@ -8,6 +8,8 @@ class TsRemoveIssues < ActiveRecord::Migration
   end
 
   def down
-    raise ActiveRecord::IrreversibleMigration
+    # comment: use of watch is very obsolete. Down would happen only on uninstall.
+    # In the weird a downgrade is wanted, the watches are lost
+    # raise ActiveRecord::IrreversibleMigration
   end
 end
